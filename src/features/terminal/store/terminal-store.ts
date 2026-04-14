@@ -53,8 +53,8 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
         sessionId,
         shell,
         cwd,
-        cols: 120,
-        rows: 30,
+        cols: null,
+        rows: null,
       });
 
       const session: TerminalSession = {
@@ -91,7 +91,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       const sessions = state.sessions.filter((s) => s.id !== id);
       const activeSessionId =
         state.activeSessionId === id
-          ? sessions[sessions.length - 1]?.id ?? null
+          ? (sessions[sessions.length - 1]?.id ?? null)
           : state.activeSessionId;
       return { sessions, activeSessionId };
     });

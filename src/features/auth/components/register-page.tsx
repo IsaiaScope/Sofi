@@ -1,7 +1,7 @@
 import { useState } from "react";
+import logo from "@/assets/logo.svg";
 import { cn } from "@/lib/cn";
 import { APP_NAME } from "@/lib/constants";
-import logo from "@/assets/logo.svg";
 import { useAuthStore } from "../store/auth-store";
 
 interface RegisterPageProps {
@@ -31,12 +31,8 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <img src={logo} alt={APP_NAME} className="h-12 w-12" />
-          <h1 className="font-heading text-2xl font-bold text-white">
-            Create Account
-          </h1>
-          <p className="text-sm text-sofi-text-muted">
-            Set up your command center
-          </p>
+          <h1 className="font-heading text-2xl font-bold text-white">Create Account</h1>
+          <p className="text-sm text-sofi-text-muted">Set up your command center</p>
         </div>
 
         {/* Card */}

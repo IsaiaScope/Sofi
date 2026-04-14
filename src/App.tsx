@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
-import { type View, VIEWS } from "@/lib/constants";
-import { Board } from "@/features/kanban/components/board";
-import { TerminalView } from "@/features/terminal/components/terminal-view";
-import { GitView } from "@/features/git/components/git-view";
 import { LoginPage } from "@/features/auth/components/login-page";
 import { RegisterPage } from "@/features/auth/components/register-page";
 import { useAuthStore } from "@/features/auth/store/auth-store";
+import { GitView } from "@/features/git/components/git-view";
+import { Board } from "@/features/kanban/components/board";
+import { TerminalView } from "@/features/terminal/components/terminal-view";
+import { VIEWS, type View } from "@/lib/constants";
 
 type AuthPage = "login" | "register";
 
@@ -43,10 +43,7 @@ export default function App() {
   return (
     <AppLayout activeView={activeView} onViewChange={setActiveView}>
       {activeView === VIEWS.KANBAN && (
-        <Board
-          userId={user.id}
-          onClickTerminal={() => setActiveView(VIEWS.TERMINAL)}
-        />
+        <Board userId={user.id} onSwitchToTerminal={() => setActiveView(VIEWS.TERMINAL)} />
       )}
       {activeView === VIEWS.TERMINAL && <TerminalView />}
       {activeView === VIEWS.GIT && <GitView />}

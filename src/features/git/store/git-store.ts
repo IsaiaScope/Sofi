@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import { invoke } from "@/lib/tauri";
-import type {
-  BranchInfo,
-  CommitInfo,
-  DiffHunk,
-  FileStatus,
-  GitSubView,
-} from "../types";
+import type { BranchInfo, CommitInfo, DiffHunk, FileStatus, GitSubView } from "../types";
 
 interface GitState {
   repoPath: string | null;

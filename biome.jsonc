@@ -1,12 +1,48 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
-  "extends": ["ultracite"],
+  "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
   "files": {
-    "ignore": ["src-tauri/", "dist/", "node_modules/", ".sofi-build/"]
+    "includes": [
+      "**",
+      "!**/src-tauri/",
+      "!**/dist/",
+      "!**/node_modules/",
+      "!**/.sofi-build/",
+      "!**/tests/",
+      "!**/*.css"
+    ]
   },
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
-  }
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedImports": "warn",
+        "useExhaustiveDependencies": "warn"
+      },
+      "style": {
+        "noNonNullAssertion": "off"
+      },
+      "a11y": {
+        "noLabelWithoutControl": "off",
+        "noStaticElementInteractions": "off",
+        "noAutofocus": "off",
+        "noSvgWithoutTitle": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "off"
+      }
+    }
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

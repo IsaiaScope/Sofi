@@ -3,7 +3,8 @@ import type { Task } from "../types";
 
 interface TaskCardProps {
   task: Task;
-  onClickTerminal?: (task: Task) => void;
+  onClick: () => void;
+  isDragging?: boolean;
 }
 
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
@@ -19,9 +20,9 @@ const AGENT_COLORS: Record<string, string> = {
   codex: "border-l-sofi-purple",
 };
 
-export function TaskCard({ task, onClickTerminal }: TaskCardProps) {
+export function TaskCard({ task, onClick, isDragging }: TaskCardProps) {
   const badge = STATUS_BADGE[task.status] ?? STATUS_BADGE.pending;
-  const agentBorder = task.agent_type ? AGENT_COLORS[task.agent_type] ?? "" : "";
+  const agentBorder = task.agent_type ? (AGENT_COLORS[task.agent_type] ?? "") : "";
 
   return (
     <div
@@ -29,11 +30,10 @@ export function TaskCard({ task, onClickTerminal }: TaskCardProps) {
         "cursor-pointer rounded-lg border border-sofi-border bg-sofi-surface p-3 transition-colors hover:border-white/15",
         task.agent_type && `border-l-2 ${agentBorder}`,
         task.status === "done" && "opacity-50",
+        isDragging && "opacity-50 ring-2 ring-violet-primary",
       )}
-      onClick={() => task.agent_type && onClickTerminal?.(task)}
-      onKeyDown={(e) =>
-        e.key === "Enter" && task.agent_type && onClickTerminal?.(task)
-      }
+      onClick={onClick}
+      onKeyDown={(e) => e.key === "Enter" && onClick()}
     >
       <p className="text-sm font-medium text-sofi-text">{task.title}</p>
 

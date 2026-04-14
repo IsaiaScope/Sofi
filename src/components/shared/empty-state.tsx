@@ -12,9 +12,7 @@ export function EmptyState({ title, description, icon = "+" }: EmptyStateProps) 
       </div>
       <div>
         <p className="text-sm font-medium text-sofi-text">{title}</p>
-        {description && (
-          <p className="mt-1 text-xs text-sofi-text-muted">{description}</p>
-        )}
+        {description && <p className="mt-1 text-xs text-sofi-text-muted">{description}</p>}
       </div>
     </div>
   );

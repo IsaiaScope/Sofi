@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { type View, VIEWS } from "@/lib/constants";
 import { TopBar } from "@/components/top-bar/top-bar";
+import type { View } from "@/lib/constants";
 
 interface AppLayoutProps {
   activeView: View;
@@ -8,11 +8,7 @@ interface AppLayoutProps {
   children: ReactNode;
 }
 
-export function AppLayout({
-  activeView,
-  onViewChange,
-  children,
-}: AppLayoutProps) {
+export function AppLayout({ activeView, onViewChange, children }: AppLayoutProps) {
   return (
     <div className="flex h-screen flex-col bg-sofi-bg">
       <TopBar activeView={activeView} onViewChange={onViewChange} />

@@ -4,14 +4,8 @@ import { useTerminalStore } from "../store/terminal-store";
 import { TerminalInstance } from "./terminal-instance";
 
 export function TerminalView() {
-  const {
-    sessions,
-    activeSessionId,
-    setActiveSession,
-    createSession,
-    removeSession,
-    loadShells,
-  } = useTerminalStore();
+  const { sessions, activeSessionId, setActiveSession, createSession, removeSession, loadShells } =
+    useTerminalStore();
 
   useEffect(() => {
     loadShells();

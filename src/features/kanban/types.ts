@@ -35,3 +35,15 @@ export interface Task {
   created_at: string;
   updated_at: string;
 }
+
+export interface UpdateTaskInput {
+  id: string;
+  column_id?: string;
+  title?: string;
+  description?: string;
+  sort_order?: number;
+  status?: string;
+  agent_type?: string;
+  agent_name?: string;
+  branch_name?: string;
+}

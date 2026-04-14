@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import { useKanbanStore } from "@/features/kanban/store/kanban-store";
 import { cn } from "@/lib/cn";
 import { useGitStore } from "../store/git-store";
-import { DiffViewer } from "./diff-viewer";
 import type { GitSubView } from "../types";
+import { DiffViewer } from "./diff-viewer";
 
 const STATUS_COLORS: Record<string, string> = {
   new: "text-sofi-green",
@@ -30,15 +31,32 @@ export function GitView() {
     setSelectedFile,
     repoPath,
     isLoading,
+    setRepoPath,
   } = useGitStore();
 
-  // Prompt for repo path if none set (placeholder UX)
+  const activeBoard = useKanbanStore((s) => s.activeBoard);
+
+  // Sync repo path from active board
   useEffect(() => {
-    if (!repoPath) {
-      // For now, try loading the Sofi repo itself as demo
-      useGitStore.getState().setRepoPath("/Volumes/Crucial-4T/repo/sofi");
+    const boardRepo = activeBoard?.repo_path;
+    if (boardRepo && boardRepo !== repoPath) {
+      setRepoPath(boardRepo);
     }
-  }, [repoPath]);
+  }, [activeBoard?.repo_path, repoPath, setRepoPath]);
+
+  if (!repoPath) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
+        <div className="text-3xl text-sofi-text-dim">&#9683;</div>
+        <p className="text-sm text-sofi-text-muted">No repository linked</p>
+        <p className="text-xs text-sofi-text-dim">
+          Set a repository path on your active board to view git changes here.
+          <br />
+          Open the Kanban board selector → create or edit a board with a repo path.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -75,18 +93,12 @@ export function GitView() {
             <p className="mb-2 font-label text-[9px] font-semibold uppercase tracking-wider text-sofi-text-dim">
               Changed Files
             </p>
-            {files.length === 0 && (
-              <p className="text-xs text-sofi-text-dim">No changes</p>
-            )}
+            {files.length === 0 && <p className="text-xs text-sofi-text-dim">No changes</p>}
             {files.map((file) => (
               <button
                 key={file.path}
                 type="button"
-                onClick={() =>
-                  setSelectedFile(
-                    selectedFile === file.path ? null : file.path,
-                  )
-                }
+                onClick={() => setSelectedFile(selectedFile === file.path ? null : file.path)}
                 className={cn(
                   "flex w-full items-center gap-2 rounded px-2 py-1 text-left text-[11px] transition-colors",
                   selectedFile === file.path
@@ -128,9 +140,7 @@ export function GitView() {
                 key={branch.name}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
-                  branch.is_head
-                    ? "bg-sofi-green/10 text-sofi-green"
-                    : "text-sofi-text-muted",
+                  branch.is_head ? "bg-sofi-green/10 text-sofi-green" : "text-sofi-text-muted",
                 )}
               >
                 <span
@@ -145,17 +155,10 @@ export function GitView() {
                     HEAD
                   </span>
                 )}
-                {branch.upstream && (
-                  <span className="text-[10px] text-sofi-text-dim">
-                    {branch.upstream}
-                  </span>
-                )}
               </div>
             ))}
             {branches.length === 0 && (
-              <p className="text-sm text-sofi-text-dim">
-                No branches found. Connect a git repository.
-              </p>
+              <p className="text-sm text-sofi-text-dim">No branches found.</p>
             )}
           </div>
         </div>
@@ -169,19 +172,13 @@ export function GitView() {
                 key={commit.id}
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sofi-text-muted hover:bg-sofi-elevated"
               >
-                <span className="font-mono text-xs text-sofi-purple">
-                  {commit.id}
-                </span>
+                <span className="font-mono text-xs text-sofi-purple">{commit.id}</span>
                 <span className="flex-1 truncate">{commit.message}</span>
-                <span className="shrink-0 text-[10px] text-sofi-text-dim">
-                  {commit.author}
-                </span>
+                <span className="shrink-0 text-[10px] text-sofi-text-dim">{commit.author}</span>
               </div>
             ))}
             {commits.length === 0 && (
-              <p className="text-sm text-sofi-text-dim">
-                No commits found.
-              </p>
+              <p className="text-sm text-sofi-text-dim">No commits found.</p>
             )}
           </div>
         </div>

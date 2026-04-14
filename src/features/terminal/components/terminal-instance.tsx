@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
+import { Terminal } from "@xterm/xterm";
+import { useEffect, useRef, useState } from "react";
 import "@xterm/xterm/css/xterm.css";
 import { invoke } from "@/lib/tauri";
 import { usePtyStream } from "../hooks/use-pty-stream";
@@ -85,7 +85,7 @@ export function TerminalInstance({ sessionId, isActive }: TerminalInstanceProps)
       terminalRef.current = null;
       fitAddonRef.current = null;
     };
-  }, [sessionId]);
+  }, [sessionId, isActive]);
 
   // Fit when becoming active
   useEffect(() => {

@@ -7,9 +7,7 @@ interface DiffViewerProps {
 }
 
 export function DiffViewer({ hunks, selectedFile }: DiffViewerProps) {
-  const filteredHunks = selectedFile
-    ? hunks.filter((h) => h.file_path === selectedFile)
-    : hunks;
+  const filteredHunks = selectedFile ? hunks.filter((h) => h.file_path === selectedFile) : hunks;
 
   if (filteredHunks.length === 0) {
     return (
@@ -55,7 +53,8 @@ export function DiffViewer({ hunks, selectedFile }: DiffViewerProps) {
           <div key={`hunk-${hunkIdx}-${hunk.old_start}`}>
             {/* Hunk header */}
             <div className="sticky top-0 bg-sofi-elevated/80 px-4 py-1 text-[10px] text-sofi-text-dim backdrop-blur">
-              {hunk.file_path} @@ -{hunk.old_start},{hunk.old_lines} +{hunk.new_start},{hunk.new_lines} @@
+              {hunk.file_path} @@ -{hunk.old_start},{hunk.old_lines} +{hunk.new_start},
+              {hunk.new_lines} @@
             </div>
             {/* Side-by-side */}
             <div className="grid grid-cols-2">

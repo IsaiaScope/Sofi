@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { cn } from "@/lib/cn";
-import { APP_NAME, APP_DESCRIPTION, APP_VERSION } from "@/lib/constants";
 import logo from "@/assets/logo.svg";
+import { cn } from "@/lib/cn";
+import { APP_DESCRIPTION, APP_NAME, APP_VERSION } from "@/lib/constants";
 import { useAuthStore } from "../store/auth-store";
 
 interface LoginPageProps {
@@ -25,9 +25,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <img src={logo} alt={APP_NAME} className="h-12 w-12" />
-          <h1 className="font-heading text-2xl font-bold text-white">
-            {APP_NAME}
-          </h1>
+          <h1 className="font-heading text-2xl font-bold text-white">{APP_NAME}</h1>
           <p className="text-sm text-sofi-text-muted">{APP_DESCRIPTION}</p>
         </div>
 
@@ -37,9 +35,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
           className="rounded-xl border border-sofi-border bg-sofi-surface p-6"
         >
           <h2 className="mb-1 text-lg font-semibold text-white">Welcome back</h2>
-          <p className="mb-6 text-xs text-sofi-text-muted">
-            Access your AI command center
-          </p>
+          <p className="mb-6 text-xs text-sofi-text-muted">Access your AI command center</p>
 
           {error && (
             <div className="mb-4 rounded-lg bg-sofi-red/10 px-3 py-2 text-xs text-sofi-red">
@@ -128,9 +124,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
           </button>
         </p>
 
-        <p className="mt-4 text-center text-[10px] text-sofi-text-dim">
-          v{APP_VERSION}
-        </p>
+        <p className="mt-4 text-center text-[10px] text-sofi-text-dim">v{APP_VERSION}</p>
       </div>
     </div>
   );

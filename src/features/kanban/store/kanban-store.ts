@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { invoke } from "@/lib/tauri";
-import type { Board, Column, Task } from "../types";
+import type { Board, Column, Task, UpdateTaskInput } from "../types";
 
 interface KanbanState {
   boards: Board[];
@@ -10,10 +10,21 @@ interface KanbanState {
   isLoading: boolean;
   setActiveBoard: (board: Board) => void;
   loadBoards: (userId: string) => Promise<void>;
-  createBoard: (userId: string, name: string, description?: string) => Promise<void>;
+  createBoard: (
+    userId: string,
+    name: string,
+    description?: string,
+    repoPath?: string,
+  ) => Promise<void>;
   loadBoardData: (boardId: string) => Promise<void>;
-  addTask: (columnId: string, boardId: string, title: string, description?: string) => Promise<void>;
+  addTask: (
+    columnId: string,
+    boardId: string,
+    title: string,
+    description?: string,
+  ) => Promise<void>;
   moveTask: (taskId: string, targetColumnId: string, sortOrder: number) => Promise<void>;
+  updateTask: (input: UpdateTaskInput) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
 }
 
@@ -41,11 +52,11 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     }
   },
 
-  createBoard: async (userId, name, description) => {
+  createBoard: async (userId, name, description, repoPath) => {
     try {
       const board = await invoke<Board>("create_board", {
         userId,
-        input: { name, description },
+        input: { name, description, repo_path: repoPath },
       });
       set((state) => ({ boards: [...state.boards, board] }));
       get().setActiveBoard(board);
@@ -82,9 +93,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   moveTask: async (taskId, targetColumnId, sortOrder) => {
     // Optimistic update
     set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.id === taskId ? { ...t, columnId: targetColumnId } : t,
-      ),
+      tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, columnId: targetColumnId } : t)),
     }));
     try {
       await invoke<Task>("move_task", {
@@ -95,6 +104,17 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       // Reload to fix state
       const board = get().activeBoard;
       if (board) get().loadBoardData(board.id);
+    }
+  },
+
+  updateTask: async (input) => {
+    try {
+      const updated = await invoke<Task>("update_task", { input });
+      set((state) => ({
+        tasks: state.tasks.map((t) => (t.id === updated.id ? updated : t)),
+      }));
+    } catch (err) {
+      console.error("Failed to update task:", err);
     }
   },
 

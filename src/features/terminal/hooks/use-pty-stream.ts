@@ -1,13 +1,9 @@
-import { useEffect, useRef } from "react";
 import type { Terminal } from "@xterm/xterm";
-import { listen } from "@/lib/tauri";
-import { invoke } from "@/lib/tauri";
-import type { TerminalOutputEvent, TerminalExitEvent } from "../types";
+import { useEffect, useRef } from "react";
+import { invoke, listen } from "@/lib/tauri";
+import type { TerminalExitEvent, TerminalOutputEvent } from "../types";
 
-export function usePtyStream(
-  sessionId: string | null,
-  terminal: Terminal | null,
-) {
+export function usePtyStream(sessionId: string | null, terminal: Terminal | null) {
   const unlistenOutput = useRef<(() => void) | null>(null);
   const unlistenExit = useRef<(() => void) | null>(null);
 
