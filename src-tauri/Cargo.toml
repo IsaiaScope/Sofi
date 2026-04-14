@@ -24,3 +24,6 @@ chrono = { version = "0.4", features = ["serde"] }
 argon2 = "0.5"
 rand = "0.8"
 thiserror = "2"
+portable-pty = "0.8"
+git2 = "0.19"
+log = "0.4"
