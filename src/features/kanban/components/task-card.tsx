@@ -6,7 +6,7 @@ interface TaskCardProps {
   onClickTerminal?: (task: Task) => void;
 }
 
-const STATUS_BADGE: Record<Task["status"], { label: string; className: string }> = {
+const STATUS_BADGE: Record<string, { label: string; className: string }> = {
   pending: { label: "", className: "" },
   running: { label: "live", className: "bg-sofi-green/20 text-sofi-green" },
   review: { label: "diff ready", className: "bg-sofi-orange/20 text-sofi-orange" },
@@ -20,26 +20,28 @@ const AGENT_COLORS: Record<string, string> = {
 };
 
 export function TaskCard({ task, onClickTerminal }: TaskCardProps) {
-  const badge = STATUS_BADGE[task.status];
-  const agentBorder = task.agentType ? AGENT_COLORS[task.agentType] : "";
+  const badge = STATUS_BADGE[task.status] ?? STATUS_BADGE.pending;
+  const agentBorder = task.agent_type ? AGENT_COLORS[task.agent_type] ?? "" : "";
 
   return (
     <div
       className={cn(
         "cursor-pointer rounded-lg border border-sofi-border bg-sofi-surface p-3 transition-colors hover:border-white/15",
-        task.agentType && `border-l-2 ${agentBorder}`,
+        task.agent_type && `border-l-2 ${agentBorder}`,
         task.status === "done" && "opacity-50",
       )}
-      onClick={() => task.agentType && onClickTerminal?.(task)}
-      onKeyDown={(e) => e.key === "Enter" && task.agentType && onClickTerminal?.(task)}
+      onClick={() => task.agent_type && onClickTerminal?.(task)}
+      onKeyDown={(e) =>
+        e.key === "Enter" && task.agent_type && onClickTerminal?.(task)
+      }
     >
       <p className="text-sm font-medium text-sofi-text">{task.title}</p>
 
-      {(task.agentName || badge.label) && (
+      {(task.agent_name || badge.label) && (
         <div className="mt-2 flex items-center justify-between">
-          {task.agentName && (
+          {task.agent_name && (
             <span className="text-xs text-sofi-text-muted">
-              {task.status === "done" ? "✓" : "▶"} {task.agentName}
+              {task.status === "done" ? "\u2713" : "\u25B6"} {task.agent_name}
             </span>
           )}
           {badge.label && (
@@ -55,7 +57,7 @@ export function TaskCard({ task, onClickTerminal }: TaskCardProps) {
         </div>
       )}
 
-      {!task.agentName && task.status === "pending" && (
+      {!task.agent_name && task.status === "pending" && (
         <p className="mt-1.5 text-xs text-sofi-text-dim">No agent assigned</p>
       )}
     </div>

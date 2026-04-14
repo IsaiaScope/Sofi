@@ -1,30 +1,37 @@
 export interface Board {
   id: string;
+  user_id: string;
   name: string;
   description?: string;
-  repoPath?: string;
+  repo_path?: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Column {
   id: string;
-  boardId: string;
+  board_id: string;
   name: string;
   color?: string;
-  sortOrder: number;
-  isDoneColumn: boolean;
+  sort_order: number;
+  is_done_column: boolean;
 }
 
 export interface Task {
   id: string;
-  columnId: string;
-  boardId: string;
+  column_id: string;
+  board_id: string;
   title: string;
   description?: string;
-  sortOrder: number;
-  agentType?: string;
-  agentName?: string;
-  terminalSessionId?: string;
-  branchName?: string;
-  status: "pending" | "running" | "review" | "done" | "failed";
-  prUrl?: string;
+  sort_order: number;
+  agent_type?: string;
+  agent_name?: string;
+  terminal_session_id?: string;
+  branch_name?: string;
+  worktree_path?: string;
+  status: string;
+  pr_url?: string;
+  created_at: string;
+  updated_at: string;
 }

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { invoke } from "@/lib/tauri";
 import type { Board, Column, Task } from "../types";
 
 interface KanbanState {
@@ -6,63 +7,103 @@ interface KanbanState {
   activeBoard: Board | null;
   columns: Column[];
   tasks: Task[];
+  isLoading: boolean;
   setActiveBoard: (board: Board) => void;
-  addTask: (task: Task) => void;
-  moveTask: (taskId: string, targetColumnId: string) => void;
-  updateTask: (taskId: string, updates: Partial<Task>) => void;
-  removeTask: (taskId: string) => void;
+  loadBoards: (userId: string) => Promise<void>;
+  createBoard: (userId: string, name: string, description?: string) => Promise<void>;
+  loadBoardData: (boardId: string) => Promise<void>;
+  addTask: (columnId: string, boardId: string, title: string, description?: string) => Promise<void>;
+  moveTask: (taskId: string, targetColumnId: string, sortOrder: number) => Promise<void>;
+  deleteTask: (taskId: string) => Promise<void>;
 }
 
-// Demo data for initial development
-const DEMO_BOARD: Board = {
-  id: "demo-board",
-  name: "My Project",
-  description: "Demo board for development",
-};
+export const useKanbanStore = create<KanbanState>((set, get) => ({
+  boards: [],
+  activeBoard: null,
+  columns: [],
+  tasks: [],
+  isLoading: false,
 
-const DEMO_COLUMNS: Column[] = [
-  { id: "col-backlog", boardId: "demo-board", name: "Backlog", color: "#64748b", sortOrder: 0, isDoneColumn: false },
-  { id: "col-progress", boardId: "demo-board", name: "In Progress", color: "#7c3aed", sortOrder: 1, isDoneColumn: false },
-  { id: "col-review", boardId: "demo-board", name: "Review", color: "#f97316", sortOrder: 2, isDoneColumn: false },
-  { id: "col-done", boardId: "demo-board", name: "Done", color: "#10b981", sortOrder: 3, isDoneColumn: true },
-];
+  setActiveBoard: (board) => {
+    set({ activeBoard: board });
+    get().loadBoardData(board.id);
+  },
 
-const DEMO_TASKS: Task[] = [
-  { id: "task-1", columnId: "col-backlog", boardId: "demo-board", title: "Add auth flow", sortOrder: 0, status: "pending" },
-  { id: "task-2", columnId: "col-backlog", boardId: "demo-board", title: "Fix nav bug", sortOrder: 1, status: "pending" },
-  { id: "task-3", columnId: "col-progress", boardId: "demo-board", title: "Refactor API routes", sortOrder: 0, status: "running", agentType: "claude-code", agentName: "Claude Code", branchName: "feat/refactor-api" },
-  { id: "task-4", columnId: "col-progress", boardId: "demo-board", title: "Write unit tests", sortOrder: 1, status: "running", agentType: "codex", agentName: "Codex", branchName: "feat/unit-tests" },
-  { id: "task-5", columnId: "col-review", boardId: "demo-board", title: "Add logging middleware", sortOrder: 0, status: "review", agentType: "claude-code", agentName: "Claude Code", branchName: "feat/logging" },
-  { id: "task-6", columnId: "col-done", boardId: "demo-board", title: "Setup CI pipeline", sortOrder: 0, status: "done", prUrl: "https://github.com/example/pr/42" },
-];
+  loadBoards: async (userId) => {
+    try {
+      const boards = await invoke<Board[]>("list_boards", { userId });
+      set({ boards });
+      if (boards.length > 0 && !get().activeBoard) {
+        get().setActiveBoard(boards[0]);
+      }
+    } catch (err) {
+      console.error("Failed to load boards:", err);
+    }
+  },
 
-export const useKanbanStore = create<KanbanState>((set) => ({
-  boards: [DEMO_BOARD],
-  activeBoard: DEMO_BOARD,
-  columns: DEMO_COLUMNS,
-  tasks: DEMO_TASKS,
+  createBoard: async (userId, name, description) => {
+    try {
+      const board = await invoke<Board>("create_board", {
+        userId,
+        input: { name, description },
+      });
+      set((state) => ({ boards: [...state.boards, board] }));
+      get().setActiveBoard(board);
+    } catch (err) {
+      console.error("Failed to create board:", err);
+    }
+  },
 
-  setActiveBoard: (board) => set({ activeBoard: board }),
+  loadBoardData: async (boardId) => {
+    set({ isLoading: true });
+    try {
+      const [columns, tasks] = await Promise.all([
+        invoke<Column[]>("list_columns", { boardId }),
+        invoke<Task[]>("list_tasks", { boardId }),
+      ]);
+      set({ columns, tasks, isLoading: false });
+    } catch (err) {
+      console.error("Failed to load board data:", err);
+      set({ isLoading: false });
+    }
+  },
 
-  addTask: (task) =>
-    set((state) => ({ tasks: [...state.tasks, task] })),
+  addTask: async (columnId, boardId, title, description) => {
+    try {
+      const task = await invoke<Task>("create_task", {
+        input: { column_id: columnId, board_id: boardId, title, description },
+      });
+      set((state) => ({ tasks: [...state.tasks, task] }));
+    } catch (err) {
+      console.error("Failed to create task:", err);
+    }
+  },
 
-  moveTask: (taskId, targetColumnId) =>
+  moveTask: async (taskId, targetColumnId, sortOrder) => {
+    // Optimistic update
     set((state) => ({
       tasks: state.tasks.map((t) =>
         t.id === taskId ? { ...t, columnId: targetColumnId } : t,
       ),
-    })),
+    }));
+    try {
+      await invoke<Task>("move_task", {
+        input: { task_id: taskId, target_column_id: targetColumnId, sort_order: sortOrder },
+      });
+    } catch (err) {
+      console.error("Failed to move task:", err);
+      // Reload to fix state
+      const board = get().activeBoard;
+      if (board) get().loadBoardData(board.id);
+    }
+  },
 
-  updateTask: (taskId, updates) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.id === taskId ? { ...t, ...updates } : t,
-      ),
-    })),
-
-  removeTask: (taskId) =>
-    set((state) => ({
-      tasks: state.tasks.filter((t) => t.id !== taskId),
-    })),
+  deleteTask: async (taskId) => {
+    set((state) => ({ tasks: state.tasks.filter((t) => t.id !== taskId) }));
+    try {
+      await invoke("delete_task", { taskId });
+    } catch (err) {
+      console.error("Failed to delete task:", err);
+    }
+  },
 }));
