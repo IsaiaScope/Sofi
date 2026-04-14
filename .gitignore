@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Rust build (redirected to internal drive)
+src-tauri/target/
+.sofi-build/
+
+# macOS resource forks (external drive issue)
+._*
+.DS_Store
+
+# Environment
+*.local
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Superpowers brainstorm sessions
+.superpowers/

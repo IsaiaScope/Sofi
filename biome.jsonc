@@ -1,0 +1,12 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "extends": ["ultracite"],
+  "files": {
+    "ignore": ["src-tauri/", "dist/", "node_modules/", ".sofi-build/"]
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  }
+}

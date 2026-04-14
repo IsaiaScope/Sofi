@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  /* Sofi Dark Violet Theme */
+  --color-sofi-bg: #0f0f1a;
+  --color-sofi-surface: #12121e;
+  --color-sofi-elevated: #1e1e30;
+  --color-sofi-terminal: #0a0a12;
+  --color-sofi-border: rgba(255, 255, 255, 0.08);
+
+  /* Primary: Dark Violet */
+  --color-violet-primary: #7c3aed;
+  --color-violet-hover: #8b5cf6;
+  --color-violet-muted: rgba(124, 58, 237, 0.15);
+
+  /* Semantic Colors */
+  --color-sofi-green: #10b981;
+  --color-sofi-orange: #f97316;
+  --color-sofi-blue: #3b82f6;
+  --color-sofi-red: #ef4444;
+  --color-sofi-purple: #8b5cf6;
+
+  /* Text */
+  --color-sofi-text: #e2e8f0;
+  --color-sofi-text-muted: rgba(255, 255, 255, 0.5);
+  --color-sofi-text-dim: rgba(255, 255, 255, 0.3);
+
+  /* Font Families */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-heading: "Geist", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-label: "Space Grotesk", "Inter", system-ui, sans-serif;
+}
+
+/* Base dark theme */
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-sofi-bg);
+  color: var(--color-sofi-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
