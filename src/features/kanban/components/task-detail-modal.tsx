@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
 import { useKanbanStore } from "../store/kanban-store";
@@ -14,8 +14,16 @@ const STATUS_OPTIONS = ["pending", "running", "review", "done", "failed"];
 
 export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailModalProps) {
   const { updateTask, deleteTask } = useKanbanStore();
-  const [title, setTitle] = useState(task?.title ?? "");
-  const [description, setDescription] = useState(task?.description ?? "");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  // Sync state when task changes
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description ?? "");
+    }
+  }, [task]);
 
   if (!task) return null;
 
