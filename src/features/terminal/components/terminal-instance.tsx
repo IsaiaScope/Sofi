@@ -13,11 +13,13 @@ interface TerminalInstanceProps {
 
 export function TerminalInstance({ sessionId, isActive }: TerminalInstanceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const [ready, setReady] = useState(false);
+  const isActiveRef = useRef(isActive);
+  const [terminalReady, setTerminalReady] = useState<Terminal | null>(null);
 
-  // Initialize xterm
+  isActiveRef.current = isActive;
+
+  // Initialize xterm once per sessionId — no isActive in deps
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -55,25 +57,20 @@ export function TerminalInstance({ sessionId, isActive }: TerminalInstanceProps)
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
     terminal.loadAddon(new WebLinksAddon());
-
     terminal.open(containerRef.current);
     fitAddon.fit();
 
-    terminalRef.current = terminal;
     fitAddonRef.current = fitAddon;
-    setReady(true);
+    setTerminalReady(terminal);
 
-    // Resize observer
     const observer = new ResizeObserver(() => {
-      if (isActive) {
-        fitAddon.fit();
-        const dims = fitAddon.proposeDimensions();
+      if (isActiveRef.current && fitAddonRef.current) {
+        fitAddonRef.current.fit();
+        const dims = fitAddonRef.current.proposeDimensions();
         if (dims) {
-          invoke("resize_terminal", {
-            sessionId,
-            cols: dims.cols,
-            rows: dims.rows,
-          }).catch(() => {});
+          invoke("resize_terminal", { sessionId, cols: dims.cols, rows: dims.rows }).catch(
+            () => {},
+          );
         }
       }
     });
@@ -82,20 +79,20 @@ export function TerminalInstance({ sessionId, isActive }: TerminalInstanceProps)
     return () => {
       observer.disconnect();
       terminal.dispose();
-      terminalRef.current = null;
       fitAddonRef.current = null;
+      setTerminalReady(null);
     };
-  }, [sessionId, isActive]);
+  }, [sessionId]);
 
-  // Fit when becoming active
+  // Fit when becoming active — lightweight, no teardown
   useEffect(() => {
     if (isActive && fitAddonRef.current) {
       fitAddonRef.current.fit();
     }
   }, [isActive]);
 
-  // Wire PTY stream
-  usePtyStream(ready ? sessionId : null, terminalRef.current);
+  // Wire PTY stream with reactive terminal state
+  usePtyStream(terminalReady ? sessionId : null, terminalReady);
 
   return (
     <div

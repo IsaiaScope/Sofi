@@ -175,9 +175,13 @@ impl GitEngine {
             .revwalk()
             .map_err(|e| format!("Failed to create revwalk: {e}"))?;
 
-        revwalk
-            .push_head()
-            .map_err(|e| format!("Failed to push HEAD: {e}"))?;
+        if let Err(e) = revwalk.push_head() {
+            // Empty repo (no commits yet) — return empty list instead of error
+            if e.code() == git2::ErrorCode::UnbornBranch || e.code() == git2::ErrorCode::NotFound {
+                return Ok(Vec::new());
+            }
+            return Err(format!("Failed to push HEAD: {e}"));
+        }
 
         let oids: Vec<git2::Oid> = revwalk
             .take(count)

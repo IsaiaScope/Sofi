@@ -49,16 +49,38 @@ pub async fn move_task(
     target_column_id: &str,
     sort_order: i32,
 ) -> Result<Task, sqlx::Error> {
-    sqlx::query_as::<_, Task>(
+    // Move the task to the target column and position
+    sqlx::query(
         "UPDATE tasks SET column_id = ?, sort_order = ?, updated_at = datetime('now')
-         WHERE id = ?
-         RETURNING *",
+         WHERE id = ?",
     )
     .bind(target_column_id)
     .bind(sort_order)
     .bind(task_id)
-    .fetch_one(pool)
-    .await
+    .execute(pool)
+    .await?;
+
+    // Re-number all tasks in the target column to prevent sort_order collisions
+    let column_tasks = sqlx::query_as::<_, Task>(
+        "SELECT * FROM tasks WHERE column_id = ? ORDER BY sort_order, updated_at DESC",
+    )
+    .bind(target_column_id)
+    .fetch_all(pool)
+    .await?;
+
+    for (i, task) in column_tasks.iter().enumerate() {
+        sqlx::query("UPDATE tasks SET sort_order = ? WHERE id = ?")
+            .bind(i as i32)
+            .bind(&task.id)
+            .execute(pool)
+            .await?;
+    }
+
+    // Return the moved task with updated sort_order
+    sqlx::query_as::<_, Task>("SELECT * FROM tasks WHERE id = ?")
+        .bind(task_id)
+        .fetch_one(pool)
+        .await
 }
 
 pub async fn update_task(

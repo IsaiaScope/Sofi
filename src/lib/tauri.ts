@@ -12,7 +12,17 @@ export async function invoke<T>(cmd: string, args?: InvokeArgs): Promise<T> {
     console.warn(`[Sofi] Tauri not available, mock for: ${cmd}`);
     return getMockResponse<T>(cmd);
   }
-  return tauriInvoke<T>(cmd, args);
+  try {
+    return await tauriInvoke<T>(cmd, args);
+  } catch (err) {
+    const msg = String(err);
+    if (msg.includes("Authentication failed") || msg.includes("Session expired")) {
+      // Force logout on auth errors — dynamic import to avoid circular dependency
+      const { useAuthStore } = await import("@/features/auth/store/auth-store");
+      useAuthStore.getState().logout();
+    }
+    throw err;
+  }
 }
 
 /**

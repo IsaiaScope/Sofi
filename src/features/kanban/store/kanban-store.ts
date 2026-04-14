@@ -93,7 +93,9 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   moveTask: async (taskId, targetColumnId, sortOrder) => {
     // Optimistic update
     set((state) => ({
-      tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, columnId: targetColumnId } : t)),
+      tasks: state.tasks.map((t) =>
+        t.id === taskId ? { ...t, column_id: targetColumnId, sort_order: sortOrder } : t,
+      ),
     }));
     try {
       await invoke<Task>("move_task", {
@@ -119,11 +121,13 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   },
 
   deleteTask: async (taskId) => {
+    const prevTasks = get().tasks;
     set((state) => ({ tasks: state.tasks.filter((t) => t.id !== taskId) }));
     try {
       await invoke("delete_task", { taskId });
     } catch (err) {
       console.error("Failed to delete task:", err);
+      set({ tasks: prevTasks }); // Rollback on failure
     }
   },
 }));

@@ -80,6 +80,9 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
       newOrder = columnTasks.length;
     }
 
+    // Skip if no actual change
+    if (task.column_id === targetColumnId && task.sort_order === newOrder) return;
+
     moveTask(taskId, targetColumnId, newOrder);
   };
 
