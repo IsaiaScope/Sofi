@@ -2,6 +2,7 @@ use portable_pty::{native_pty_system, CommandBuilder, PtySize};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::io::{Read, Write};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter};
 
@@ -21,6 +22,7 @@ struct PtySession {
     writer: Box<dyn Write + Send>,
     child: Box<dyn portable_pty::Child + Send + Sync>,
     pair: portable_pty::PtyPair,
+    stop_flag: Arc<AtomicBool>,
 }
 
 pub struct PtyManager {
@@ -57,7 +59,6 @@ impl PtyManager {
         let mut cmd = CommandBuilder::new(shell);
         cmd.cwd(cwd);
 
-        // Inherit environment
         for (key, value) in std::env::vars() {
             cmd.env(key, value);
         }
@@ -78,15 +79,24 @@ impl PtyManager {
             .try_clone_reader()
             .map_err(|e| format!("Failed to get PTY reader: {e}"))?;
 
-        // Spawn reader thread to stream output to frontend
+        // Cancellation token shared with the reader thread
+        let stop_flag = Arc::new(AtomicBool::new(false));
+        let stop_clone = stop_flag.clone();
+
         let sid = session_id.to_string();
         let app_clone = app.clone();
         std::thread::spawn(move || {
             let mut buf = [0u8; 4096];
             loop {
+                if stop_clone.load(Ordering::Relaxed) {
+                    break;
+                }
                 match reader.read(&mut buf) {
                     Ok(0) => break,
                     Ok(n) => {
+                        if stop_clone.load(Ordering::Relaxed) {
+                            break;
+                        }
                         let _ = app_clone.emit(
                             "terminal-output",
                             TerminalOutputEvent {
@@ -98,19 +108,22 @@ impl PtyManager {
                     Err(_) => break,
                 }
             }
-            let _ = app_clone.emit(
-                "terminal-exit",
-                TerminalExitEvent {
-                    session_id: sid,
-                    exit_code: None,
-                },
-            );
+            if !stop_clone.load(Ordering::Relaxed) {
+                let _ = app_clone.emit(
+                    "terminal-exit",
+                    TerminalExitEvent {
+                        session_id: sid,
+                        exit_code: None,
+                    },
+                );
+            }
         });
 
         let session = PtySession {
             writer,
             child,
             pair,
+            stop_flag,
         };
 
         self.sessions
@@ -180,6 +193,8 @@ impl PtyManager {
             .map_err(|e| format!("Lock error: {e}"))?;
 
         if let Some(mut session) = sessions.remove(session_id) {
+            // Signal reader thread to stop before killing
+            session.stop_flag.store(true, Ordering::Relaxed);
             let _ = session.child.kill();
         }
 

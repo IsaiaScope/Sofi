@@ -24,17 +24,25 @@ pub fn get_agent_command(agent_type: &str) -> Option<AgentConfig> {
     }
 }
 
-/// Check if an agent CLI is available on the system
+/// Check if an agent CLI is available on the system (cross-platform)
 pub fn is_agent_available(agent_type: &str) -> bool {
     let config = match get_agent_command(agent_type) {
         Some(c) => c,
         None => return false,
     };
 
-    std::process::Command::new("which")
-        .arg(&config.command)
-        .output()
-        .map(|o| o.status.success())
+    let (cmd, args) = if cfg!(target_os = "windows") {
+        ("where", vec![config.command.clone()])
+    } else {
+        ("which", vec![config.command.clone()])
+    };
+
+    std::process::Command::new(cmd)
+        .args(&args)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .map(|s| s.success())
         .unwrap_or(false)
 }
 

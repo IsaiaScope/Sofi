@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useKanbanStore } from "../store/kanban-store";
 import type { Column as ColumnType, Task } from "../types";
 import { SortableTaskCard } from "./sortable-task-card";
@@ -15,11 +15,22 @@ interface ColumnProps {
 export function Column({ column, tasks, boardId, onTaskClick }: ColumnProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const cancelledRef = useRef(false);
   const { addTask } = useKanbanStore();
 
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
+  const handleCancel = () => {
+    cancelledRef.current = true;
+    setNewTitle("");
+    setIsAdding(false);
+  };
+
   const handleSubmit = async () => {
+    if (cancelledRef.current) {
+      cancelledRef.current = false;
+      return;
+    }
     const title = newTitle.trim();
     if (!title) {
       setIsAdding(false);
@@ -71,8 +82,7 @@ export function Column({ column, tasks, boardId, onTaskClick }: ColumnProps) {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSubmit();
               if (e.key === "Escape") {
-                setIsAdding(false);
-                setNewTitle("");
+                handleCancel();
               }
             }}
             onBlur={handleSubmit}

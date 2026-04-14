@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useClickOutside } from "@/lib/hooks/use-click-outside";
 
@@ -18,11 +18,25 @@ export function Dropdown({ trigger, children, align = "left", className }: Dropd
     useCallback(() => setOpen(false), []),
   );
 
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [open]);
+
   return (
     <div ref={ref} className="relative">
-      <div onClick={() => setOpen(!open)} onKeyDown={() => {}}>
+      <button
+        type="button"
+        className="appearance-none bg-transparent border-0 p-0 m-0 cursor-pointer"
+        onClick={() => setOpen(!open)}
+      >
         {trigger}
-      </div>
+      </button>
       {open && (
         <div
           className={cn(
@@ -31,8 +45,11 @@ export function Dropdown({ trigger, children, align = "left", className }: Dropd
             align === "right" ? "right-0" : "left-0",
             className,
           )}
+          role="menu"
           onClick={() => setOpen(false)}
-          onKeyDown={() => {}}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+          }}
         >
           {children}
         </div>
