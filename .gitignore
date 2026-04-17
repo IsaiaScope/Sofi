@@ -13,6 +13,9 @@ src-tauri/target/
 ._*
 .DS_Store
 
+# SVG backups (use git history instead)
+*.backup.svg
+
 # Environment
 *.local
 .env

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Light tray icon: white S for dark tray backgrounds (Windows/Linux dark mode) -->
+  <g transform="translate(16, 16) scale(0.15) translate(-45, -141)">
+    <path d="M91 55 L50 55 C8 55 -2 78 -2 98 C-2 118 12 141 45 141 C78 141 92 164 92 184 C92 204 78 227 40 227 L-1 227"
+      fill="none" stroke="#e2e8f0" stroke-width="42" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+</svg>

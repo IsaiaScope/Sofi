@@ -1,0 +1,47 @@
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, redirect, useRouterState } from "@tanstack/react-router";
+import { AppLayout } from "@/components/layout/app-layout";
+import { sessionQueryOptions } from "@/features/auth/queries/options";
+import { GitView } from "@/features/git/components/git-view";
+import { Board } from "@/features/kanban/components/board";
+import { TerminalView } from "@/features/terminal/components/terminal-view";
+import { APP_SECTIONS, getActiveSection } from "@/lib/routes";
+
+function SettingsPlaceholder() {
+  return (
+    <div className="flex h-full items-center justify-center text-sofi-text-muted">
+      Settings — coming soon
+    </div>
+  );
+}
+
+function AuthenticatedLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const activeSection = getActiveSection(pathname);
+  const { data: user } = useQuery(sessionQueryOptions);
+
+  if (!user) return null;
+
+  return (
+    <AppLayout>
+      {APP_SECTIONS.map((section) => (
+        <div key={section} className={activeSection === section ? "" : "hidden"}>
+          {section === "kanban" && <Board userId={user.id} />}
+          {section === "terminal" && <TerminalView />}
+          {section === "git" && <GitView />}
+          {section === "settings" && <SettingsPlaceholder />}
+        </div>
+      ))}
+    </AppLayout>
+  );
+}
+
+export const Route = createFileRoute("/_authenticated")({
+  beforeLoad: async ({ context }) => {
+    const user = await context.queryClient.ensureQueryData(sessionQueryOptions);
+    if (!user) {
+      throw redirect({ to: "/login" });
+    }
+  },
+  component: AuthenticatedLayout,
+});

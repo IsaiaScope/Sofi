@@ -13,12 +13,3 @@ export const AGENT_TYPES = {
   CLAUDE_CODE: "claude-code",
   CODEX: "codex",
 } as const;
-
-export const VIEWS = {
-  KANBAN: "kanban",
-  TERMINAL: "terminal",
-  GIT: "git",
-  SETTINGS: "settings",
-} as const;
-
-export type View = (typeof VIEWS)[keyof typeof VIEWS];

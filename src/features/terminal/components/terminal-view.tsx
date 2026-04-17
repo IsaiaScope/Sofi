@@ -1,22 +1,75 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { cn } from "@/lib/cn";
-import { useTerminalStore } from "../store/terminal-store";
+import { useDefaultShell } from "../queries/hooks";
+import { useCreateTerminal, useKillTerminal } from "../queries/mutations";
+import { useTerminalUIStore } from "../store/terminal-ui-store";
 import { TerminalInstance } from "./terminal-instance";
 
 export function TerminalView() {
-  const { sessions, activeSessionId, setActiveSession, createSession, removeSession, loadShells } =
-    useTerminalStore();
+  const {
+    sessions,
+    activeSessionId,
+    setActiveSession,
+    addSession,
+    removeSession: removeFromUI,
+  } = useTerminalUIStore();
+  const defaultShellQuery = useDefaultShell();
+  const createTerminalMutation = useCreateTerminal();
+  const killTerminalMutation = useKillTerminal();
 
-  useEffect(() => {
-    loadShells();
-  }, [loadShells]);
+  const defaultShell = defaultShellQuery.data ?? "/bin/zsh";
+
+  const createSession = useCallback(
+    async (opts?: {
+      label?: string;
+      shell?: string;
+      cwd?: string;
+      isAgent?: boolean;
+      agentType?: string;
+      taskTitle?: string;
+    }) => {
+      const sessionId = crypto.randomUUID();
+      const shell = opts?.shell ?? defaultShell;
+      const cwd = opts?.cwd ?? undefined;
+      const label =
+        opts?.label ??
+        (opts?.taskTitle
+          ? `${opts.taskTitle} — ${opts.agentType ?? "agent"}`
+          : `${shell.split("/").pop()} terminal`);
+
+      await createTerminalMutation.mutateAsync({ sessionId, shell, cwd, cols: null, rows: null });
+
+      addSession({
+        id: sessionId,
+        label,
+        shell,
+        cwd: cwd ?? "~",
+        isAgentSession: opts?.isAgent ?? false,
+        agentType: opts?.agentType,
+        taskTitle: opts?.taskTitle,
+      });
+
+      return sessionId;
+    },
+    [defaultShell, createTerminalMutation, addSession],
+  );
+
+  const handleRemoveSession = async (id: string) => {
+    try {
+      await killTerminalMutation.mutateAsync({ sessionId: id });
+    } catch {
+      // Session may already be dead
+    }
+    removeFromUI(id);
+  };
 
   // Auto-create a session if none exist
   useEffect(() => {
-    if (sessions.length === 0) {
+    if (sessions.length === 0 && defaultShellQuery.isSuccess) {
       createSession({ label: "Terminal" });
     }
-  }, [sessions.length, createSession]);
+    // Only run when sessions become empty and shells are loaded
+  }, [sessions.length, defaultShellQuery.isSuccess, createSession]);
 
   return (
     <div className="flex h-full flex-col bg-sofi-terminal">
@@ -44,10 +97,10 @@ export function TerminalView() {
             <span
               onClick={(e) => {
                 e.stopPropagation();
-                removeSession(session.id);
+                handleRemoveSession(session.id);
               }}
               onKeyDown={() => {}}
-              className="ml-1 hidden text-sofi-text-dim hover:text-sofi-red group-hover:inline"
+              className="ml-1 hidden cursor-pointer text-sofi-text-dim hover:text-sofi-red group-hover:inline"
             >
               x
             </span>

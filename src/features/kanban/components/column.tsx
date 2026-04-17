@@ -1,7 +1,12 @@
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useRef, useState } from "react";
-import { useKanbanStore } from "../store/kanban-store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useCreateTask } from "../queries/mutations";
+import { type CreateTaskFormData, createTaskSchema } from "../schemas";
 import type { Column as ColumnType, Task } from "../types";
 import { SortableTaskCard } from "./sortable-task-card";
 
@@ -14,30 +19,23 @@ interface ColumnProps {
 
 export function Column({ column, tasks, boardId, onTaskClick }: ColumnProps) {
   const [isAdding, setIsAdding] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const cancelledRef = useRef(false);
-  const { addTask } = useKanbanStore();
+  const createTaskMutation = useCreateTask();
+
+  const taskForm = useForm<CreateTaskFormData>({
+    resolver: zodResolver(createTaskSchema),
+    defaultValues: { title: "" },
+  });
 
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   const handleCancel = () => {
-    cancelledRef.current = true;
-    setNewTitle("");
+    taskForm.reset();
     setIsAdding(false);
   };
 
-  const handleSubmit = async () => {
-    if (cancelledRef.current) {
-      cancelledRef.current = false;
-      return;
-    }
-    const title = newTitle.trim();
-    if (!title) {
-      setIsAdding(false);
-      return;
-    }
-    await addTask(column.id, boardId, title);
-    setNewTitle("");
+  const handleTaskSubmit = async (data: CreateTaskFormData) => {
+    await createTaskMutation.mutateAsync({ columnId: column.id, boardId, title: data.title });
+    taskForm.reset();
     setIsAdding(false);
   };
 
@@ -75,30 +73,22 @@ export function Column({ column, tasks, boardId, onTaskClick }: ColumnProps) {
       {/* Add Task */}
       {isAdding ? (
         <div className="mt-2">
-          <input
-            type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSubmit();
-              if (e.key === "Escape") {
-                handleCancel();
-              }
-            }}
-            onBlur={handleSubmit}
-            placeholder="Task title..."
-            autoFocus
-            className="w-full rounded-lg border border-sofi-border bg-sofi-bg px-3 py-2 text-sm text-sofi-text placeholder:text-sofi-text-dim outline-none focus:border-violet-primary"
-          />
+          <form onSubmit={taskForm.handleSubmit(handleTaskSubmit)}>
+            <Input
+              {...taskForm.register("title")}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") handleCancel();
+              }}
+              onBlur={taskForm.handleSubmit(handleTaskSubmit)}
+              placeholder="Task title..."
+              autoFocus
+            />
+          </form>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => setIsAdding(true)}
-          className="mt-2 w-full rounded-lg py-1.5 text-xs text-sofi-text-dim transition-colors hover:bg-white/5 hover:text-sofi-text"
-        >
+        <Button variant="ghost" size="sm" onClick={() => setIsAdding(true)} className="mt-2 w-full">
           + Add task
-        </button>
+        </Button>
       )}
     </div>
   );

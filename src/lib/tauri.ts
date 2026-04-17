@@ -1,5 +1,6 @@
 import { type InvokeArgs, invoke as tauriInvoke } from "@tauri-apps/api/core";
 import { listen as tauriListen } from "@tauri-apps/api/event";
+import { toAppError } from "./errors";
 
 const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
@@ -14,14 +15,8 @@ export async function invoke<T>(cmd: string, args?: InvokeArgs): Promise<T> {
   }
   try {
     return await tauriInvoke<T>(cmd, args);
-  } catch (err) {
-    const msg = String(err);
-    if (msg.includes("Authentication failed") || msg.includes("Session expired")) {
-      // Force logout on auth errors — dynamic import to avoid circular dependency
-      const { useAuthStore } = await import("@/features/auth/store/auth-store");
-      useAuthStore.getState().logout();
-    }
-    throw err;
+  } catch (error) {
+    throw toAppError(error);
   }
 }
 

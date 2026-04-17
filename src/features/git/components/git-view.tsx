@@ -1,8 +1,10 @@
+import { useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useKanbanStore } from "@/features/kanban/store/kanban-store";
+import { useKanbanUIStore } from "@/features/kanban/store/kanban-ui-store";
 import { cn } from "@/lib/cn";
-import { useGitStore } from "../store/git-store";
-import type { GitSubView } from "../types";
+import { getGitSubView } from "@/lib/routes";
+import { useGitBranches, useGitDiff, useGitHistory, useGitStatus } from "../queries/hooks";
+import { useGitUIStore } from "../store/git-ui-store";
 import { DiffViewer } from "./diff-viewer";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -20,21 +22,21 @@ const STATUS_ICONS: Record<string, string> = {
 };
 
 export function GitView() {
-  const {
-    subView,
-    setSubView,
-    files,
-    hunks,
-    branches,
-    commits,
-    selectedFile,
-    setSelectedFile,
-    repoPath,
-    isLoading,
-    setRepoPath,
-  } = useGitStore();
+  const { selectedFile, setSelectedFile, repoPath, setRepoPath } = useGitUIStore();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const subView = getGitSubView(pathname);
+  const activeBoard = useKanbanUIStore((s) => s.activeBoard);
 
-  const activeBoard = useKanbanStore((s) => s.activeBoard);
+  const statusQuery = useGitStatus(repoPath);
+  const diffQuery = useGitDiff(repoPath);
+  const branchesQuery = useGitBranches(subView === "branches" ? repoPath : null);
+  const historyQuery = useGitHistory(subView === "history" ? repoPath : null);
+
+  const files = statusQuery.data ?? [];
+  const hunks = diffQuery.data ?? [];
+  const branches = branchesQuery.data ?? [];
+  const commits = historyQuery.data ?? [];
+  const isLoading = diffQuery.isPending;
 
   // Sync repo path from active board
   useEffect(() => {
@@ -60,31 +62,6 @@ export function GitView() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Sub-view tabs */}
-      <div className="flex shrink-0 items-center gap-1 border-b border-sofi-border bg-sofi-surface/50 px-3 py-1.5">
-        {(["diff", "branches", "history"] as GitSubView[]).map((view) => (
-          <button
-            key={view}
-            type="button"
-            onClick={() => setSubView(view)}
-            className={cn(
-              "rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors",
-              subView === view
-                ? "bg-sofi-orange/15 text-sofi-orange"
-                : "text-sofi-text-muted hover:text-sofi-text",
-            )}
-          >
-            {view}
-          </button>
-        ))}
-        <div className="flex-1" />
-        {subView === "diff" && files.length > 0 && (
-          <span className="text-[10px] text-sofi-text-dim">
-            {files.length} file{files.length !== 1 ? "s" : ""} changed
-          </span>
-        )}
-      </div>
-
       {/* Content */}
       {subView === "diff" && (
         <div className="flex flex-1 overflow-hidden">

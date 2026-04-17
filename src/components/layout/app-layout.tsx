@@ -1,18 +1,20 @@
 import type { ReactNode } from "react";
+import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/top-bar/top-bar";
-import type { View } from "@/lib/constants";
 
 interface AppLayoutProps {
-  activeView: View;
-  onViewChange: (view: View) => void;
   children: ReactNode;
+  onNewTerminalSession?: () => void;
 }
 
-export function AppLayout({ activeView, onViewChange, children }: AppLayoutProps) {
+export function AppLayout({ children, onNewTerminalSession }: AppLayoutProps) {
   return (
-    <div className="flex h-screen flex-col bg-sofi-bg">
-      <TopBar activeView={activeView} onViewChange={onViewChange} />
-      <main className="flex-1 overflow-hidden">{children}</main>
+    <div className="flex h-dvh flex-col overflow-hidden bg-sofi-bg">
+      <TopBar />
+      <div className="flex min-h-0 flex-1">
+        <Sidebar onNewTerminalSession={onNewTerminalSession} />
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</main>
+      </div>
     </div>
   );
 }

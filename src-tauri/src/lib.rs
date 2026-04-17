@@ -22,6 +22,7 @@ fn get_db_path(app: &tauri::App) -> PathBuf {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             // Database
             let db_path = get_db_path(app);

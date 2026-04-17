@@ -8,8 +8,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useKanbanStore } from "../store/kanban-store";
+import { useCreateBoard, useMoveTask } from "../queries/mutations";
+import { boardsQueryOptions, columnsQueryOptions, tasksQueryOptions } from "../queries/options";
+import { useKanbanUIStore } from "../store/kanban-ui-store";
 import type { Task } from "../types";
 import { Column } from "./column";
 import { TaskCard } from "./task-card";
@@ -21,16 +24,34 @@ interface BoardProps {
 }
 
 export function Board({ userId, onSwitchToTerminal }: BoardProps) {
-  const { columns, tasks, activeBoard, boards, loadBoards, createBoard, moveTask, isLoading } =
-    useKanbanStore();
+  const { activeBoard, setActiveBoard } = useKanbanUIStore();
+  const boardsQuery = useQuery(boardsQueryOptions(userId));
+  const columnsQuery = useQuery({
+    ...columnsQueryOptions(activeBoard?.id ?? ""),
+    enabled: !!activeBoard,
+  });
+  const tasksQuery = useQuery({
+    ...tasksQueryOptions(activeBoard?.id ?? ""),
+    enabled: !!activeBoard,
+  });
+  const createBoardMutation = useCreateBoard();
+  const moveTaskMutation = useMoveTask();
+
+  const boards = boardsQuery.data ?? [];
+  const columns = columnsQuery.data ?? [];
+  const tasks = tasksQuery.data ?? [];
+  const isLoading = boardsQuery.isPending || columnsQuery.isPending;
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   useEffect(() => {
-    loadBoards(userId);
-  }, [userId, loadBoards]);
+    if (boards.length > 0 && !activeBoard) {
+      setActiveBoard(boards[0]);
+    }
+  }, [boards, activeBoard, setActiveBoard]);
 
   const currentTask = selectedTask ? (tasks.find((t) => t.id === selectedTask.id) ?? null) : null;
 
@@ -82,8 +103,14 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
 
     // Skip if no actual change
     if (task.column_id === targetColumnId && task.sort_order === newOrder) return;
+    if (!activeBoard) return;
 
-    moveTask(taskId, targetColumnId, newOrder);
+    moveTaskMutation.mutate({
+      taskId,
+      targetColumnId,
+      sortOrder: newOrder,
+      boardId: activeBoard.id,
+    });
   };
 
   if (isLoading) {
@@ -98,7 +125,13 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
         <p className="text-sofi-text-muted">No boards yet</p>
         <button
           type="button"
-          onClick={() => createBoard(userId, "My Project", "My first Sofi board")}
+          onClick={() =>
+            createBoardMutation.mutate({
+              userId,
+              name: "My Project",
+              description: "My first Sofi board",
+            })
+          }
           className="rounded-lg bg-violet-primary px-4 py-2 text-sm font-semibold text-white hover:bg-violet-hover"
         >
           Create Your First Board

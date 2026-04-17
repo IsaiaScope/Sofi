@@ -16,6 +16,7 @@ Desktop IDE for orchestrating AI coding agents. Built with Tauri 2.0 (Rust) + Re
 - SQLite with raw SQL via sqlx (no ORM)
 - Snake_case for Rust/DB fields, camelCase for TypeScript (Tauri handles conversion)
 - Path alias: `@/` maps to `src/`
+- **Components**: Always pull from shadcn/ui (Base UI registry) first. Fall back to Radix UI primitives only if Base UI has no equivalent. Do not hand-roll primitives (dialog, dropdown, popover, etc.) or add other component libraries.
 
 ## Build Notes
 - Cargo build target redirected to internal drive: `/Users/isaia/.sofi-build/target`

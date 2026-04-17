@@ -1,104 +1,138 @@
-import { useEffect, useState } from "react";
-import logo from "@/assets/logo.svg";
-import { Dropdown, DropdownItem, DropdownLabel, DropdownSeparator } from "@/components/ui/dropdown";
-import { Modal } from "@/components/ui/modal";
-import { useAgentStore } from "@/features/agents/store/agent-store";
-import { useAuthStore } from "@/features/auth/store/auth-store";
-import { useKanbanStore } from "@/features/kanban/store/kanban-store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import wordmark from "@/assets/sofi-wordmark.svg";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Menu, MenuItem, MenuLabel, MenuSeparator } from "@/components/ui/menu";
+import { useAgents } from "@/features/agents/queries/hooks";
+import { useSession } from "@/features/auth/queries/hooks";
+import { useLogout } from "@/features/auth/queries/mutations";
+import { useBoards } from "@/features/kanban/queries/hooks";
+import { useCreateBoard } from "@/features/kanban/queries/mutations";
+import { type CreateBoardFormData, createBoardSchema } from "@/features/kanban/schemas";
+import { useKanbanUIStore } from "@/features/kanban/store/kanban-ui-store";
 import { cn } from "@/lib/cn";
-import { APP_NAME, VIEWS, type View } from "@/lib/constants";
+import { APP_NAME } from "@/lib/constants";
+import { getActiveSection } from "@/lib/routes";
 
-interface TopBarProps {
-  activeView: View;
-  onViewChange: (view: View) => void;
-}
-
-export function TopBar({ activeView, onViewChange }: TopBarProps) {
-  const { activeBoard, boards, setActiveBoard, createBoard } = useKanbanStore();
-  const { agents, loadAgents } = useAgentStore();
-  const { user, logout } = useAuthStore();
+export function TopBar() {
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const activeView = getActiveSection(pathname);
+  const { activeBoard, setActiveBoard } = useKanbanUIStore();
+  const { data: user } = useSession();
+  const logout = useLogout();
+  const agentsQuery = useAgents();
+  const agents = agentsQuery.data ?? [];
+  const boardsQuery = useBoards(user?.id ?? "");
+  const boards = boardsQuery.data ?? [];
+  const createBoardMutation = useCreateBoard();
   const [showNewBoard, setShowNewBoard] = useState(false);
-  const [newBoardName, setNewBoardName] = useState("");
-  const [newBoardRepo, setNewBoardRepo] = useState("");
 
-  useEffect(() => {
-    loadAgents();
-  }, [loadAgents]);
+  const boardForm = useForm<CreateBoardFormData>({
+    resolver: zodResolver(createBoardSchema),
+    defaultValues: { name: "", repoPath: "" },
+  });
 
   const userInitial = (user?.display_name ?? user?.username ?? "?")[0].toUpperCase();
 
-  const handleCreateBoard = async () => {
-    if (!newBoardName.trim() || !user) return;
-    await createBoard(user.id, newBoardName.trim(), undefined, newBoardRepo.trim() || undefined);
-    setNewBoardName("");
-    setNewBoardRepo("");
+  const handleCreateBoard = async (data: CreateBoardFormData) => {
+    if (!user) return;
+    const name =
+      data.name || (data.repoPath ? nameFromPath(data.repoPath) : "") || "Untitled Board";
+    await createBoardMutation.mutateAsync({
+      userId: user.id,
+      name,
+      repoPath: data.repoPath || undefined,
+    });
+    boardForm.reset();
     setShowNewBoard(false);
+  };
+
+  const handlePickFolder = async () => {
+    const selected = await openDialog({ directory: true, title: "Select Project Folder" });
+    if (selected) {
+      boardForm.setValue("repoPath", selected);
+      if (!boardForm.getValues("name")) {
+        boardForm.setValue("name", nameFromPath(selected));
+      }
+    }
   };
 
   return (
     <>
       <header className="flex h-12 shrink-0 items-center gap-2.5 border-b border-sofi-border bg-sofi-surface px-4">
         {/* Logo */}
-        <div className="flex items-center gap-2 mr-1">
-          <img src={logo} alt={APP_NAME} className="h-6 w-6" />
-          <span className="font-heading text-sm font-bold text-white hidden md:block">
-            {APP_NAME}
-          </span>
+        <div className="mr-1 flex items-center">
+          <img src={wordmark} alt={APP_NAME} className="hidden h-6 md:block" />
+          <img src={wordmark} alt={APP_NAME} className="h-5 w-5 md:hidden" />
         </div>
 
-        {/* Kanban Select with Board Dropdown */}
-        <Dropdown
-          trigger={
-            <NavButton
-              label="Kanban"
-              sublabel={activeBoard?.name}
-              isActive={activeView === VIEWS.KANBAN}
-              activeColor="bg-violet-primary"
-            />
-          }
-        >
-          <DropdownLabel>Boards</DropdownLabel>
-          {boards.map((board) => (
-            <DropdownItem
-              key={board.id}
-              active={board.id === activeBoard?.id}
-              onClick={() => {
-                setActiveBoard(board);
-                onViewChange(VIEWS.KANBAN);
-              }}
-            >
-              {board.name}
-            </DropdownItem>
-          ))}
-          <DropdownSeparator />
-          <DropdownItem onClick={() => setShowNewBoard(true)}>+ New Board...</DropdownItem>
-        </Dropdown>
+        {/* Navigation */}
+        <nav className="flex items-center gap-4 rounded-xl border border-sofi-border bg-sofi-elevated/60 px-3 py-1.5">
+          {/* Kanban Select */}
+          <Menu
+            trigger={
+              <NavSelect
+                icon="folder"
+                label={activeBoard?.name ?? "Kanban"}
+                isActive={activeView === "kanban"}
+                activeColor="bg-violet-primary"
+                activeShadow="shadow-lg shadow-violet-primary/20"
+              />
+            }
+          >
+            <MenuLabel>Boards</MenuLabel>
+            {boards.map((board) => (
+              <MenuItem
+                key={board.id}
+                active={board.id === activeBoard?.id}
+                onClick={() => {
+                  setActiveBoard(board);
+                  navigate({ to: "/kanban" });
+                }}
+              >
+                <span className="material-symbols-outlined !text-[16px]">folder</span>
+                {board.name}
+              </MenuItem>
+            ))}
+            <MenuSeparator />
+            <MenuItem onClick={() => setShowNewBoard(true)}>+ New Board...</MenuItem>
+          </Menu>
 
-        {/* Terminal Select */}
-        <NavButton
-          label="Terminal"
-          isActive={activeView === VIEWS.TERMINAL}
-          activeColor="bg-sofi-green"
-          onClick={() => onViewChange(VIEWS.TERMINAL)}
-        />
+          {/* Terminal Select */}
+          <NavSelect
+            label="TERMINAL"
+            isActive={activeView === "terminal"}
+            activeColor="bg-sofi-green"
+            activeShadow="shadow-lg shadow-sofi-green/20"
+            onClick={() => navigate({ to: "/terminal" })}
+          />
 
-        {/* Git Select */}
-        <NavButton
-          label="Git"
-          isActive={activeView === VIEWS.GIT}
-          activeColor="bg-sofi-orange"
-          onClick={() => onViewChange(VIEWS.GIT)}
-        />
+          {/* Git Select */}
+          <NavSelect
+            label="GIT"
+            isActive={activeView === "git"}
+            activeColor="bg-sofi-orange"
+            activeShadow="shadow-lg shadow-sofi-orange/20"
+            onClick={() => navigate({ to: "/git" })}
+          />
+        </nav>
 
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Agent Status Pills (dynamic) */}
-        <div className="hidden lg:flex items-center gap-1.5">
+        {/* Agent Status Pills */}
+        <div className="hidden items-center gap-1.5 lg:flex">
           {agents.map((a) => (
             <span
               key={a.config.agent_type}
-              className="flex items-center gap-1.5 rounded-full bg-sofi-elevated px-2.5 py-1 text-[10px] text-sofi-text-muted"
+              className="flex items-center gap-1.5 rounded-full bg-sofi-elevated px-2.5 py-1 text-base text-sofi-text-muted"
             >
               <span
                 className={cn(
@@ -111,92 +145,107 @@ export function TopBar({ activeView, onViewChange }: TopBarProps) {
           ))}
         </div>
 
+        {/* Settings */}
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/settings" })}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-sofi-text-dim hover:bg-white/5 hover:text-sofi-text"
+        >
+          <span className="material-symbols-outlined text-xl">settings</span>
+        </button>
+
+        {/* Notifications (placeholder) */}
+        <button
+          type="button"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-sofi-text-dim hover:bg-white/5 hover:text-sofi-text"
+        >
+          <span className="material-symbols-outlined text-xl">notifications</span>
+        </button>
+
         {/* User Avatar */}
-        <Dropdown
+        <Menu
           align="right"
           trigger={
             <button
               type="button"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-muted text-xs font-medium text-violet-hover"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-muted text-base font-medium text-violet-hover"
             >
               {userInitial}
             </button>
           }
         >
-          <DropdownLabel>{user?.username}</DropdownLabel>
-          <DropdownItem onClick={logout}>Sign Out</DropdownItem>
-        </Dropdown>
+          <MenuLabel>{user?.username}</MenuLabel>
+          <MenuItem onClick={logout}>Sign Out</MenuItem>
+        </Menu>
       </header>
 
-      {/* New Board Modal */}
-      <Modal open={showNewBoard} onClose={() => setShowNewBoard(false)} title="New Board">
-        <label className="mb-1 block font-label text-[10px] font-semibold uppercase tracking-wider text-sofi-text-dim">
-          Board Name
-        </label>
-        <input
-          type="text"
-          value={newBoardName}
-          onChange={(e) => setNewBoardName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleCreateBoard()}
-          placeholder="My Project"
-          autoFocus
-          className="mb-4 w-full rounded-lg border border-sofi-border bg-sofi-bg px-3 py-2.5 text-sm text-sofi-text placeholder:text-sofi-text-dim outline-none focus:border-violet-primary"
-        />
-        <label className="mb-1 block font-label text-[10px] font-semibold uppercase tracking-wider text-sofi-text-dim">
-          Repository Path (optional)
-        </label>
-        <input
-          type="text"
-          value={newBoardRepo}
-          onChange={(e) => setNewBoardRepo(e.target.value)}
-          placeholder="/path/to/git/repo"
-          className="mb-6 w-full rounded-lg border border-sofi-border bg-sofi-bg px-3 py-2.5 text-sm text-sofi-text placeholder:text-sofi-text-dim outline-none focus:border-violet-primary"
-        />
-        <button
-          type="button"
-          onClick={handleCreateBoard}
-          disabled={!newBoardName.trim()}
-          className="w-full rounded-lg bg-violet-primary py-2.5 text-sm font-semibold text-white hover:bg-violet-hover disabled:opacity-40"
-        >
-          Create Board
-        </button>
-      </Modal>
+      {/* New Board Dialog */}
+      <Dialog open={showNewBoard} onClose={() => setShowNewBoard(false)} title="New Board">
+        <form onSubmit={boardForm.handleSubmit(handleCreateBoard)}>
+          <Field className="mb-4">
+            <FieldLabel>Board Name</FieldLabel>
+            <Input {...boardForm.register("name")} placeholder="My Project" autoFocus />
+            <FieldError>{boardForm.formState.errors.name?.message}</FieldError>
+          </Field>
+          <Field className="mb-6">
+            <FieldLabel>Repository Path (optional)</FieldLabel>
+            <div className="flex items-center gap-2">
+              <Input
+                {...boardForm.register("repoPath")}
+                placeholder="/path/to/git/repo"
+                className="flex-1"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={handlePickFolder}>
+                Browse
+              </Button>
+            </div>
+          </Field>
+          <Button type="submit" size="lg" disabled={createBoardMutation.isPending}>
+            Create Board
+          </Button>
+        </form>
+      </Dialog>
     </>
   );
 }
 
-interface NavButtonProps {
+interface NavSelectProps {
   label: string;
-  sublabel?: string;
+  icon?: string;
   isActive: boolean;
   activeColor: string;
+  activeShadow?: string;
   onClick?: () => void;
 }
 
-function NavButton({ label, sublabel, isActive, activeColor, onClick }: NavButtonProps) {
+function NavSelect({ label, icon, isActive, activeColor, activeShadow, onClick }: NavSelectProps) {
+  const base = isActive
+    ? `${activeColor} text-white ${activeShadow ?? ""}`
+    : "bg-white/5 border border-white/10 text-sofi-text-muted hover:bg-white/10 hover:text-sofi-text";
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-        isActive
-          ? `${activeColor} text-white`
-          : "border border-sofi-border bg-transparent text-sofi-text-muted hover:bg-sofi-elevated hover:text-sofi-text",
-      )}
-    >
-      <span className="hidden md:inline">{sublabel ? `${label}: ${sublabel}` : label}</span>
-      <span className="md:hidden">{label.charAt(0)}</span>
-      <svg className="h-2.5 w-2.5 opacity-50" fill="none" viewBox="0 0 10 6">
-        <title>dropdown</title>
-        <path
-          d="M1 1l4 4 4-4"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+    <button type="button" onClick={onClick} className="flex items-center gap-0.5">
+      <span
+        className={cn(
+          "flex items-center gap-1.5 rounded-l-md px-3 py-1 text-sm font-semibold tracking-wider transition-colors",
+          base,
+        )}
+      >
+        {icon && <span className="material-symbols-outlined !text-[16px]">{icon}</span>}
+        {label}
+      </span>
+      <span className={cn("flex items-center rounded-r-md px-1 py-1 transition-colors", base)}>
+        <span className="material-symbols-outlined !text-[16px]">expand_more</span>
+      </span>
     </button>
   );
+}
+
+/** Derives a board name from a file path: "/Users/me/projects/my-app" → "My App" */
+function nameFromPath(path: string): string {
+  const folder = path.replace(/\/+$/, "").split("/").pop() ?? "";
+  return folder
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
 }
