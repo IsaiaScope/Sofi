@@ -143,3 +143,21 @@ async fn file_attachment_delete_unlinks_large_object(pool: PgPool) -> sqlx::Resu
     assert_eq!(orphan_count, 0, "lo_manage trigger must unlink large object on row delete");
     Ok(())
 }
+
+#[sqlx::test]
+async fn create_file_via_query_layer_round_trips(pool: PgPool) -> sqlx::Result<()> {
+    use sofi_lib::db::queries::attachments;
+
+    let task_id = seed_task(&pool).await?;
+    let bytes = b"hello postgres large object".to_vec();
+
+    let att = attachments::create_file(&pool, task_id, "greet.txt", "text/plain", &bytes)
+        .await
+        .unwrap();
+    assert_eq!(att.kind, "file");
+
+    let got = attachments::read_file(&pool, att.id).await.unwrap();
+    assert_eq!(got, bytes);
+
+    Ok(())
+}

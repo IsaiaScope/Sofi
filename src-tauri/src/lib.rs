@@ -1,7 +1,7 @@
 mod commands;
-mod db;
+pub mod db;
 mod error;
-mod models;
+pub mod models;
 mod services;
 
 use db::pool::create_pool;
@@ -56,6 +56,13 @@ pub fn run() {
             // Settings
             commands::settings::get_user_settings,
             commands::settings::update_user_settings,
+            // Attachments
+            commands::attachments::list_attachments,
+            commands::attachments::create_link_attachment,
+            commands::attachments::create_text_attachment,
+            commands::attachments::create_file_attachment,
+            commands::attachments::read_file_attachment,
+            commands::attachments::delete_attachment,
             // Git
             commands::git::git_status,
             commands::git::git_diff,
