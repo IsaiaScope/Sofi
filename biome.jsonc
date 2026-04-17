@@ -6,9 +6,12 @@
       "!**/src-tauri/",
       "!**/dist/",
       "!**/node_modules/",
-      "!**/.sofi-build/",
-      "!**/tests/",
-      "!**/*.css"
+      "!**/.sofi-build",
+      "!**/.claude",
+      "!**/.superpowers",
+      "!**/tests",
+      "!**/*.css",
+      "!**/routeTree.gen.ts"
     ]
   },
   "vcs": {
