@@ -1,5 +1,7 @@
 # Postgres Migration (Local Docker) Implementation Plan
 
+> **⚠️ SUPERSEDED — DO NOT CONTINUE EXECUTING (2026-04-17)** — This plan's sqlx-in-Tauri path has been replaced by a Django backend service plan at `/Users/isaia/.claude/plans/surf-the-internet-who-abundant-clover.md`. **Tasks 1–9 were already executed on `feature/postgres-migration` and merged to `dev` as historical snapshot / reference schema.** The Django path drops sqlx from Tauri entirely, moves attachments to Django `FileField`, and swaps Postgres blob storage for normal Django `MEDIA_ROOT` / S3. Tasks 10–15 of this plan were NOT executed and will not be — the Django plan covers LoadingGate, keychain token flow, and frontend wiring under a different shape. Agentic workers: halt if pointed at this plan; follow the Django plan instead.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace SQLite with local Docker-hosted PostgreSQL 16, establish a users-own-everything relational schema, eliminate all non-DB persistence (localStorage/sessionStorage/IndexedDB), and gate app render on a branded `LoadingGate` component that narrates the initial DB fetch.
