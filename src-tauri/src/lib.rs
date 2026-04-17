@@ -53,6 +53,9 @@ pub fn run() {
             // Agents
             commands::agents::list_agents,
             commands::agents::check_agent_available,
+            // Settings
+            commands::settings::get_user_settings,
+            commands::settings::update_user_settings,
             // Git
             commands::git::git_status,
             commands::git::git_diff,
