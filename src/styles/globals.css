@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
-@theme {
-  /* Sofi Dark Violet Theme */
+/* ======================================================================
+   Dark theme (Sofi's default — applied when no .light class is present)
+   ====================================================================== */
+:root {
+  /* Surfaces */
   --color-sofi-bg: #0f0f1a;
   --color-sofi-surface: #12121e;
   --color-sofi-elevated: #1e1e30;
@@ -30,16 +33,91 @@
   --color-sofi-text-muted: rgba(255, 255, 255, 0.5);
   --color-sofi-text-dim: rgba(255, 255, 255, 0.3);
 
-  /* Font Families */
+  /* Font Families (mode-invariant) */
   --font-sans: "Inter", system-ui, sans-serif;
   --font-heading: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
   --font-label: "Space Grotesk", "Inter", system-ui, sans-serif;
 }
 
+/* ======================================================================
+   Light theme — applied when <html class="light">
+   Terminal keeps dark bg regardless (code readability).
+   ====================================================================== */
+.light {
+  /* Surfaces */
+  --color-sofi-bg: #faf9ff;
+  --color-sofi-surface: #ffffff;
+  --color-sofi-elevated: #eeecf5;
+  /* --color-sofi-terminal intentionally unchanged — dark in both modes */
+  --color-sofi-border: rgba(0, 0, 0, 0.08);
+
+  /* Primary: Dark Violet (darker for contrast on light) */
+  --color-violet-primary: #6b21d8;
+  --color-violet-hover: #7c3aed;
+  --color-violet-muted: rgba(107, 33, 216, 0.12);
+
+  /* Cyan Accent (darker for contrast) */
+  --color-cyan-accent: #0891b2;
+  --color-cyan-hover: #06b6d4;
+  --color-cyan-muted: rgba(8, 145, 178, 0.12);
+
+  /* Semantic Colors (tuned for light) */
+  --color-sofi-green: #059669;
+  --color-sofi-orange: #b45309;
+  --color-sofi-blue: #1e5bd6;
+  --color-sofi-red: #dc2626;
+  --color-sofi-purple: #7c3aed;
+
+  /* Text */
+  --color-sofi-text: #1e1e2e;
+  --color-sofi-text-muted: rgba(0, 0, 0, 0.55);
+  --color-sofi-text-dim: rgba(0, 0, 0, 0.4);
+}
+
+/* ======================================================================
+   Tailwind @theme inline — resolve tokens at paint time from the CSS
+   custom properties above. Without `inline`, Tailwind would capture the
+   values at build time and the .light toggle would not work.
+   ====================================================================== */
+@theme inline {
+  --color-sofi-bg: var(--color-sofi-bg);
+  --color-sofi-surface: var(--color-sofi-surface);
+  --color-sofi-elevated: var(--color-sofi-elevated);
+  --color-sofi-terminal: var(--color-sofi-terminal);
+  --color-sofi-border: var(--color-sofi-border);
+
+  --color-violet-primary: var(--color-violet-primary);
+  --color-violet-hover: var(--color-violet-hover);
+  --color-violet-muted: var(--color-violet-muted);
+
+  --color-cyan-accent: var(--color-cyan-accent);
+  --color-cyan-hover: var(--color-cyan-hover);
+  --color-cyan-muted: var(--color-cyan-muted);
+
+  --color-sofi-green: var(--color-sofi-green);
+  --color-sofi-orange: var(--color-sofi-orange);
+  --color-sofi-blue: var(--color-sofi-blue);
+  --color-sofi-red: var(--color-sofi-red);
+  --color-sofi-purple: var(--color-sofi-purple);
+
+  --color-sofi-text: var(--color-sofi-text);
+  --color-sofi-text-muted: var(--color-sofi-text-muted);
+  --color-sofi-text-dim: var(--color-sofi-text-dim);
+
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-mono);
+  --font-label: var(--font-label);
+}
+
 /* Base dark theme */
 html {
   color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
 }
 
 body {
@@ -85,4 +163,12 @@ button,
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }
