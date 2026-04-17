@@ -1,41 +1,29 @@
 mod commands;
-mod db;
+pub mod db;
 mod error;
-mod models;
+pub mod models;
 mod services;
 
 use db::pool::create_pool;
 use services::pty_manager::PtyManager;
-use std::path::PathBuf;
 use tauri::Manager;
-
-fn get_db_path(app: &tauri::App) -> PathBuf {
-    let app_dir = app
-        .path()
-        .app_data_dir()
-        .expect("Failed to get app data dir");
-    std::fs::create_dir_all(&app_dir).expect("Failed to create app data dir");
-    app_dir.join("sofi.db")
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .setup(|app| {
+        .setup(|_app| {
             // Database
-            let db_path = get_db_path(app);
-            let db_url = format!("sqlite:{}", db_path.display());
             let pool = tauri::async_runtime::block_on(async {
-                create_pool(&db_url)
+                create_pool()
                     .await
                     .expect("Failed to create database pool")
             });
-            app.manage(pool);
+            _app.manage(pool);
 
             // PTY Manager
-            app.manage(PtyManager::new());
+            _app.manage(PtyManager::new());
 
             Ok(())
         })
@@ -65,6 +53,16 @@ pub fn run() {
             // Agents
             commands::agents::list_agents,
             commands::agents::check_agent_available,
+            // Settings
+            commands::settings::get_user_settings,
+            commands::settings::update_user_settings,
+            // Attachments
+            commands::attachments::list_attachments,
+            commands::attachments::create_link_attachment,
+            commands::attachments::create_text_attachment,
+            commands::attachments::create_file_attachment,
+            commands::attachments::read_file_attachment,
+            commands::attachments::delete_attachment,
             // Git
             commands::git::git_status,
             commands::git::git_diff,

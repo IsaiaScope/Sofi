@@ -3,3 +3,5 @@ pub mod kanban;
 pub mod terminal;
 pub mod agents;
 pub mod git;
+pub mod settings;
+pub mod attachments;

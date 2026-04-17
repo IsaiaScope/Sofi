@@ -1,8 +1,11 @@
 # Postgres Migration (Local Docker) — Design Spec
 
+> **⚠️ SUPERSEDED (2026-04-17)** — This spec's sqlx-in-Tauri + `pg_largeobject` approach has been replaced by a Django backend service plan at `/Users/isaia/.claude/plans/surf-the-internet-who-abundant-clover.md`. The database moves to Django (psycopg) behind an HTTPS API with bearer-token auth (Knox). Tauri becomes a thin client. Attachments use Django `FileField` (MEDIA_ROOT in dev, S3 in prod) — NOT `pg_largeobject`. This spec is retained for historical context: the **schema semantics** (users own settings/boards/columns/tasks/attachments; attachment kinds; agent_session_id) are still the right shape — they just get re-expressed as Django models. The **docker-compose Postgres + Adminer** infrastructure stays and gains a `django` sibling service. See `memory/project_sofi_postgres_migration.md` (now titled "Django backend service + Postgres + OAuth/bearer auth initiative") for the new architecture.
+
 **Date:** 2026-04-17
-**Status:** Draft, awaiting user review
+**Status:** Superseded (see banner above). Was: Draft, awaiting user review.
 **Supersedes:** The SQLite schema in `src-tauri/src/db/pool.rs`
+**Superseded by:** Django backend service plan (2026-04-17)
 
 ## Goal
 
