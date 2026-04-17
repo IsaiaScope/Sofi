@@ -159,3 +159,50 @@ async fn boards_insert_and_cascade(pool: PgPool) -> sqlx::Result<()> {
     assert_eq!(remaining, 0, "board must cascade-delete when its user is deleted");
     Ok(())
 }
+
+#[sqlx::test]
+async fn tasks_full_lifecycle(pool: PgPool) -> sqlx::Result<()> {
+    let user_id: Uuid = sqlx::query_scalar(
+        "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
+    )
+    .bind("frank").bind("f@x.com").bind("h")
+    .fetch_one(&pool).await?;
+
+    let board_id: Uuid = sqlx::query_scalar(
+        "INSERT INTO boards (user_id, name) VALUES ($1, $2) RETURNING id",
+    )
+    .bind(user_id).bind("B")
+    .fetch_one(&pool).await?;
+
+    let column_id: Uuid = sqlx::query_scalar(
+        "INSERT INTO columns (board_id, name) VALUES ($1, $2) RETURNING id",
+    )
+    .bind(board_id).bind("Backlog")
+    .fetch_one(&pool).await?;
+
+    let task_id: Uuid = sqlx::query_scalar(
+        "INSERT INTO tasks (column_id, board_id, title) VALUES ($1, $2, $3) RETURNING id",
+    )
+    .bind(column_id).bind(board_id).bind("Ship it")
+    .fetch_one(&pool).await?;
+
+    sqlx::query("UPDATE tasks SET agent_session_id = $2 WHERE id = $1")
+        .bind(task_id).bind("sess-abc")
+        .execute(&pool).await?;
+
+    let got: Option<String> = sqlx::query_scalar(
+        "SELECT agent_session_id FROM tasks WHERE id = $1"
+    )
+    .bind(task_id)
+    .fetch_one(&pool).await?;
+    assert_eq!(got.as_deref(), Some("sess-abc"));
+
+    let is_done: bool = sqlx::query_scalar(
+        "SELECT is_done_column FROM columns WHERE id = $1"
+    )
+    .bind(column_id)
+    .fetch_one(&pool).await?;
+    assert!(!is_done);
+
+    Ok(())
+}
