@@ -1,22 +1,23 @@
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Board {
-    pub id: String,
-    pub user_id: String,
+    pub id: Uuid,
+    pub user_id: Uuid,
     pub name: String,
     pub description: Option<String>,
     pub repo_path: Option<String>,
     pub sort_order: i32,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Column {
-    pub id: String,
-    pub board_id: String,
+    pub id: Uuid,
+    pub board_id: Uuid,
     pub name: String,
     pub color: Option<String>,
     pub sort_order: i32,
@@ -32,7 +33,7 @@ pub struct CreateBoardInput {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateColumnInput {
-    pub board_id: String,
+    pub board_id: Uuid,
     pub name: String,
     pub color: Option<String>,
     pub is_done_column: Option<bool>,

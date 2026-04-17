@@ -125,3 +125,37 @@ async fn user_settings_theme_check_constraint(pool: PgPool) -> sqlx::Result<()> 
     assert!(bad.is_err(), "CHECK constraint must reject invalid theme value");
     Ok(())
 }
+
+#[sqlx::test]
+async fn boards_insert_and_cascade(pool: PgPool) -> sqlx::Result<()> {
+    let user_id: Uuid = sqlx::query_scalar(
+        "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
+    )
+    .bind("eve")
+    .bind("eve@x.com")
+    .bind("h")
+    .fetch_one(&pool)
+    .await?;
+
+    let board_id: Uuid = sqlx::query_scalar(
+        "INSERT INTO boards (user_id, name) VALUES ($1, $2) RETURNING id",
+    )
+    .bind(user_id)
+    .bind("My Board")
+    .fetch_one(&pool)
+    .await?;
+
+    sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
+        .execute(&pool)
+        .await?;
+
+    let remaining: i64 =
+        sqlx::query_scalar("SELECT count(*) FROM boards WHERE id = $1")
+            .bind(board_id)
+            .fetch_one(&pool)
+            .await?;
+
+    assert_eq!(remaining, 0, "board must cascade-delete when its user is deleted");
+    Ok(())
+}
