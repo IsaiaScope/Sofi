@@ -54,7 +54,7 @@ function AppearanceSection() {
                 "flex-1 rounded-md px-4 py-2 text-base font-medium transition-colors",
                 isActive
                   ? "bg-violet-primary text-white shadow-lg shadow-violet-primary/20"
-                  : "text-sofi-text-muted hover:bg-white/5 hover:text-sofi-text",
+                  : "text-sofi-text-muted hover:bg-sofi-border hover:text-sofi-text",
               )}
             >
               <div>{opt.label}</div>

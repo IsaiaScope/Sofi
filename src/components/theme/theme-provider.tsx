@@ -20,9 +20,10 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "sofi:theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme | null) ?? defaultTheme,
-  );
+  const [theme, setThemeState] = useState<Theme>(() => {
+    const stored = localStorage.getItem(storageKey);
+    return stored === "light" || stored === "dark" || stored === "system" ? stored : defaultTheme;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
