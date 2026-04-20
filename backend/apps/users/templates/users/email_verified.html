@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+{% load i18n %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="dark light" />
-<title>Email verified — Sofi</title>
+<title>{% trans "Email verified — Sofi" %}</title>
 <style>
   :root {
     --bg: #0a0a12;
@@ -118,10 +118,10 @@
   <div class="card">
     <div class="wordmark">Sofi</div>
     <div class="check" aria-hidden="true">&#10003;</div>
-    <h1>Email verified</h1>
-    <p>Your account is ready. Return to Sofi and sign in with your credentials.</p>
-    <a class="button" href="sofi://verify-success">Return to Sofi</a>
-    <p class="hint">If nothing happens, make sure the Sofi desktop app is installed, then open it manually and sign in.</p>
+    <h1>{% trans "Email verified" %}</h1>
+    <p>{% trans "Your account is ready. Return to Sofi and sign in with your credentials." %}</p>
+    <a class="button" href="sofi://verify-success">{% trans "Return to Sofi" %}</a>
+    <p class="hint">{% trans "If nothing happens, make sure the Sofi desktop app is installed, then open it manually and sign in." %}</p>
   </div>
 </main>
 </body>

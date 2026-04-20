@@ -1,4 +1,4 @@
-{% load account %}{% user_display user as user_display %}{% load i18n %}{% autoescape off %}Hi {{ user_display }},
+{% load account %}{% user_display user as user_display %}{% load i18n %}{% autoescape off %}{% blocktrans with user_display=user_display activate_url=activate_url %}Hi {{ user_display }},
 
 Thanks for signing up for Sofi — your AI agent command center.
 
@@ -9,4 +9,4 @@ To finish setting up your account, verify your email by clicking the link below:
 This link expires in 3 days. If you didn't sign up for Sofi, you can safely ignore this message.
 
 — The Sofi team
-{% endautoescape %}
+{% endblocktrans %}{% endautoescape %}
