@@ -81,7 +81,7 @@ Always-on, deliberately static text that makes the viewport feel alive without a
 
 ### 1e. Accent rule
 
-- **Calm (7 of 9):** violet `#7c3aed` for primary actions and focused-input borders; cyan `#06b6d4` for chrome (brackets, readouts, glow edges). Violet and cyan never share an element.
+- **Calm (7 of 9):** violet `#7c3aed` is the **anchor color** — it appears on (1) the primary button, (2) the SOFI wordmark text in the top-left readout, (3) the screen heading (display font at 30px), and (4) the small pulse dot inside the card's header strip. Cyan `#06b6d4` is the **instrument chrome** color — corner brackets, ambient readouts (except the wordmark), field labels, input borders, OAuth outline-button borders, links, dividers, and glow edges. Violet and cyan never share an element. Focused-input borders intensify the cyan (not shift to violet).
 - **Fault (2 of 9):** chrome flips cyan → amber `#f97316`. Card stroke, bloom, corner brackets all amber. Violet primary-action stays violet (reload is still an action, not a warning). Body copy uses red `#ef4444` for the short failure line.
 
 ## Section 2 — Per-screen content + diegetic copy
@@ -216,3 +216,7 @@ Explicitly **not** in scope for this task: any React code changes.
 - **Stitch hallucinating chrome** — decorative additions that drift from spec. Mitigation: explicit repeated prompts + `edit_screens` to strip additions.
 - **Text size drift** — Stitch defaults often shrink labels; min 16px rule must be re-enforced per screen.
 - **Light-mode glow survival** — Stitch may keep glow effects when generating light variants. Candidate #1 for Phase 4 revision rounds.
+
+## Stitch asset IDs
+
+- Login (dark): `db38c8d3c42e4ec3923936e06a8e28e7` — chassis sign-off 2026-04-20

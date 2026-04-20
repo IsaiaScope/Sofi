@@ -1,7 +1,7 @@
 {
   "name": "sofi",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -64,8 +64,12 @@
     "@vitejs/plugin-react": "^4.6.0",
     "concurrently": "^9.2.1",
     "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "typescript": "~5.8.3",
     "ultracite": "^7.5.8",
     "vite": "^7.0.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,jsonc}": "biome check --write --no-errors-on-unmatched"
   }
 }
