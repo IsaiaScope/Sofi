@@ -41,3 +41,10 @@ export function toAppError(error: unknown): AppError {
     message: typeof error === "string" ? error : "An unexpected error occurred",
   };
 }
+
+import { translateErrorKind } from "./i18n/error-codes";
+
+export function getDisplayMessage(error: AppError): string {
+  if (error.kind) return translateErrorKind(error.kind);
+  return error.message;
+}
