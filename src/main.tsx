@@ -11,6 +11,7 @@ import { authKeys } from "@/features/auth/queries/keys";
 import { clearClientAuth } from "@/lib/api-client";
 import { ErrorCode, getDisplayMessage, isAppError } from "@/lib/errors";
 import { bootstrapI18n } from "@/lib/i18n";
+import { LocaleSync } from "@/lib/i18n/locale-sync";
 import { createAppRouter } from "./router";
 import "./styles/globals.css";
 
@@ -63,6 +64,7 @@ bootstrapI18n()
         <ErrorBoundary>
           <ThemeProvider>
             <QueryClientProvider client={queryClient}>
+              <LocaleSync />
               <Suspense fallback={null}>
                 <RouterProvider router={router} />
               </Suspense>
