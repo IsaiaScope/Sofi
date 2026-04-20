@@ -1,1 +1,3 @@
-pnpm lint && pnpm tsc --noEmit
+pnpm i18n:check
+(cd backend && uv run python manage.py compilemessages) || true
+pnpm exec lint-staged && pnpm exec tsc --noEmit
