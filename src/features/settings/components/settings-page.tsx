@@ -6,6 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useDeleteAccount } from "@/features/auth/queries/mutations";
 import { cn } from "@/lib/cn";
 import { ApiTokensSection } from "./api-tokens-section";
+import { LanguageSection } from "./language-section";
 
 export function SettingsPage() {
   const { t } = useTranslation("settings");
@@ -16,6 +17,7 @@ export function SettingsPage() {
       </header>
 
       <AppearanceSection />
+      <LanguageSection />
       <ApiTokensSection />
       <DangerZoneSection />
     </div>
