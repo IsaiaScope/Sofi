@@ -10,6 +10,7 @@ import {
 } from "@dnd-kit/core";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useCreateBoard, useMoveTask } from "../queries/mutations";
 import { boardsQueryOptions, columnsQueryOptions, tasksQueryOptions } from "../queries/options";
 import { useKanbanUIStore } from "../store/kanban-ui-store";
@@ -22,6 +23,7 @@ interface BoardProps {
 }
 
 export function Board({ onSwitchToTerminal }: BoardProps) {
+  const { t } = useTranslation("kanban");
   const { activeBoard, setActiveBoard } = useKanbanUIStore();
   const boardsQuery = useQuery(boardsQueryOptions());
   const columnsQuery = useQuery({
@@ -109,25 +111,27 @@ export function Board({ onSwitchToTerminal }: BoardProps) {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center text-sofi-text-muted">Loading...</div>
+      <div className="flex h-full items-center justify-center text-sofi-text-muted">
+        {t("board.loading")}
+      </div>
     );
   }
 
   if (boards.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <p className="text-sofi-text-muted">No boards yet</p>
+        <p className="text-sofi-text-muted">{t("board.empty")}</p>
         <button
           type="button"
           onClick={() =>
             createBoardMutation.mutate({
-              name: "My Project",
-              description: "My first Sofi board",
+              name: t("board.defaultBoardName"),
+              description: t("board.defaultBoardDescription"),
             })
           }
           className="rounded-lg bg-violet-primary px-4 py-2 text-base font-semibold text-white hover:bg-violet-hover"
         >
-          Create Your First Board
+          {t("board.emptyCta")}
         </button>
       </div>
     );

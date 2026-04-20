@@ -1,1 +1,38 @@
-{}
+{
+  "board": {
+    "loading": "Loading...",
+    "empty": "No boards yet",
+    "emptyCta": "Create Your First Board",
+    "defaultBoardName": "My Project",
+    "defaultBoardDescription": "My first Sofi board"
+  },
+  "column": {
+    "addTask": "+ Add task",
+    "taskTitlePlaceholder": "Task title..."
+  },
+  "taskCard": {
+    "noAgent": "No agent assigned",
+    "status": {
+      "live": "live",
+      "diffReady": "diff ready",
+      "done": "done",
+      "failed": "failed"
+    }
+  },
+  "taskDialog": {
+    "title": "Task Details",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Add a description...",
+    "statusLabel": "Status",
+    "agentLabel": "Agent",
+    "openTerminal": "Open Terminal",
+    "delete": "Delete Task",
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "review": "Review",
+      "done": "Done",
+      "failed": "Failed"
+    }
+  }
+}

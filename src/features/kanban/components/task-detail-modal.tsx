@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { FieldLabel } from "@/components/ui/field";
@@ -15,9 +16,10 @@ interface TaskDetailModalProps {
   onOpenTerminal?: () => void;
 }
 
-const STATUS_OPTIONS = ["pending", "running", "review", "done", "failed"];
+const STATUS_OPTIONS = ["pending", "running", "review", "done", "failed"] as const;
 
 export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailModalProps) {
+  const { t } = useTranslation("kanban");
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
 
@@ -43,7 +45,7 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
   };
 
   return (
-    <Dialog open={!!task} onClose={onClose} title="Task Details">
+    <Dialog open={!!task} onClose={onClose} title={t("taskDialog.title")}>
       {task && (
         <>
           {/* Title */}
@@ -59,7 +61,7 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
           />
 
           {/* Description */}
-          <FieldLabel className="mb-1">Description</FieldLabel>
+          <FieldLabel className="mb-1">{t("taskDialog.descriptionLabel")}</FieldLabel>
           <Textarea
             {...form.register("description")}
             onBlur={() => {
@@ -72,13 +74,13 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
                 });
               }
             }}
-            placeholder="Add a description..."
+            placeholder={t("taskDialog.descriptionPlaceholder")}
             rows={3}
             className="mb-4"
           />
 
           {/* Status */}
-          <FieldLabel className="mb-1">Status</FieldLabel>
+          <FieldLabel className="mb-1">{t("taskDialog.statusLabel")}</FieldLabel>
           <div className="mb-4 flex flex-wrap gap-1.5">
             {STATUS_OPTIONS.map((s) => (
               <Button
@@ -86,9 +88,9 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
                 variant={task.status === s ? "primary" : "ghost"}
                 size="sm"
                 onClick={() => handleStatusChange(s)}
-                className={cn("rounded-full capitalize", task.status !== s && "bg-white/5")}
+                className={cn("rounded-full", task.status !== s && "bg-white/5")}
               >
-                {s}
+                {t(`taskDialog.status.${s}` as const)}
               </Button>
             ))}
           </div>
@@ -96,7 +98,7 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
           {/* Agent Info (read-only for now) */}
           {task.agent_name && (
             <div className="mb-4 rounded-lg bg-white/[0.03] p-3">
-              <FieldLabel className="mb-1">Agent</FieldLabel>
+              <FieldLabel className="mb-1">{t("taskDialog.agentLabel")}</FieldLabel>
               <p className="text-base text-sofi-text">{task.agent_name}</p>
               {task.branch_name && (
                 <p className="mt-1 font-mono text-base text-sofi-text-muted">{task.branch_name}</p>
@@ -108,12 +110,12 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
           <div className="flex items-center gap-2 border-t border-sofi-border pt-4">
             {task.agent_type && (
               <Button variant="success" size="sm" onClick={onOpenTerminal}>
-                Open Terminal
+                {t("taskDialog.openTerminal")}
               </Button>
             )}
             <div className="flex-1" />
             <Button variant="danger" size="sm" onClick={handleDelete}>
-              Delete Task
+              {t("taskDialog.delete")}
             </Button>
           </div>
         </>

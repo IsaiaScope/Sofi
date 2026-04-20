@@ -3,6 +3,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCreateTask } from "../queries/mutations";
@@ -18,6 +19,7 @@ interface ColumnProps {
 }
 
 export function Column({ column, tasks, boardId, onTaskClick }: ColumnProps) {
+  const { t } = useTranslation("kanban");
   const [isAdding, setIsAdding] = useState(false);
   const createTaskMutation = useCreateTask();
 
@@ -80,14 +82,14 @@ export function Column({ column, tasks, boardId, onTaskClick }: ColumnProps) {
                 if (e.key === "Escape") handleCancel();
               }}
               onBlur={taskForm.handleSubmit(handleTaskSubmit)}
-              placeholder="Task title..."
+              placeholder={t("column.taskTitlePlaceholder")}
               autoFocus
             />
           </form>
         </div>
       ) : (
         <Button variant="ghost" size="sm" onClick={() => setIsAdding(true)} className="mt-2 w-full">
-          + Add task
+          {t("column.addTask")}
         </Button>
       )}
     </div>
