@@ -1,11 +1,13 @@
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 import { type AppSection, getActiveSection, getGitSubView } from "@/lib/routes";
 
 interface SidebarItem {
   icon: string;
-  label: string;
+  /** i18n key under the `sidebar` sub-tree of the `common` namespace. */
+  labelKey: string;
   route?: string;
   action?: string;
   position?: "bottom";
@@ -13,20 +15,20 @@ interface SidebarItem {
 
 const SECTION_ITEMS: Record<AppSection, SidebarItem[]> = {
   kanban: [
-    { icon: "dashboard", label: "Board", route: "/kanban" },
-    { icon: "smart_toy", label: "Agents", route: "/kanban/agents" },
-    { icon: "view_list", label: "List", route: "/kanban/list" },
-    { icon: "settings", label: "Settings", route: "/kanban/settings", position: "bottom" },
+    { icon: "dashboard", labelKey: "board", route: "/kanban" },
+    { icon: "smart_toy", labelKey: "agents", route: "/kanban/agents" },
+    { icon: "view_list", labelKey: "list", route: "/kanban/list" },
+    { icon: "settings", labelKey: "settings", route: "/kanban/settings", position: "bottom" },
   ],
   terminal: [
-    { icon: "terminal", label: "Sessions", route: "/terminal" },
-    { icon: "add", label: "New Session", action: "newTerminal" },
-    { icon: "settings", label: "Settings", route: "/terminal/settings", position: "bottom" },
+    { icon: "terminal", labelKey: "sessions", route: "/terminal" },
+    { icon: "add", labelKey: "newSession", action: "newTerminal" },
+    { icon: "settings", labelKey: "settings", route: "/terminal/settings", position: "bottom" },
   ],
   git: [
-    { icon: "difference", label: "Diff", route: "/git" },
-    { icon: "account_tree", label: "Branches", route: "/git/branches" },
-    { icon: "history", label: "History", route: "/git/history" },
+    { icon: "difference", labelKey: "diff", route: "/git" },
+    { icon: "account_tree", labelKey: "branches", route: "/git/branches" },
+    { icon: "history", labelKey: "history", route: "/git/history" },
   ],
   settings: [],
 };
@@ -59,6 +61,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNewTerminalSession }: SidebarProps) {
+  const { t } = useTranslation("common");
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const activeSection = getActiveSection(pathname);
@@ -84,9 +87,9 @@ export function Sidebar({ onNewTerminalSession }: SidebarProps) {
     <aside className="flex w-11 shrink-0 flex-col items-center gap-1 border-r border-sofi-border bg-sofi-bg py-2">
       {topItems.map((item) => (
         <SidebarIcon
-          key={item.icon + item.label}
+          key={item.icon + item.labelKey}
           icon={item.icon}
-          label={item.label}
+          label={t(`sidebar.${item.labelKey}`)}
           active={isItemActive(item, pathname, activeSection)}
           activeColor={SECTION_COLORS[activeSection]}
           onClick={() => handleClick(item)}
@@ -95,9 +98,9 @@ export function Sidebar({ onNewTerminalSession }: SidebarProps) {
       <div className="flex-1" />
       {bottomItems.map((item) => (
         <SidebarIcon
-          key={item.icon + item.label}
+          key={item.icon + item.labelKey}
           icon={item.icon}
-          label={item.label}
+          label={t(`sidebar.${item.labelKey}`)}
           active={isItemActive(item, pathname, activeSection)}
           activeColor={SECTION_COLORS[activeSection]}
           onClick={() => handleClick(item)}

@@ -3,6 +3,7 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import wordmark from "@/assets/sofi-wordmark.svg";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -21,6 +22,7 @@ import { APP_NAME } from "@/lib/constants";
 import { getActiveSection } from "@/lib/routes";
 
 export function TopBar() {
+  const { t } = useTranslation("common");
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const activeView = getActiveSection(pathname);
@@ -44,7 +46,9 @@ export function TopBar() {
   const handleCreateBoard = async (data: CreateBoardFormData) => {
     if (!user) return;
     const name =
-      data.name || (data.repoPath ? nameFromPath(data.repoPath) : "") || "Untitled Board";
+      data.name ||
+      (data.repoPath ? nameFromPath(data.repoPath) : "") ||
+      t("topbar.newBoardDialog.defaultName");
     await createBoardMutation.mutateAsync({
       name,
       repoPath: data.repoPath || undefined,
@@ -54,7 +58,10 @@ export function TopBar() {
   };
 
   const handlePickFolder = async () => {
-    const selected = await openDialog({ directory: true, title: "Select Project Folder" });
+    const selected = await openDialog({
+      directory: true,
+      title: t("topbar.newBoardDialog.folderPickerTitle"),
+    });
     if (selected) {
       boardForm.setValue("repoPath", selected);
       if (!boardForm.getValues("name")) {
@@ -79,14 +86,14 @@ export function TopBar() {
             trigger={
               <NavSelect
                 icon="folder"
-                label={activeBoard?.name ?? "Kanban"}
+                label={activeBoard?.name ?? t("topbar.kanban")}
                 isActive={activeView === "kanban"}
                 activeColor="bg-violet-primary"
                 activeShadow="shadow-lg shadow-violet-primary/20"
               />
             }
           >
-            <MenuLabel>Boards</MenuLabel>
+            <MenuLabel>{t("topbar.boards")}</MenuLabel>
             {boards.map((board) => (
               <MenuItem
                 key={board.id}
@@ -101,12 +108,12 @@ export function TopBar() {
               </MenuItem>
             ))}
             <MenuSeparator />
-            <MenuItem onClick={() => setShowNewBoard(true)}>+ New Board...</MenuItem>
+            <MenuItem onClick={() => setShowNewBoard(true)}>{t("topbar.newBoard")}</MenuItem>
           </Menu>
 
           {/* Terminal Select */}
           <NavSelect
-            label="TERMINAL"
+            label={t("topbar.terminal")}
             isActive={activeView === "terminal"}
             activeColor="bg-sofi-green"
             activeShadow="shadow-lg shadow-sofi-green/20"
@@ -115,7 +122,7 @@ export function TopBar() {
 
           {/* Git Select */}
           <NavSelect
-            label="GIT"
+            label={t("topbar.git")}
             isActive={activeView === "git"}
             activeColor="bg-sofi-orange"
             activeShadow="shadow-lg shadow-sofi-orange/20"
@@ -174,33 +181,41 @@ export function TopBar() {
           }
         >
           <MenuLabel>{user?.email}</MenuLabel>
-          <MenuItem onClick={() => logout.mutate()}>Sign Out</MenuItem>
+          <MenuItem onClick={() => logout.mutate()}>{t("topbar.signOut")}</MenuItem>
         </Menu>
       </header>
 
       {/* New Board Dialog */}
-      <Dialog open={showNewBoard} onClose={() => setShowNewBoard(false)} title="New Board">
+      <Dialog
+        open={showNewBoard}
+        onClose={() => setShowNewBoard(false)}
+        title={t("topbar.newBoardDialog.title")}
+      >
         <form onSubmit={boardForm.handleSubmit(handleCreateBoard)}>
           <Field className="mb-4">
-            <FieldLabel>Board Name</FieldLabel>
-            <Input {...boardForm.register("name")} placeholder="My Project" autoFocus />
+            <FieldLabel>{t("topbar.newBoardDialog.nameLabel")}</FieldLabel>
+            <Input
+              {...boardForm.register("name")}
+              placeholder={t("topbar.newBoardDialog.namePlaceholder")}
+              autoFocus
+            />
             <FieldError>{boardForm.formState.errors.name?.message}</FieldError>
           </Field>
           <Field className="mb-6">
-            <FieldLabel>Repository Path (optional)</FieldLabel>
+            <FieldLabel>{t("topbar.newBoardDialog.repoLabel")}</FieldLabel>
             <div className="flex items-center gap-2">
               <Input
                 {...boardForm.register("repoPath")}
-                placeholder="/path/to/git/repo"
+                placeholder={t("topbar.newBoardDialog.repoPlaceholder")}
                 className="flex-1"
               />
               <Button type="button" variant="outline" size="sm" onClick={handlePickFolder}>
-                Browse
+                {t("topbar.newBoardDialog.browse")}
               </Button>
             </div>
           </Field>
           <Button type="submit" size="lg" disabled={createBoardMutation.isPending}>
-            Create Board
+            {t("topbar.newBoardDialog.create")}
           </Button>
         </form>
       </Dialog>

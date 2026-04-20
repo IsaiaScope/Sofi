@@ -1,1 +1,38 @@
-{}
+{
+  "topbar": {
+    "kanban": "Kanban",
+    "terminal": "TERMINAL",
+    "git": "GIT",
+    "boards": "Boards",
+    "newBoard": "+ New Board...",
+    "signOut": "Sign Out",
+    "newBoardDialog": {
+      "title": "New Board",
+      "nameLabel": "Board Name",
+      "namePlaceholder": "My Project",
+      "repoLabel": "Repository Path (optional)",
+      "repoPlaceholder": "/path/to/git/repo",
+      "browse": "Browse",
+      "create": "Create Board",
+      "defaultName": "Untitled Board",
+      "folderPickerTitle": "Select Project Folder"
+    }
+  },
+  "sidebar": {
+    "board": "Board",
+    "agents": "Agents",
+    "list": "List",
+    "settings": "Settings",
+    "sessions": "Sessions",
+    "newSession": "New Session",
+    "diff": "Diff",
+    "branches": "Branches",
+    "history": "History"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "retry": "Retry"
+  }
+}
