@@ -217,6 +217,40 @@ Explicitly **not** in scope for this task: any React code changes.
 - **Text size drift** — Stitch defaults often shrink labels; min 16px rule must be re-enforced per screen.
 - **Light-mode glow survival** — Stitch may keep glow effects when generating light variants. Candidate #1 for Phase 4 revision rounds.
 
+## Section 5 — Shared Layout Contract
+
+Derived from diffing the two approved screens (Login + Register, 2026-04-20). These are the canonical structural rules every subsequent screen must satisfy. If Stitch output violates any, apply `edit_screens` before accepting.
+
+**Responsiveness policy:** Sofi is a Tauri desktop app with an ~800px minimum window width. Auth/error screens are static-layout with a narrow clamp; they do not reflow across breakpoints. Below 768px (outside Sofi's supported range) the ambient chrome bars collapse to hidden rather than overlap the card.
+
+### The 17 rules
+
+1. **Viewport background:** `bg-[#0a0a12]` — hardcoded hex, no gradient.
+2. **Grid overlay:** `background-image: linear-gradient(to right, rgba(6,182,212,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(6,182,212,0.06) 1px, transparent 1px); background-size: 32px 32px;` — cyan 6% opacity, not white.
+3. **Scanline overlay:** `linear-gradient(transparent 50%, rgba(0,0,0,0.25) 50%) 100% 4px` with element `opacity-30`; `pointer-events: none`.
+4. **Corner brackets:** 40×40px, `border: 2px solid #06b6d4`, `opacity: 0.8`, offset `2rem` (32px) from each viewport edge, no border-radius. Four L-shapes only — one per corner.
+5. **Ambient readouts — structural pattern:** two `fixed` full-width bars using `flex justify-between`. Top: `fixed top-0 left-0 w-full px-8 py-6 flex justify-between items-start z-10 pointer-events-none`. Bottom mirrors with `bottom-0 items-end`. Do NOT use 4 separate `absolute` elements.
+6. **Ambient readout typography:** `font-mono text-[16px]`. Top-left: `text-[#7c3aed]` (the SOFI wordmark anchor). Top-right: muted tracking-widest. Bottom-left: `text-[#06b6d4] uppercase tracking-widest` (status line). Bottom-right: `text-[#06b6d4] tracking-widest` + 10px cyan pulse dot.
+7. **Card width:** `max-w-[28rem] w-full` — clamps on narrower viewports without overflow. No fixed width.
+8. **Card background + border:** `bg-[#111126]` (surface-container-low) + `border border-[#06b6d4]/30` — 1px cyan stroke at 30% opacity.
+9. **Card chamfer:** `clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)` — 16px cut on bottom-right corner only. All other corners 0 border-radius.
+10. **Card glow:** `shadow-[0_0_40px_rgba(124,58,237,0.15)]` applied to the card element directly — no extra wrapper div for the bloom.
+11. **Card padding + internal flow:** `p-8` uniform 2rem padding, content arranged as `flex flex-col gap-6`. No segmented `pt-8 pb-4 pt-2` padding.
+12. **Header strip:** `font-mono text-[16px] text-[#727297] uppercase tracking-wider pb-2 border-b border-[#06b6d4]/20`, with a leading `w-1.5 h-1.5 bg-[#7c3aed] animate-pulse` violet dot. Minimum 16px — no `text-xs` fallback.
+13. **Screen heading:** `font-headline text-[30px] font-black text-[#7c3aed] tracking-widest uppercase`. Violet anchor. No `font-variant: small-caps`, no `tracking-tight`.
+14. **Form fields:** `space-y-6` between fields. Each field = label + input stack with `space-y-2`. Label: `font-mono text-[16px] text-[#a8a7cf] uppercase tracking-wider`. Input: `w-full px-4 py-3 bg-[#0a0a12] border border-[#06b6d4]/30 font-mono text-[16px]` + `focus:border-[#06b6d4] focus:ring-1 focus:ring-[#06b6d4]` + `border-radius: 0`.
+15. **Primary button:** `w-full py-4 bg-[#7c3aed] text-white font-mono text-[16px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(124,58,237,0.3)] hover:bg-[#8a4cfc] transition-colors` + `border-radius: 0`. No pill shape, glow on rest state.
+16. **Footer / secondary text:** `font-mono text-[16px] text-[#727297]`. Inline links: `text-[#06b6d4] hover:underline underline-offset-4`. **Absolute min: 16px everywhere.** No `text-sm`, no `text-xs`.
+17. **Responsiveness clamp:** root element carries `min-w-[48rem]`; ambient readout bars carry `max-sm:hidden` (hide below 768px). Card itself handles its own reflow via Rule 7.
+
+### Known contract violations in the two reference screens (accepted as-is, but fixed in subsequent generations)
+
+- **Register** (`c5e1937bdbcd4b67a40ce9f5fe69ff86`) — header strip uses `text-xs` (~12px), labels use `text-[10px]`, footer uses `text-sm` (~14px). All below the 16px minimum. Also uses `bg-surface` instead of the hardcoded `#111126`.
+- **Login** (`4aa2465606c543a683058719fae30fa9`) — uses white (not cyan) grid overlay at 0.06 opacity; corner brackets offset at `1.25rem` (20px) instead of `2rem`; scanline via element opacity-30 on a darker base — approximately correct but structurally differs.
+
+These deltas are recorded for reference. The contract above supersedes them; new screens must satisfy the 17 rules. Translation to React implementation (separate cycle) will align Login + Register with the contract at the code level.
+
 ## Stitch asset IDs
 
-- Login (dark): `db38c8d3c42e4ec3923936e06a8e28e7` — chassis sign-off 2026-04-20
+- Login (dark): `4aa2465606c543a683058719fae30fa9` — user-selected 2026-04-20 (supersedes earlier `db38c8d3c42e4ec3923936e06a8e28e7`)
+- Register (dark): `c5e1937bdbcd4b67a40ce9f5fe69ff86` — user-selected 2026-04-20
