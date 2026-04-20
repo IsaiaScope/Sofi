@@ -1,1 +1,7 @@
-{}
+{
+  "keychain.access_denied": "Sofi can't access your system keychain. Please check your OS keychain settings.",
+  "keychain.unavailable": "System keychain is unavailable on this device.",
+  "oauth.cancelled": "Sign-in was cancelled.",
+  "oauth.provider_error": "The identity provider returned an error. Please try again.",
+  "internal.unknown": "Something went wrong. Please try again."
+}
