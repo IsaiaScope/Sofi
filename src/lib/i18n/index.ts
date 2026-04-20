@@ -32,6 +32,9 @@ export function bootstrapI18n(): Promise<typeof i18n> {
         returnEmptyString: false,
       });
     localStorage.setItem(LOCAL_STORAGE_KEY, initial);
+    const { z } = await import("zod");
+    const { makeZodI18nMap } = await import("zod-i18n-map");
+    z.setErrorMap(makeZodI18nMap({ t: i18n.t.bind(i18n), ns: "zod" }));
     return i18n;
   })();
   return bootstrapPromise;
