@@ -1,5 +1,5 @@
 mod commands;
-mod error;
+pub mod error;
 mod services;
 
 use services::pty_manager::PtyManager;

@@ -33,7 +33,7 @@ pub fn auth_get_token() -> Result<Option<String>, AppError> {
     match keychain_entry()?.get_password() {
         Ok(t) => Ok(Some(t)),
         Err(keyring::Error::NoEntry) => Ok(None),
-        Err(e) => Err(AppError::Keychain(e.to_string())),
+        Err(e) => Err(AppError::KeychainUnavailable(e.to_string())),
     }
 }
 
@@ -41,7 +41,7 @@ pub fn auth_get_token() -> Result<Option<String>, AppError> {
 pub fn auth_clear_token() -> Result<(), AppError> {
     match keychain_entry()?.delete_credential() {
         Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
-        Err(e) => Err(AppError::Keychain(e.to_string())),
+        Err(e) => Err(AppError::KeychainUnavailable(e.to_string())),
     }
 }
 
@@ -87,7 +87,7 @@ pub async fn oauth_start(
             }
         },
     )
-    .map_err(|e| AppError::Oauth(format!("Failed to start loopback listener: {e}")))?;
+    .map_err(|e| AppError::OauthProviderError(format!("Failed to start loopback listener: {e}")))?;
 
     let callback_url = format!("http://127.0.0.1:{port}");
     let separator = if args.partial_auth_url.contains('?') { '&' } else { '?' };
@@ -100,16 +100,16 @@ pub async fn oauth_start(
 
     app.opener()
         .open_url(&full_url, None::<&str>)
-        .map_err(|e| AppError::Oauth(format!("Failed to open browser: {e}")))?;
+        .map_err(|e| AppError::OauthProviderError(format!("Failed to open browser: {e}")))?;
 
     // 5-minute cap so a dead listener doesn't leak.
     let redirect = tokio::time::timeout(std::time::Duration::from_secs(300), rx)
         .await
-        .map_err(|_| AppError::Oauth("Timeout waiting for OAuth callback".into()))?
-        .map_err(|_| AppError::Oauth("OAuth channel closed prematurely".into()))?;
+        .map_err(|_| AppError::OauthProviderError("Timeout waiting for OAuth callback".into()))?
+        .map_err(|_| AppError::OauthProviderError("OAuth channel closed prematurely".into()))?;
 
     let parsed = url::Url::parse(&redirect)
-        .map_err(|e| AppError::Oauth(format!("Malformed callback URL: {e}")))?;
+        .map_err(|e| AppError::OauthProviderError(format!("Malformed callback URL: {e}")))?;
 
     let mut code = None;
     let mut received_state = None;
@@ -124,12 +124,12 @@ pub async fn oauth_start(
     }
 
     if let Some(err) = received_error {
-        return Err(AppError::Oauth(format!("Provider error: {err}")));
+        return Err(AppError::OauthProviderError(format!("Provider error: {err}")));
     }
     if received_state.as_deref() != Some(args.expected_state.as_str()) {
-        return Err(AppError::Oauth("State mismatch (possible CSRF)".into()));
+        return Err(AppError::OauthProviderError("State mismatch (possible CSRF)".into()));
     }
-    let code = code.ok_or_else(|| AppError::Oauth("No `code` in callback".into()))?;
+    let code = code.ok_or_else(|| AppError::OauthProviderError("No `code` in callback".into()))?;
 
     Ok(OauthResult { code, callback_url })
 }
