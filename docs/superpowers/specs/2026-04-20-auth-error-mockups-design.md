@@ -252,5 +252,5 @@ These deltas are recorded for reference. The contract above supersedes them; new
 
 ## Stitch asset IDs
 
-- Login (dark): `4aa2465606c543a683058719fae30fa9` — user-selected 2026-04-20 (supersedes earlier `db38c8d3c42e4ec3923936e06a8e28e7`)
+- Login (dark): `1cdf40941b094a9590a85411649c7835` — card-style-unified edit of earlier `4aa2465606c543a683058719fae30fa9`; card frame now matches Register (solid `#111126`, no backdrop-blur, box-shadow glow replacing separate bloom div, `overflow-hidden`). Content inside card unchanged. User-approved 2026-04-20.
 - Register (dark): `c5e1937bdbcd4b67a40ce9f5fe69ff86` — user-selected 2026-04-20
