@@ -29,7 +29,7 @@ export function TopBar() {
   const logout = useLogout();
   const agentsQuery = useAgents();
   const agents = agentsQuery.data ?? [];
-  const boardsQuery = useBoards(user?.id ?? "");
+  const boardsQuery = useBoards({ enabled: !!user });
   const boards = boardsQuery.data ?? [];
   const createBoardMutation = useCreateBoard();
   const [showNewBoard, setShowNewBoard] = useState(false);
@@ -39,14 +39,13 @@ export function TopBar() {
     defaultValues: { name: "", repoPath: "" },
   });
 
-  const userInitial = (user?.display_name ?? user?.username ?? "?")[0].toUpperCase();
+  const userInitial = (user?.display_name || user?.email || "?")[0].toUpperCase();
 
   const handleCreateBoard = async (data: CreateBoardFormData) => {
     if (!user) return;
     const name =
       data.name || (data.repoPath ? nameFromPath(data.repoPath) : "") || "Untitled Board";
     await createBoardMutation.mutateAsync({
-      userId: user.id,
       name,
       repoPath: data.repoPath || undefined,
     });
@@ -174,8 +173,8 @@ export function TopBar() {
             </button>
           }
         >
-          <MenuLabel>{user?.username}</MenuLabel>
-          <MenuItem onClick={logout}>Sign Out</MenuItem>
+          <MenuLabel>{user?.email}</MenuLabel>
+          <MenuItem onClick={() => logout.mutate()}>Sign Out</MenuItem>
         </Menu>
       </header>
 
@@ -227,7 +226,7 @@ function NavSelect({ label, icon, isActive, activeColor, activeShadow, onClick }
     <button type="button" onClick={onClick} className="flex items-center gap-0.5">
       <span
         className={cn(
-          "flex items-center gap-1.5 rounded-l-md px-3 py-1 text-sm font-semibold tracking-wider transition-colors",
+          "flex items-center gap-1.5 rounded-l-md px-3 py-1 text-base font-semibold tracking-wider transition-colors",
           base,
         )}
       >

@@ -1,5 +1,6 @@
 import { useTheme } from "@/components/theme/theme-provider";
 import { cn } from "@/lib/cn";
+import { ApiTokensSection } from "./api-tokens-section";
 
 export function SettingsPage() {
   return (
@@ -9,6 +10,7 @@ export function SettingsPage() {
       </header>
 
       <AppearanceSection />
+      <ApiTokensSection />
     </div>
   );
 }
@@ -38,7 +40,7 @@ function AppearanceSection() {
         {options.map((opt) => {
           const isActive = theme === opt.value;
           return (
-            // biome-ignore lint: styled segmented control requires button container
+            // biome-ignore lint/a11y/useSemanticElements: styled segmented control requires <button role="radio"> rather than a native <input type="radio">.
             <button
               key={opt.value}
               type="button"

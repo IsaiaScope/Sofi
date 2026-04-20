@@ -2,6 +2,9 @@ export const APP_NAME = "Sofi";
 export const APP_VERSION = "0.1.0";
 export const APP_DESCRIPTION = "Agent Command Center";
 
+// Tauri-registered deep link scheme; mirrored in src-tauri/tauri.conf.json.
+export const DEEP_LINK_SCHEME = "sofi";
+
 export const KANBAN_COLUMNS = {
   BACKLOG: "backlog",
   IN_PROGRESS: "in-progress",

@@ -21,6 +21,7 @@ src-tauri/target/
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # Logs
 logs/
@@ -45,3 +46,12 @@ pnpm-debug.log*
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Python (backend/)
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+backend/staticfiles/
+backend/media/
+backend/db.sqlite3

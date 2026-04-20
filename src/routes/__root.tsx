@@ -1,12 +1,16 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { Toaster } from "sonner";
+import { useDeepLink } from "@/features/auth/hooks/use-deep-link";
+import { useAppZoom } from "@/lib/hooks/use-app-zoom";
 
 interface RouterContext {
   queryClient: QueryClient;
 }
 
 function RootComponent() {
+  useDeepLink();
+  useAppZoom();
   return (
     <>
       <Outlet />

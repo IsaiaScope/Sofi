@@ -2,17 +2,11 @@ use serde::Serialize;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("Database error: {0}")]
-    Database(#[from] sqlx::Error),
+    #[error("Keychain error: {0}")]
+    Keychain(String),
 
-    #[error("Authentication failed: {0}")]
-    Auth(String),
-
-    #[error("Not found: {0}")]
-    NotFound(String),
-
-    #[error("Validation error: {0}")]
-    Validation(String),
+    #[error("OAuth error: {0}")]
+    Oauth(String),
 
     #[error("Internal error: {0}")]
     Internal(String),
@@ -20,21 +14,18 @@ pub enum AppError {
 
 impl AppError {
     pub fn status_code(&self) -> u16 {
-        match self {
-            Self::Validation(_) => 400,
-            Self::Auth(_) => 401,
-            Self::NotFound(_) => 404,
-            Self::Database(_) | Self::Internal(_) => 500,
-        }
+        500
     }
 
     pub fn user_message(&self) -> String {
-        match self {
-            Self::Database(e) => format!("A database error occurred: {e}"),
-            Self::Auth(msg) | Self::NotFound(msg) | Self::Validation(msg) | Self::Internal(msg) => {
-                msg.clone()
-            }
-        }
+        let (Self::Keychain(msg) | Self::Oauth(msg) | Self::Internal(msg)) = self;
+        msg.clone()
+    }
+}
+
+impl From<keyring::Error> for AppError {
+    fn from(err: keyring::Error) -> Self {
+        Self::Keychain(err.to_string())
     }
 }
 

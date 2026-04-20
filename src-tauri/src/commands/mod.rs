@@ -1,7 +1,5 @@
-pub mod auth;
-pub mod kanban;
-pub mod terminal;
 pub mod agents;
+pub mod auth;
 pub mod git;
-pub mod settings;
-pub mod attachments;
+pub mod terminal;
+pub mod window;

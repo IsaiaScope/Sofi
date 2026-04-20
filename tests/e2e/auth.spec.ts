@@ -11,7 +11,7 @@ test.describe("Authentication", () => {
   });
 
   test("can navigate to register page", async ({ page }) => {
-    await page.click("text=Request Access");
+    await page.click("text=Create account");
     await expect(page.locator("text=Create Account")).toBeVisible();
   });
 
@@ -27,16 +27,17 @@ test.describe("Authentication", () => {
 
   test("register and login flow", async ({ page }) => {
     // Navigate to register
-    await page.click("text=Request Access");
+    await page.click("text=Create account");
 
     // Fill registration form
     await page.fill('input[placeholder="Your name"]', "Test User");
     await page.fill('input[placeholder="operator"]', `testuser_${Date.now()}`);
     await page.fill('input[placeholder="you@example.com"]', `test${Date.now()}@sofi.dev`);
     await page.fill('input[placeholder="••••••••"]', "password123");
-    await page.click("text=Initialize Session");
+    await page.click("text=Sign Up");
 
-    // Should land on the main app (Kanban view)
-    await expect(page.locator("text=Sofi")).toBeVisible({ timeout: 10000 });
+    // With mandatory email verification, the user is sent to the Check-Email
+    // page instead of the main app.
+    await expect(page.locator("text=Check your inbox")).toBeVisible({ timeout: 10000 });
   });
 });

@@ -1,113 +1,57 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import wordmark from "@/assets/sofi-wordmark.svg";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { APP_NAME } from "@/lib/constants";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useRegister } from "../queries/mutations";
 import { type RegisterFormData, registerSchema } from "../schemas";
+import { isVerificationPending } from "../types";
+import { AuthShell } from "./auth-shell";
+import { ErrorBanner } from "./error-banner";
 
 interface RegisterPageProps {
   onSwitchToLogin: () => void;
+  onVerificationPending: (email: string) => void;
+  onAuthenticated: () => void;
 }
 
-export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
+export function RegisterPage({
+  onSwitchToLogin,
+  onVerificationPending,
+  onAuthenticated,
+}: RegisterPageProps) {
   const registerMutation = useRegister();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { displayName: "", username: "", email: "", password: "" },
+    defaultValues: { displayName: "", email: "", password1: "", password2: "" },
   });
 
   const onSubmit = (data: RegisterFormData) => {
-    registerMutation.mutate({
-      username: data.username,
-      email: data.email,
-      password: data.password,
-      display_name: data.displayName || undefined,
-    });
+    registerMutation.mutate(
+      {
+        email: data.email,
+        password1: data.password1,
+        password2: data.password2,
+        display_name: data.displayName || undefined,
+      },
+      {
+        onSuccess: (response) => {
+          if (isVerificationPending(response)) {
+            onVerificationPending(data.email);
+          } else {
+            onAuthenticated();
+          }
+        },
+      },
+    );
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-sofi-terminal p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <img src={wordmark} alt={APP_NAME} className="h-14" />
-          <h1 className="font-heading text-xl font-bold text-white">Create Account</h1>
-          <p className="text-base text-sofi-text-muted">Set up your command center</p>
-        </div>
-
-        {/* Card */}
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="rounded-xl border border-sofi-border bg-sofi-surface p-6"
-        >
-          {registerMutation.error && (
-            <div className="mb-4 rounded-lg bg-sofi-red/10 px-3 py-2 text-base text-sofi-red">
-              {registerMutation.error.message}
-            </div>
-          )}
-
-          {/* Display Name */}
-          <Field className="mb-4">
-            <FieldLabel>Display Name</FieldLabel>
-            <Input
-              {...form.register("displayName")}
-              placeholder="Your name"
-              aria-invalid={!!form.formState.errors.displayName}
-            />
-            <FieldError>{form.formState.errors.displayName?.message}</FieldError>
-          </Field>
-
-          {/* Username */}
-          <Field className="mb-4">
-            <FieldLabel>Username</FieldLabel>
-            <Input
-              {...form.register("username")}
-              placeholder="operator"
-              aria-invalid={!!form.formState.errors.username}
-            />
-            <FieldError>{form.formState.errors.username?.message}</FieldError>
-          </Field>
-
-          {/* Email */}
-          <Field className="mb-4">
-            <FieldLabel>Email</FieldLabel>
-            <Input
-              {...form.register("email")}
-              type="email"
-              placeholder="you@example.com"
-              aria-invalid={!!form.formState.errors.email}
-            />
-            <FieldError>{form.formState.errors.email?.message}</FieldError>
-          </Field>
-
-          {/* Password */}
-          <Field className="mb-6">
-            <FieldLabel>Password</FieldLabel>
-            <Input
-              {...form.register("password")}
-              type="password"
-              placeholder="••••••••"
-              aria-invalid={!!form.formState.errors.password}
-            />
-            <FieldError>{form.formState.errors.password?.message}</FieldError>
-          </Field>
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            size="lg"
-            disabled={form.formState.isSubmitting || registerMutation.isPending}
-          >
-            {registerMutation.isPending ? "Creating..." : "Initialize Session"}
-          </Button>
-        </form>
-
-        {/* Footer */}
-        <p className="mt-6 text-center text-base text-sofi-text-muted">
+    <AuthShell
+      footer={
+        <>
           Already have access?{" "}
           <button
             type="button"
@@ -116,8 +60,65 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
           >
             Sign In
           </button>
-        </p>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <h1 className="-mt-2 mb-6 text-center font-heading text-lg font-semibold text-sofi-text">
+          Create Account
+        </h1>
+
+        {registerMutation.error && <ErrorBanner message={registerMutation.error.message} />}
+
+        <Field className="mb-4">
+          <FieldLabel>Display Name</FieldLabel>
+          <Input
+            {...form.register("displayName")}
+            placeholder="sofi"
+            aria-invalid={!!form.formState.errors.displayName}
+          />
+          <FieldError>{form.formState.errors.displayName?.message}</FieldError>
+        </Field>
+
+        <Field className="mb-4">
+          <FieldLabel>Email</FieldLabel>
+          <Input
+            {...form.register("email")}
+            type="email"
+            placeholder="sofi@email.com"
+            aria-invalid={!!form.formState.errors.email}
+          />
+          <FieldError>{form.formState.errors.email?.message}</FieldError>
+        </Field>
+
+        <Field className="mb-4">
+          <FieldLabel>Password</FieldLabel>
+          <PasswordInput
+            {...form.register("password1")}
+            placeholder="••••••••"
+            aria-invalid={!!form.formState.errors.password1}
+          />
+          <FieldError>{form.formState.errors.password1?.message}</FieldError>
+        </Field>
+
+        <Field className="mb-6">
+          <FieldLabel>Confirm Password</FieldLabel>
+          <PasswordInput
+            {...form.register("password2")}
+            placeholder="••••••••"
+            aria-invalid={!!form.formState.errors.password2}
+          />
+          <FieldError>{form.formState.errors.password2?.message}</FieldError>
+        </Field>
+
+        <Button
+          type="submit"
+          size="lg"
+          disabled={form.formState.isSubmitting || registerMutation.isPending}
+        >
+          {registerMutation.isPending ? "Creating..." : "Sign Up"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

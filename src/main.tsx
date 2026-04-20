@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { authKeys } from "@/features/auth/queries/keys";
+import { clearClientAuth } from "@/lib/api-client";
 import { ErrorCode, isAppError } from "@/lib/errors";
 import { createAppRouter } from "./router";
 import "./styles/globals.css";
 
 function handleAuthError() {
-  localStorage.removeItem("sofi_token");
+  void clearClientAuth();
   queryClient.setQueryData(authKeys.session(), null);
 }
 

@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "com.isaiascope.sofi",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "pnpm dev:all",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
@@ -16,7 +16,9 @@
         "width": 1280,
         "height": 800,
         "minWidth": 640,
-        "minHeight": 480
+        "minHeight": 480,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ],
     "security": {
@@ -33,5 +35,12 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["sofi"]
+      }
+    }
   }
 }

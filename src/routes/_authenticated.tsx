@@ -19,7 +19,7 @@ function AuthenticatedLayout() {
     <AppLayout>
       {APP_SECTIONS.map((section) => (
         <div key={section} className={activeSection === section ? "" : "hidden"}>
-          {section === "kanban" && <Board userId={user.id} />}
+          {section === "kanban" && <Board />}
           {section === "terminal" && <TerminalView />}
           {section === "git" && <GitView />}
           {section === "settings" && <SettingsPage />}

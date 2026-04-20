@@ -1,25 +1,38 @@
 export interface User {
   id: string;
-  username: string;
   email: string;
-  display_name?: string;
-  created_at: string;
-  updated_at: string;
+  display_name: string;
+  date_joined: string;
 }
 
 export interface AuthResponse {
-  user: User;
   token: string;
+  expiry: string | null;
+  user: User;
+}
+
+export interface VerificationPendingResponse {
+  detail: string;
+}
+
+// /auth/registration/ returns a token only when email verification is
+// disabled/optional. Under mandatory verification it returns {detail}.
+export type RegisterResponse = AuthResponse | VerificationPendingResponse;
+
+export function isVerificationPending(res: RegisterResponse): res is VerificationPendingResponse {
+  return !("token" in res);
 }
 
 export interface RegisterInput {
-  username: string;
   email: string;
-  password: string;
+  password1: string;
+  password2: string;
   display_name?: string;
 }
 
 export interface LoginInput {
-  username: string;
+  email: string;
   password: string;
 }
+
+export type OAuthProvider = "google" | "github";

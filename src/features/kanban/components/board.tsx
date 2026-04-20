@@ -9,23 +9,21 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCreateBoard, useMoveTask } from "../queries/mutations";
 import { boardsQueryOptions, columnsQueryOptions, tasksQueryOptions } from "../queries/options";
 import { useKanbanUIStore } from "../store/kanban-ui-store";
-import type { Task } from "../types";
 import { Column } from "./column";
 import { TaskCard } from "./task-card";
 import { TaskDetailModal } from "./task-detail-modal";
 
 interface BoardProps {
-  userId: string;
   onSwitchToTerminal?: () => void;
 }
 
-export function Board({ userId, onSwitchToTerminal }: BoardProps) {
+export function Board({ onSwitchToTerminal }: BoardProps) {
   const { activeBoard, setActiveBoard } = useKanbanUIStore();
-  const boardsQuery = useQuery(boardsQueryOptions(userId));
+  const boardsQuery = useQuery(boardsQueryOptions());
   const columnsQuery = useQuery({
     ...columnsQueryOptions(activeBoard?.id ?? ""),
     enabled: !!activeBoard,
@@ -42,7 +40,7 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
   const tasks = tasksQuery.data ?? [];
   const isLoading = boardsQuery.isPending || columnsQuery.isPending;
 
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -53,17 +51,25 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
     }
   }, [boards, activeBoard, setActiveBoard]);
 
-  const currentTask = selectedTask ? (tasks.find((t) => t.id === selectedTask.id) ?? null) : null;
+  const tasksByColumn = useMemo(() => {
+    const grouped = new Map<string, typeof tasks>();
+    for (const task of tasks) {
+      const list = grouped.get(task.column_id);
+      if (list) list.push(task);
+      else grouped.set(task.column_id, [task]);
+    }
+    for (const list of grouped.values()) list.sort((a, b) => a.sort_order - b.sort_order);
+    return grouped;
+  }, [tasks]);
 
+  const selectedTask = selectedTaskId ? (tasks.find((t) => t.id === selectedTaskId) ?? null) : null;
   const draggedTask = activeId ? tasks.find((t) => t.id === activeId) : null;
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(String(event.active.id));
   };
 
-  const handleDragOver = (_event: DragOverEvent) => {
-    // Could do optimistic column move here for visual feedback
-  };
+  const handleDragOver = (_event: DragOverEvent) => {};
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -75,23 +81,12 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
     const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
 
-    // Determine target column: "over" could be a column ID or a task ID
-    let targetColumnId: string;
     const overTask = tasks.find((t) => t.id === String(over.id));
-
-    if (overTask) {
-      targetColumnId = overTask.column_id;
-    } else {
-      // Dropped on a column directly
-      targetColumnId = String(over.id);
-    }
+    const targetColumnId = overTask ? overTask.column_id : String(over.id);
 
     if (task.column_id === targetColumnId && !overTask) return;
 
-    // Calculate sort order
-    const columnTasks = tasks
-      .filter((t) => t.column_id === targetColumnId && t.id !== taskId)
-      .sort((a, b) => a.sort_order - b.sort_order);
+    const columnTasks = (tasksByColumn.get(targetColumnId) ?? []).filter((t) => t.id !== taskId);
 
     let newOrder: number;
     if (overTask) {
@@ -101,7 +96,6 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
       newOrder = columnTasks.length;
     }
 
-    // Skip if no actual change
     if (task.column_id === targetColumnId && task.sort_order === newOrder) return;
     if (!activeBoard) return;
 
@@ -127,12 +121,11 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
           type="button"
           onClick={() =>
             createBoardMutation.mutate({
-              userId,
               name: "My Project",
               description: "My first Sofi board",
             })
           }
-          className="rounded-lg bg-violet-primary px-4 py-2 text-sm font-semibold text-white hover:bg-violet-hover"
+          className="rounded-lg bg-violet-primary px-4 py-2 text-base font-semibold text-white hover:bg-violet-hover"
         >
           Create Your First Board
         </button>
@@ -141,8 +134,6 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
   }
 
   if (!activeBoard) return null;
-
-  const boardColumns = columns.filter((c) => c.board_id === activeBoard.id);
 
   return (
     <div className="flex h-full flex-col p-3">
@@ -153,15 +144,13 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
         onDragEnd={handleDragEnd}
       >
         <div className="flex flex-1 gap-3 overflow-x-auto lg:grid lg:grid-cols-4 lg:overflow-x-visible">
-          {boardColumns.map((column) => (
+          {columns.map((column) => (
             <Column
               key={column.id}
               column={column}
               boardId={activeBoard.id}
-              tasks={tasks
-                .filter((t) => t.column_id === column.id)
-                .sort((a, b) => a.sort_order - b.sort_order)}
-              onTaskClick={(task) => setSelectedTask(task)}
+              tasks={tasksByColumn.get(column.id) ?? []}
+              onTaskClick={(task) => setSelectedTaskId(task.id)}
             />
           ))}
         </div>
@@ -172,10 +161,10 @@ export function Board({ userId, onSwitchToTerminal }: BoardProps) {
       </DndContext>
 
       <TaskDetailModal
-        task={currentTask}
-        onClose={() => setSelectedTask(null)}
+        task={selectedTask}
+        onClose={() => setSelectedTaskId(null)}
         onOpenTerminal={() => {
-          setSelectedTask(null);
+          setSelectedTaskId(null);
           onSwitchToTerminal?.();
         }}
       />

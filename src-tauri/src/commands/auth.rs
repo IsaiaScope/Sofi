@@ -1,101 +1,135 @@
-use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
-    Argon2,
-};
-use sqlx::PgPool;
-use tauri::State;
-use uuid::Uuid;
+//! Auth commands — OS keychain storage + OAuth loopback.
+//!
+//! Django owns user identity. Tauri's only jobs here are:
+//!   1. Store/retrieve/delete the Knox bearer token in the OS keychain.
+//!   2. Spawn an ephemeral loopback listener for the OAuth authorization-code
+//!      redirect; open the system browser; hand the captured `code` back to
+//!      the React layer, which POSTs it to Django for token exchange.
 
-use crate::db::queries::users;
+use keyring::Entry;
+use serde::{Deserialize, Serialize};
+use std::sync::{Arc, Mutex};
+use tauri::AppHandle;
+use tauri_plugin_opener::OpenerExt;
+use tokio::sync::oneshot;
+
 use crate::error::AppError;
-use crate::models::user::{AuthResponse, LoginInput, RegisterInput};
+
+const KEYCHAIN_SERVICE: &str = "sofi";
+const KEYCHAIN_ACCOUNT: &str = "bearer-token";
+
+fn keychain_entry() -> Result<Entry, AppError> {
+    Entry::new(KEYCHAIN_SERVICE, KEYCHAIN_ACCOUNT).map_err(AppError::from)
+}
 
 #[tauri::command]
-pub async fn register(
-    pool: State<'_, PgPool>,
-    input: RegisterInput,
-) -> Result<AuthResponse, AppError> {
-    if input.username.len() < 3 {
-        return Err(AppError::Validation(
-            "Username must be at least 3 characters".into(),
-        ));
-    }
-    if input.password.len() < 6 {
-        return Err(AppError::Validation(
-            "Password must be at least 6 characters".into(),
-        ));
-    }
+pub fn auth_store_token(token: String) -> Result<(), AppError> {
+    keychain_entry()?.set_password(&token)?;
+    Ok(())
+}
 
-    if users::find_user_by_username(&pool, &input.username)
-        .await?
-        .is_some()
-    {
-        return Err(AppError::Validation("Username already taken".into()));
+#[tauri::command]
+pub fn auth_get_token() -> Result<Option<String>, AppError> {
+    match keychain_entry()?.get_password() {
+        Ok(t) => Ok(Some(t)),
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(e) => Err(AppError::Keychain(e.to_string())),
     }
+}
 
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let password_hash = argon2
-        .hash_password(input.password.as_bytes(), &salt)
-        .map_err(|e| AppError::Internal(format!("Failed to hash password: {e}")))?
-        .to_string();
+#[tauri::command]
+pub fn auth_clear_token() -> Result<(), AppError> {
+    match keychain_entry()?.delete_credential() {
+        Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        Err(e) => Err(AppError::Keychain(e.to_string())),
+    }
+}
 
-    let user = users::create_user(
-        &pool,
-        &input.username,
-        &input.email,
-        &password_hash,
-        input.display_name.as_deref(),
+#[derive(Serialize)]
+pub struct OauthResult {
+    pub code: String,
+    pub callback_url: String,
+}
+
+#[derive(Deserialize)]
+pub struct OauthStartArgs {
+    /// Authorization URL built by the frontend, including `client_id`, `scope`,
+    /// `state`, `code_challenge`, etc. — everything EXCEPT `redirect_uri`.
+    pub partial_auth_url: String,
+    /// Random CSRF token that must match the `state` query param of the
+    /// provider's redirect. Prevents cross-session code injection.
+    pub expected_state: String,
+}
+
+#[tauri::command]
+pub async fn oauth_start(
+    app: AppHandle,
+    args: OauthStartArgs,
+) -> Result<OauthResult, AppError> {
+    let (tx, rx) = oneshot::channel::<String>();
+    let tx = Arc::new(Mutex::new(Some(tx)));
+
+    let port = tauri_plugin_oauth::start_with_config(
+        tauri_plugin_oauth::OauthConfig {
+            ports: None,
+            response: Some(
+                "<html><body><h2>Signed in to Sofi.</h2>\
+                <p>You can close this window.</p></body></html>"
+                    .into(),
+            ),
+        },
+        {
+            let tx = Arc::clone(&tx);
+            move |url| {
+                if let Some(sender) = tx.lock().ok().and_then(|mut g| g.take()) {
+                    let _ = sender.send(url);
+                }
+            }
+        },
     )
-    .await?;
+    .map_err(|e| AppError::Oauth(format!("Failed to start loopback listener: {e}")))?;
 
-    // user_settings is auto-created by the users_create_default_settings trigger
-    // (see migration 008_triggers.sql in Task 5).
+    let callback_url = format!("http://127.0.0.1:{port}");
+    let separator = if args.partial_auth_url.contains('?') { '&' } else { '?' };
+    let full_url = format!(
+        "{}{}redirect_uri={}",
+        args.partial_auth_url,
+        separator,
+        url::form_urlencoded::byte_serialize(callback_url.as_bytes()).collect::<String>(),
+    );
 
-    let token = Uuid::new_v4().to_string();
-    let expires_at = chrono::Utc::now() + chrono::Duration::days(30);
+    app.opener()
+        .open_url(&full_url, None::<&str>)
+        .map_err(|e| AppError::Oauth(format!("Failed to open browser: {e}")))?;
 
-    users::create_session(&pool, user.id, &token, expires_at).await?;
+    // 5-minute cap so a dead listener doesn't leak.
+    let redirect = tokio::time::timeout(std::time::Duration::from_secs(300), rx)
+        .await
+        .map_err(|_| AppError::Oauth("Timeout waiting for OAuth callback".into()))?
+        .map_err(|_| AppError::Oauth("OAuth channel closed prematurely".into()))?;
 
-    Ok(AuthResponse { user, token })
-}
+    let parsed = url::Url::parse(&redirect)
+        .map_err(|e| AppError::Oauth(format!("Malformed callback URL: {e}")))?;
 
-#[tauri::command]
-pub async fn login(
-    pool: State<'_, PgPool>,
-    input: LoginInput,
-) -> Result<AuthResponse, AppError> {
-    let user = users::find_user_by_username(&pool, &input.username)
-        .await?
-        .ok_or_else(|| AppError::Auth("Invalid username or password".into()))?;
+    let mut code = None;
+    let mut received_state = None;
+    let mut received_error = None;
+    for (k, v) in parsed.query_pairs() {
+        match k.as_ref() {
+            "code" => code = Some(v.into_owned()),
+            "state" => received_state = Some(v.into_owned()),
+            "error" => received_error = Some(v.into_owned()),
+            _ => {}
+        }
+    }
 
-    let parsed_hash = PasswordHash::new(&user.password_hash)
-        .map_err(|e| AppError::Internal(format!("Failed to parse hash: {e}")))?;
+    if let Some(err) = received_error {
+        return Err(AppError::Oauth(format!("Provider error: {err}")));
+    }
+    if received_state.as_deref() != Some(args.expected_state.as_str()) {
+        return Err(AppError::Oauth("State mismatch (possible CSRF)".into()));
+    }
+    let code = code.ok_or_else(|| AppError::Oauth("No `code` in callback".into()))?;
 
-    Argon2::default()
-        .verify_password(input.password.as_bytes(), &parsed_hash)
-        .map_err(|_| AppError::Auth("Invalid username or password".into()))?;
-
-    let token = Uuid::new_v4().to_string();
-    let expires_at = chrono::Utc::now() + chrono::Duration::days(30);
-
-    users::create_session(&pool, user.id, &token, expires_at).await?;
-
-    Ok(AuthResponse { user, token })
-}
-
-#[tauri::command]
-pub async fn check_session(
-    pool: State<'_, PgPool>,
-    token: String,
-) -> Result<AuthResponse, AppError> {
-    let session = users::find_session_by_token(&pool, &token)
-        .await?
-        .ok_or_else(|| AppError::Auth("Session expired or invalid".into()))?;
-
-    let user = users::find_user_by_id(&pool, session.user_id)
-        .await?
-        .ok_or_else(|| AppError::Auth("User not found".into()))?;
-
-    Ok(AuthResponse { user, token })
+    Ok(OauthResult { code, callback_url })
 }

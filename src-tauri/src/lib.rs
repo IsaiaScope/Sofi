@@ -1,10 +1,7 @@
 mod commands;
-pub mod db;
 mod error;
-pub mod models;
 mod services;
 
-use db::pool::create_pool;
 use services::pty_manager::PtyManager;
 use tauri::Manager;
 
@@ -13,36 +10,19 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .setup(|_app| {
-            // Database
-            let pool = tauri::async_runtime::block_on(async {
-                create_pool()
-                    .await
-                    .expect("Failed to create database pool")
-            });
-            _app.manage(pool);
-
-            // PTY Manager
-            _app.manage(PtyManager::new());
-
+        .plugin(tauri_plugin_oauth::init())
+        .plugin(tauri_plugin_deep_link::init())
+        .setup(|app| {
+            app.manage(PtyManager::new());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            // Auth
-            commands::auth::register,
-            commands::auth::login,
-            commands::auth::check_session,
-            // Kanban
-            commands::kanban::create_board,
-            commands::kanban::list_boards,
-            commands::kanban::get_board,
-            commands::kanban::list_columns,
-            commands::kanban::create_task,
-            commands::kanban::list_tasks,
-            commands::kanban::move_task,
-            commands::kanban::update_task,
-            commands::kanban::delete_task,
-            // Terminal
+            // Auth (OS keychain + OAuth loopback — user identity lives in Django)
+            commands::auth::auth_store_token,
+            commands::auth::auth_get_token,
+            commands::auth::auth_clear_token,
+            commands::auth::oauth_start,
+            // Terminal (local PTY — not remote)
             commands::terminal::list_shells,
             commands::terminal::get_default_shell,
             commands::terminal::create_terminal,
@@ -50,24 +30,16 @@ pub fn run() {
             commands::terminal::resize_terminal,
             commands::terminal::kill_terminal,
             commands::terminal::list_terminal_sessions,
-            // Agents
+            // Agents (local CLI detection)
             commands::agents::list_agents,
             commands::agents::check_agent_available,
-            // Settings
-            commands::settings::get_user_settings,
-            commands::settings::update_user_settings,
-            // Attachments
-            commands::attachments::list_attachments,
-            commands::attachments::create_link_attachment,
-            commands::attachments::create_text_attachment,
-            commands::attachments::create_file_attachment,
-            commands::attachments::read_file_attachment,
-            commands::attachments::delete_attachment,
-            // Git
+            // Git (local git2-rs)
             commands::git::git_status,
             commands::git::git_diff,
             commands::git::git_branches,
             commands::git::git_log,
+            // Window (webview zoom control)
+            commands::window::set_window_zoom,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

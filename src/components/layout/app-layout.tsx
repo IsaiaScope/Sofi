@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
+import { WindowChrome } from "@/components/layout/window-chrome";
 import { TopBar } from "@/components/top-bar/top-bar";
 
 interface AppLayoutProps {
@@ -9,7 +10,8 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, onNewTerminalSession }: AppLayoutProps) {
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-sofi-bg">
+    <div className="flex h-dvh flex-col overflow-hidden bg-sofi-bg pt-8">
+      <WindowChrome />
       <TopBar />
       <div className="flex min-h-0 flex-1">
         <Sidebar onNewTerminalSession={onNewTerminalSession} />

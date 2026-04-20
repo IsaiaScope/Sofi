@@ -25,5 +25,28 @@ services:
       postgres:
         condition: service_healthy
 
+  django:
+    build: ./backend
+    container_name: sofi-django
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "True"
+      DJANGO_SETTINGS_MODULE: sofi_api.settings.dev
+      DATABASE_URL: postgres://sofi:sofi@postgres:5432/sofi
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-insecure-secret-replace-in-prod}
+      ALLOWED_HOSTS: "*"
+      CORS_ALLOWED_ORIGINS: http://localhost:1420,http://127.0.0.1:1420,tauri://localhost
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+
 volumes:
   postgres_data:

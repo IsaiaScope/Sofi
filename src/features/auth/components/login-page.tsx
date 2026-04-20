@@ -1,125 +1,145 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import wordmark from "@/assets/sofi-wordmark.svg";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { APP_DESCRIPTION, APP_NAME, APP_VERSION } from "@/lib/constants";
-import { useLogin } from "../queries/mutations";
+import { PasswordInput } from "@/components/ui/password-input";
+import { APP_DESCRIPTION } from "@/lib/constants";
+import { AppErrorKind } from "@/lib/errors";
+import { useLogin, useOAuthLogin, useResendVerification } from "../queries/mutations";
 import { type LoginFormData, loginSchema } from "../schemas";
+import { AuthShell } from "./auth-shell";
+import { ErrorBanner } from "./error-banner";
+import { OAuthButton } from "./oauth-button";
 
 interface LoginPageProps {
   onSwitchToRegister: () => void;
+  onAuthenticated: () => void;
+  onVerificationPending: (email: string) => void;
 }
 
-export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
+export function LoginPage({
+  onSwitchToRegister,
+  onAuthenticated,
+  onVerificationPending,
+}: LoginPageProps) {
   const loginMutation = useLogin();
-  const [showPassword, setShowPassword] = useState(false);
+  const oauthMutation = useOAuthLogin();
+  const resendMutation = useResendVerification();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data);
+  const onSubmit = (data: LoginFormData) =>
+    loginMutation.mutate(data, { onSuccess: onAuthenticated });
+  const anyError = loginMutation.error ?? oauthMutation.error;
+  const busy =
+    form.formState.isSubmitting ||
+    loginMutation.isPending ||
+    oauthMutation.isPending ||
+    resendMutation.isPending;
+
+  const showResend = loginMutation.error?.kind === AppErrorKind.EMAIL_NOT_VERIFIED;
+
+  const handleResend = () => {
+    const email = form.getValues("email");
+    if (!email) return;
+    resendMutation.mutate(email, {
+      onSuccess: () => onVerificationPending(email),
+    });
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-sofi-terminal p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <img src={wordmark} alt={APP_NAME} className="h-14" />
-          <p className="text-base text-sofi-text-muted">{APP_DESCRIPTION}</p>
-        </div>
-
-        {/* Card */}
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="rounded-xl border border-sofi-border bg-sofi-surface p-6"
-        >
-          <h2 className="mb-1 text-lg font-semibold text-white">Welcome back</h2>
-          <p className="mb-6 text-base text-sofi-text-muted">Access your AI command center</p>
-
-          {loginMutation.error && (
-            <div className="mb-4 rounded-lg bg-sofi-red/10 px-3 py-2 text-base text-sofi-red">
-              {loginMutation.error.message}
-            </div>
-          )}
-
-          {/* Username */}
-          <Field className="mb-4">
-            <FieldLabel>Username</FieldLabel>
-            <Input
-              {...form.register("username")}
-              placeholder="operator"
-              aria-invalid={!!form.formState.errors.username}
-            />
-            <FieldError>{form.formState.errors.username?.message}</FieldError>
-          </Field>
-
-          {/* Password */}
-          <Field className="mb-6">
-            <div className="flex items-center justify-between">
-              <FieldLabel>Password</FieldLabel>
-              <button
-                type="button"
-                className="text-base text-violet-hover hover:underline"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-            <Input
-              {...form.register("password")}
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              aria-invalid={!!form.formState.errors.password}
-            />
-            <FieldError>{form.formState.errors.password?.message}</FieldError>
-          </Field>
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            size="lg"
-            disabled={form.formState.isSubmitting || loginMutation.isPending}
-          >
-            {loginMutation.isPending ? "Signing in..." : "Sign In"}
-          </Button>
-
-          {/* Divider */}
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-sofi-border" />
-            <span className="text-base text-sofi-text-dim">OR</span>
-            <div className="h-px flex-1 bg-sofi-border" />
-          </div>
-
-          {/* GitHub (placeholder for Phase 2 OAuth) */}
-          <Button type="button" variant="outline" size="lg" disabled>
-            <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-            </svg>
-            Continue with GitHub
-          </Button>
-        </form>
-
-        {/* Footer */}
-        <p className="mt-6 text-center text-base text-sofi-text-muted">
+    <AuthShell
+      wordmarkTooltip={APP_DESCRIPTION}
+      footer={
+        <>
           New operator?{" "}
           <button
             type="button"
             onClick={onSwitchToRegister}
             className="font-semibold text-violet-hover hover:underline"
           >
-            Request Access
+            Create account
           </button>
-        </p>
+        </>
+      }
+    >
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        {anyError && !showResend && <ErrorBanner message={anyError.message} />}
 
-        <p className="mt-4 text-center text-base text-sofi-text-dim">v{APP_VERSION}</p>
-      </div>
-    </div>
+        {showResend && (
+          <div className="mb-4 flex gap-3 rounded-xl border border-sofi-orange/20 bg-sofi-orange/10 p-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sofi-orange/15 text-sofi-orange">
+              <span className="material-symbols-outlined !text-[20px]">mail</span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-base font-semibold text-sofi-text">Email verification required</p>
+              <p className="mt-0.5 text-base text-sofi-text-muted">
+                Check your inbox for the verification link — or resend it below.
+              </p>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={handleResend}
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-sofi-border bg-sofi-elevated px-3 py-1.5 text-base font-medium text-sofi-text transition-colors hover:bg-sofi-surface disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className="material-symbols-outlined !text-[18px]">send</span>
+                {resendMutation.isPending ? "Sending..." : "Resend verification email"}
+              </button>
+              {resendMutation.isError && resendMutation.error && (
+                <p className="mt-2 text-base text-sofi-red">{resendMutation.error.message}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        <Field className="mb-4">
+          <FieldLabel>Email</FieldLabel>
+          <Input
+            {...form.register("email")}
+            type="email"
+            placeholder="sofi@email.com"
+            aria-invalid={!!form.formState.errors.email}
+          />
+          <FieldError>{form.formState.errors.email?.message}</FieldError>
+        </Field>
+
+        <Field className="mb-6">
+          <FieldLabel>Password</FieldLabel>
+          <PasswordInput
+            {...form.register("password")}
+            placeholder="••••••••"
+            aria-invalid={!!form.formState.errors.password}
+          />
+          <FieldError>{form.formState.errors.password?.message}</FieldError>
+        </Field>
+
+        <Button type="submit" size="lg" disabled={busy}>
+          {loginMutation.isPending ? "Signing in..." : "Sign In"}
+        </Button>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-sofi-border" />
+          <span className="text-base text-sofi-text-dim">OR</span>
+          <div className="h-px flex-1 bg-sofi-border" />
+        </div>
+
+        <div className="flex items-center justify-center gap-3">
+          <OAuthButton
+            provider="google"
+            disabled={busy}
+            onClick={() => oauthMutation.mutate("google", { onSuccess: onAuthenticated })}
+          />
+          <OAuthButton
+            provider="github"
+            disabled={busy}
+            onClick={() => oauthMutation.mutate("github", { onSuccess: onAuthenticated })}
+          />
+        </div>
+      </form>
+    </AuthShell>
   );
 }

@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from "./routes/__root"
 import { Route as PublicRouteImport } from "./routes/_public"
 import { Route as AuthenticatedRouteImport } from "./routes/_authenticated"
 import { Route as IndexRouteImport } from "./routes/index"
+import { Route as PublicVerifySuccessRouteImport } from "./routes/_public/verify-success"
 import { Route as PublicRegisterRouteImport } from "./routes/_public/register"
 import { Route as PublicLoginRouteImport } from "./routes/_public/login"
+import { Route as PublicCheckEmailRouteImport } from "./routes/_public/check-email"
 import { Route as AuthenticatedTerminalIndexRouteImport } from "./routes/_authenticated/terminal/index"
 import { Route as AuthenticatedSettingsIndexRouteImport } from "./routes/_authenticated/settings/index"
 import { Route as AuthenticatedKanbanIndexRouteImport } from "./routes/_authenticated/kanban/index"
@@ -36,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
   path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicVerifySuccessRoute = PublicVerifySuccessRouteImport.update({
+  id: "/verify-success",
+  path: "/verify-success",
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicRegisterRoute = PublicRegisterRouteImport.update({
   id: "/register",
   path: "/register",
@@ -44,6 +51,11 @@ const PublicRegisterRoute = PublicRegisterRouteImport.update({
 const PublicLoginRoute = PublicLoginRouteImport.update({
   id: "/login",
   path: "/login",
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCheckEmailRoute = PublicCheckEmailRouteImport.update({
+  id: "/check-email",
+  path: "/check-email",
   getParentRoute: () => PublicRoute,
 } as any)
 const AuthenticatedTerminalIndexRoute =
@@ -95,8 +107,10 @@ const AuthenticatedKanbanAgentsRoute =
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/check-email": typeof PublicCheckEmailRoute
   "/login": typeof PublicLoginRoute
   "/register": typeof PublicRegisterRoute
+  "/verify-success": typeof PublicVerifySuccessRoute
   "/kanban/agents": typeof AuthenticatedKanbanAgentsRoute
   "/kanban/list": typeof AuthenticatedKanbanListRoute
   "/kanban/settings": typeof AuthenticatedKanbanSettingsRoute
@@ -108,8 +122,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/check-email": typeof PublicCheckEmailRoute
   "/login": typeof PublicLoginRoute
   "/register": typeof PublicRegisterRoute
+  "/verify-success": typeof PublicVerifySuccessRoute
   "/kanban/agents": typeof AuthenticatedKanbanAgentsRoute
   "/kanban/list": typeof AuthenticatedKanbanListRoute
   "/kanban/settings": typeof AuthenticatedKanbanSettingsRoute
@@ -124,8 +140,10 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/_authenticated": typeof AuthenticatedRouteWithChildren
   "/_public": typeof PublicRouteWithChildren
+  "/_public/check-email": typeof PublicCheckEmailRoute
   "/_public/login": typeof PublicLoginRoute
   "/_public/register": typeof PublicRegisterRoute
+  "/_public/verify-success": typeof PublicVerifySuccessRoute
   "/_authenticated/kanban/agents": typeof AuthenticatedKanbanAgentsRoute
   "/_authenticated/kanban/list": typeof AuthenticatedKanbanListRoute
   "/_authenticated/kanban/settings": typeof AuthenticatedKanbanSettingsRoute
@@ -139,8 +157,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
+    | "/check-email"
     | "/login"
     | "/register"
+    | "/verify-success"
     | "/kanban/agents"
     | "/kanban/list"
     | "/kanban/settings"
@@ -152,8 +172,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
+    | "/check-email"
     | "/login"
     | "/register"
+    | "/verify-success"
     | "/kanban/agents"
     | "/kanban/list"
     | "/kanban/settings"
@@ -167,8 +189,10 @@ export interface FileRouteTypes {
     | "/"
     | "/_authenticated"
     | "/_public"
+    | "/_public/check-email"
     | "/_public/login"
     | "/_public/register"
+    | "/_public/verify-success"
     | "/_authenticated/kanban/agents"
     | "/_authenticated/kanban/list"
     | "/_authenticated/kanban/settings"
@@ -208,6 +232,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/_public/verify-success": {
+      id: "/_public/verify-success"
+      path: "/verify-success"
+      fullPath: "/verify-success"
+      preLoaderRoute: typeof PublicVerifySuccessRouteImport
+      parentRoute: typeof PublicRoute
+    }
     "/_public/register": {
       id: "/_public/register"
       path: "/register"
@@ -220,6 +251,13 @@ declare module "@tanstack/react-router" {
       path: "/login"
       fullPath: "/login"
       preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    "/_public/check-email": {
+      id: "/_public/check-email"
+      path: "/check-email"
+      fullPath: "/check-email"
+      preLoaderRoute: typeof PublicCheckEmailRouteImport
       parentRoute: typeof PublicRoute
     }
     "/_authenticated/terminal/": {
@@ -308,13 +346,17 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface PublicRouteChildren {
+  PublicCheckEmailRoute: typeof PublicCheckEmailRoute
   PublicLoginRoute: typeof PublicLoginRoute
   PublicRegisterRoute: typeof PublicRegisterRoute
+  PublicVerifySuccessRoute: typeof PublicVerifySuccessRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
+  PublicCheckEmailRoute: PublicCheckEmailRoute,
   PublicLoginRoute: PublicLoginRoute,
   PublicRegisterRoute: PublicRegisterRoute,
+  PublicVerifySuccessRoute: PublicVerifySuccessRoute,
 }
 
 const PublicRouteWithChildren =
