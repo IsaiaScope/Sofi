@@ -4,6 +4,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -45,6 +46,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -87,7 +89,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
+LANGUAGES = [
+    ("en", _("English")),
+    ("it", _("Italian")),
+]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
@@ -178,8 +185,10 @@ REST_AUTH = {
     "USE_JWT": False,
     "USER_DETAILS_SERIALIZER": "apps.users.serializers.UserSerializer",
     "REGISTER_SERIALIZER": "apps.users.serializers.RegisterSerializer",
-    # Knox tokens are minted directly in apps/users/views.py; dj-rest-auth's
-    # default TOKEN_MODEL/TOKEN_CREATOR/TOKEN_SERIALIZER are bypassed.
+    # Knox tokens are minted directly in apps/users/views.py. Setting TOKEN_MODEL
+    # to None suppresses the DRF authtoken row that LoginView.login() would
+    # otherwise create as a side effect on every sign-in / social login.
+    "TOKEN_MODEL": None,
 }
 
 REST_KNOX = {
