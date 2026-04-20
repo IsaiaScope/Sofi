@@ -16,9 +16,12 @@ from dj_rest_auth.views import LoginView
 from django.conf import settings
 from knox.models import AuthToken
 from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .serializers import ApiTokenSerializer, UserSerializer
+from .models import UserSettings
+from .serializers import ApiTokenSerializer, UserSerializer, UserSettingsSerializer
 
 
 def _issue_knox_token(user, request) -> dict:
@@ -108,6 +111,14 @@ class GitHubLogin(DynamicCallbackMixin, KnoxIssueMixin, SocialLoginView):
     client_class = OAuth2Client
 
 
+class DeleteAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        request.user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class ApiTokenViewSet(viewsets.ViewSet):
     """Named API tokens for the current user.
 
@@ -133,3 +144,18 @@ class ApiTokenViewSet(viewsets.ViewSet):
         if not deleted:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserSettingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        settings_obj, _ = UserSettings.objects.get_or_create(user=request.user)
+        return Response(UserSettingsSerializer(settings_obj).data)
+
+    def patch(self, request):
+        settings_obj, _ = UserSettings.objects.get_or_create(user=request.user)
+        serializer = UserSettingsSerializer(settings_obj, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

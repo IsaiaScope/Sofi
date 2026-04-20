@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSettings
-        fields = ("theme", "default_agent_type", "updated_at")
+        fields = ("theme", "locale", "default_agent_type", "updated_at")
         read_only_fields = ("updated_at",)
 
 

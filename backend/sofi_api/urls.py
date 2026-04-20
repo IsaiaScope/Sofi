@@ -15,7 +15,7 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 from knox import views as knox_views
 
-from apps.users.views import KnoxLoginView, KnoxRegisterView
+from apps.users.views import DeleteAccountView, KnoxLoginView, KnoxRegisterView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,6 +31,7 @@ urlpatterns = [
         name="rest_resend_email",
     ),
     path("auth/user/", UserDetailsView.as_view(), name="rest_user_details"),
+    path("auth/account/", DeleteAccountView.as_view(), name="account_delete"),
     path("auth/password/reset/", PasswordResetView.as_view(), name="rest_password_reset"),
     path(
         "auth/password/reset/confirm/",
@@ -52,6 +53,7 @@ urlpatterns = [
         name="email_verified",
     ),
 
+    path("api/users/", include("apps.users.urls")),
     path("api/v1/", include("apps.boards.urls")),
     path("api/v1/", include("apps.tasks.urls")),
     path("api/v1/", include("apps.attachments.urls")),
