@@ -27,10 +27,15 @@ class UserSettings(models.Model):
         LIGHT = "light", "Light"
         DARK = "dark", "Dark"
 
+    class Locale(models.TextChoices):
+        ENGLISH = "en", "English"
+        ITALIAN = "it", "Italiano"
+
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True, related_name="settings"
     )
     theme = models.CharField(max_length=16, choices=Theme.choices, default=Theme.SYSTEM)
+    locale = models.CharField(max_length=8, choices=Locale.choices, default=Locale.ENGLISH)
     default_agent_type = models.CharField(max_length=64, default="claude-code")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
