@@ -1,1 +1,38 @@
-{}
+{
+  "topbar": {
+    "kanban": "Kanban",
+    "terminal": "TERMINALE",
+    "git": "GIT",
+    "boards": "Bacheche",
+    "newBoard": "+ Nuova bacheca...",
+    "signOut": "Esci",
+    "newBoardDialog": {
+      "title": "Nuova bacheca",
+      "nameLabel": "Nome bacheca",
+      "namePlaceholder": "Il mio progetto",
+      "repoLabel": "Percorso repository (opzionale)",
+      "repoPlaceholder": "/percorso/al/repo/git",
+      "browse": "Sfoglia",
+      "create": "Crea bacheca",
+      "defaultName": "Bacheca senza titolo",
+      "folderPickerTitle": "Seleziona cartella del progetto"
+    }
+  },
+  "sidebar": {
+    "board": "Bacheca",
+    "agents": "Agenti",
+    "list": "Elenco",
+    "settings": "Impostazioni",
+    "sessions": "Sessioni",
+    "newSession": "Nuova sessione",
+    "diff": "Diff",
+    "branches": "Rami",
+    "history": "Cronologia"
+  },
+  "actions": {
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "retry": "Riprova"
+  }
+}
