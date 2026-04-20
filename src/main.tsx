@@ -52,19 +52,23 @@ const queryClient = new QueryClient({
 
 const router = createAppRouter(queryClient);
 
-bootstrapI18n().then(() => {
-  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <React.StrictMode>
-      <ErrorBoundary>
-        <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <Suspense fallback={null}>
-              <RouterProvider router={router} />
-            </Suspense>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        </ThemeProvider>
-      </ErrorBoundary>
-    </React.StrictMode>,
-  );
-});
+bootstrapI18n()
+  .catch((err) => {
+    console.error("[i18n] bootstrap failed; rendering with English fallback", err);
+  })
+  .finally(() => {
+    ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+      <React.StrictMode>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <QueryClientProvider client={queryClient}>
+              <Suspense fallback={null}>
+                <RouterProvider router={router} />
+              </Suspense>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </QueryClientProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
+      </React.StrictMode>,
+    );
+  });
