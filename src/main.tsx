@@ -1,7 +1,7 @@
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider } from "@tanstack/react-router";
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { toast } from "sonner";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { authKeys } from "@/features/auth/queries/keys";
 import { clearClientAuth } from "@/lib/api-client";
 import { ErrorCode, isAppError } from "@/lib/errors";
+import { bootstrapI18n } from "@/lib/i18n";
 import { createAppRouter } from "./router";
 import "./styles/globals.css";
 
@@ -51,15 +52,19 @@ const queryClient = new QueryClient({
 
 const router = createAppRouter(queryClient);
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
-  </React.StrictMode>,
-);
+bootstrapI18n().then(() => {
+  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <Suspense fallback={null}>
+              <RouterProvider router={router} />
+            </Suspense>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  );
+});
