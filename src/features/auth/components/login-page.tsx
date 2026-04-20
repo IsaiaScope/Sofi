@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ export function LoginPage({
   onAuthenticated,
   onVerificationPending,
 }: LoginPageProps) {
+  const { t } = useTranslation("auth");
   const loginMutation = useLogin();
   const oauthMutation = useOAuthLogin();
   const resendMutation = useResendVerification();
@@ -56,13 +58,13 @@ export function LoginPage({
       wordmarkTooltip={APP_DESCRIPTION}
       footer={
         <>
-          New operator?{" "}
+          {t("login.newOperator")}{" "}
           <button
             type="button"
             onClick={onSwitchToRegister}
             className="font-semibold text-violet-hover hover:underline"
           >
-            Create account
+            {t("login.createAccount")}
           </button>
         </>
       }
@@ -76,9 +78,11 @@ export function LoginPage({
               <span className="material-symbols-outlined !text-[20px]">mail</span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-base font-semibold text-sofi-text">Email verification required</p>
+              <p className="text-base font-semibold text-sofi-text">
+                {t("login.verificationRequired.title")}
+              </p>
               <p className="mt-0.5 text-base text-sofi-text-muted">
-                Check your inbox for the verification link — or resend it below.
+                {t("login.verificationRequired.body")}
               </p>
               <button
                 type="button"
@@ -87,7 +91,9 @@ export function LoginPage({
                 className="mt-3 inline-flex items-center gap-2 rounded-lg border border-sofi-border bg-sofi-elevated px-3 py-1.5 text-base font-medium text-sofi-text transition-colors hover:bg-sofi-surface disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="material-symbols-outlined !text-[18px]">send</span>
-                {resendMutation.isPending ? "Sending..." : "Resend verification email"}
+                {resendMutation.isPending
+                  ? t("login.verificationRequired.sending")
+                  : t("login.verificationRequired.resend")}
               </button>
               {resendMutation.isError && resendMutation.error && (
                 <p className="mt-2 text-base text-sofi-red">{resendMutation.error.message}</p>
@@ -97,18 +103,18 @@ export function LoginPage({
         )}
 
         <Field className="mb-4">
-          <FieldLabel>Email</FieldLabel>
+          <FieldLabel>{t("login.emailLabel")}</FieldLabel>
           <Input
             {...form.register("email")}
             type="email"
-            placeholder="sofi@email.com"
+            placeholder={t("login.emailPlaceholder")}
             aria-invalid={!!form.formState.errors.email}
           />
           <FieldError>{form.formState.errors.email?.message}</FieldError>
         </Field>
 
         <Field className="mb-6">
-          <FieldLabel>Password</FieldLabel>
+          <FieldLabel>{t("login.passwordLabel")}</FieldLabel>
           <PasswordInput
             {...form.register("password")}
             placeholder="••••••••"
@@ -118,12 +124,12 @@ export function LoginPage({
         </Field>
 
         <Button type="submit" size="lg" disabled={busy}>
-          {loginMutation.isPending ? "Signing in..." : "Sign In"}
+          {loginMutation.isPending ? t("login.signingIn") : t("login.signIn")}
         </Button>
 
         <div className="my-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-sofi-border" />
-          <span className="text-base text-sofi-text-dim">OR</span>
+          <span className="text-base text-sofi-text-dim">{t("login.or")}</span>
           <div className="h-px flex-1 bg-sofi-border" />
         </div>
 

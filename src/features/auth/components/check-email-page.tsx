@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { AuthShell } from "./auth-shell";
 
@@ -7,30 +8,29 @@ interface CheckEmailPageProps {
 }
 
 export function CheckEmailPage({ email, onBackToLogin }: CheckEmailPageProps) {
+  const { t } = useTranslation("auth");
   return (
     <AuthShell>
       <h1 className="mb-2 text-center font-heading text-xl font-semibold text-sofi-text">
-        Check your inbox
+        {t("checkEmail.title")}
       </h1>
       <p className="mb-6 text-center text-base text-sofi-text-muted">
         {email ? (
-          <>
-            We sent a verification link to{" "}
-            <span className="font-medium text-sofi-text">{email}</span>. Click it to finish setting
-            up your account.
-          </>
+          <Trans
+            i18nKey="auth:checkEmail.bodyWithEmail"
+            values={{ email }}
+            components={{ 1: <span className="font-medium text-sofi-text" /> }}
+          />
         ) : (
-          "We sent a verification link to your email. Click it to finish setting up your account."
+          t("checkEmail.bodyNoEmail")
         )}
       </p>
 
       <Button type="button" variant="outline" size="lg" onClick={onBackToLogin}>
-        Back to Sign In
+        {t("checkEmail.backToSignIn")}
       </Button>
 
-      <p className="mt-5 text-center text-base text-sofi-text-dim">
-        Didn't get it? Check spam, or use a different email.
-      </p>
+      <p className="mt-5 text-center text-base text-sofi-text-dim">{t("checkEmail.spamHint")}</p>
     </AuthShell>
   );
 }

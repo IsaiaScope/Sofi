@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ export function RegisterPage({
   onVerificationPending,
   onAuthenticated,
 }: RegisterPageProps) {
+  const { t } = useTranslation("auth");
   const registerMutation = useRegister();
 
   const form = useForm<RegisterFormData>({
@@ -52,47 +54,47 @@ export function RegisterPage({
     <AuthShell
       footer={
         <>
-          Already have access?{" "}
+          {t("register.haveAccess")}{" "}
           <button
             type="button"
             onClick={onSwitchToLogin}
             className="font-semibold text-violet-hover hover:underline"
           >
-            Sign In
+            {t("register.signIn")}
           </button>
         </>
       }
     >
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <h1 className="-mt-2 mb-6 text-center font-heading text-lg font-semibold text-sofi-text">
-          Create Account
+          {t("register.title")}
         </h1>
 
         {registerMutation.error && <ErrorBanner message={registerMutation.error.message} />}
 
         <Field className="mb-4">
-          <FieldLabel>Display Name</FieldLabel>
+          <FieldLabel>{t("register.displayNameLabel")}</FieldLabel>
           <Input
             {...form.register("displayName")}
-            placeholder="sofi"
+            placeholder={t("register.displayNamePlaceholder")}
             aria-invalid={!!form.formState.errors.displayName}
           />
           <FieldError>{form.formState.errors.displayName?.message}</FieldError>
         </Field>
 
         <Field className="mb-4">
-          <FieldLabel>Email</FieldLabel>
+          <FieldLabel>{t("register.emailLabel")}</FieldLabel>
           <Input
             {...form.register("email")}
             type="email"
-            placeholder="sofi@email.com"
+            placeholder={t("register.emailPlaceholder")}
             aria-invalid={!!form.formState.errors.email}
           />
           <FieldError>{form.formState.errors.email?.message}</FieldError>
         </Field>
 
         <Field className="mb-4">
-          <FieldLabel>Password</FieldLabel>
+          <FieldLabel>{t("register.passwordLabel")}</FieldLabel>
           <PasswordInput
             {...form.register("password1")}
             placeholder="••••••••"
@@ -102,7 +104,7 @@ export function RegisterPage({
         </Field>
 
         <Field className="mb-6">
-          <FieldLabel>Confirm Password</FieldLabel>
+          <FieldLabel>{t("register.confirmPasswordLabel")}</FieldLabel>
           <PasswordInput
             {...form.register("password2")}
             placeholder="••••••••"
@@ -116,7 +118,7 @@ export function RegisterPage({
           size="lg"
           disabled={form.formState.isSubmitting || registerMutation.isPending}
         >
-          {registerMutation.isPending ? "Creating..." : "Sign Up"}
+          {registerMutation.isPending ? t("register.creating") : t("register.signUp")}
         </Button>
       </form>
     </AuthShell>
