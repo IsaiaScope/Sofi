@@ -1,1 +1,38 @@
-{}
+{
+  "board": {
+    "loading": "Caricamento...",
+    "empty": "Ancora nessuna bacheca",
+    "emptyCta": "Crea la tua prima bacheca",
+    "defaultBoardName": "Il mio progetto",
+    "defaultBoardDescription": "La mia prima bacheca Sofi"
+  },
+  "column": {
+    "addTask": "+ Aggiungi attività",
+    "taskTitlePlaceholder": "Titolo attività..."
+  },
+  "taskCard": {
+    "noAgent": "Nessun agente assegnato",
+    "status": {
+      "live": "in esecuzione",
+      "diffReady": "diff pronto",
+      "done": "completata",
+      "failed": "fallita"
+    }
+  },
+  "taskDialog": {
+    "title": "Dettagli attività",
+    "descriptionLabel": "Descrizione",
+    "descriptionPlaceholder": "Aggiungi una descrizione...",
+    "statusLabel": "Stato",
+    "agentLabel": "Agente",
+    "openTerminal": "Apri terminale",
+    "delete": "Elimina attività",
+    "status": {
+      "pending": "In attesa",
+      "running": "In esecuzione",
+      "review": "In revisione",
+      "done": "Completata",
+      "failed": "Fallita"
+    }
+  }
+}
