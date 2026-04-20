@@ -1,4 +1,5 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer as BaseRegisterSerializer
+from django.utils.translation import gettext_lazy as _
 from knox.models import AuthToken
 from rest_framework import serializers
 
@@ -35,7 +36,7 @@ class RegisterSerializer(BaseRegisterSerializer):
         # crashes with IntegrityError instead of returning a clean 400.
         if User.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError(
-                "A user is already registered with this e-mail address.",
+                _("A user is already registered with this e-mail address."),
             )
         return email
 
