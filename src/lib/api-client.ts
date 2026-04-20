@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { type AppError, ErrorCode, toAppError } from "./errors";
 import { invoke } from "./tauri";
 
@@ -57,6 +58,7 @@ function normalizeError(status: number, body: unknown): AppError {
 export async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   const { body, authenticate = true, headers, ...rest } = options;
   const mergedHeaders = new Headers(headers);
+  mergedHeaders.set("Accept-Language", i18next.language || "en");
   if (body !== undefined && !(body instanceof FormData)) {
     mergedHeaders.set("Content-Type", "application/json");
   }
