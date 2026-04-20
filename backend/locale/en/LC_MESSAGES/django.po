@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-20 13:55+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: apps/users/serializers.py:39
+msgid "A user is already registered with this e-mail address."
+msgstr ""
+
+#: apps/users/templates/account/email/email_confirmation_message.txt:1
+#, python-format
+msgid ""
+"Hi %(user_display)s,\n"
+"\n"
+"Thanks for signing up for Sofi — your AI agent command center.\n"
+"\n"
+"To finish setting up your account, verify your email by clicking the link "
+"below:\n"
+"\n"
+"%(activate_url)s\n"
+"\n"
+"This link expires in 3 days. If you didn't sign up for Sofi, you can safely "
+"ignore this message.\n"
+"\n"
+"— The Sofi team\n"
+msgstr ""
+
+#: apps/users/templates/account/email/email_confirmation_subject.txt:1
+msgid "Confirm your Sofi email"
+msgstr ""
+
+#: apps/users/templates/users/email_verified.html:7
+msgid "Email verified — Sofi"
+msgstr ""
+
+#: apps/users/templates/users/email_verified.html:121
+msgid "Email verified"
+msgstr ""
+
+#: apps/users/templates/users/email_verified.html:122
+msgid ""
+"Your account is ready. Return to Sofi and sign in with your credentials."
+msgstr ""
+
+#: apps/users/templates/users/email_verified.html:123
+msgid "Return to Sofi"
+msgstr ""
+
+#: apps/users/templates/users/email_verified.html:124
+msgid ""
+"If nothing happens, make sure the Sofi desktop app is installed, then open "
+"it manually and sign in."
+msgstr ""
+
+#: sofi_api/settings/base.py:94
+msgid "English"
+msgstr ""
+
+#: sofi_api/settings/base.py:95
+msgid "Italian"
+msgstr ""
