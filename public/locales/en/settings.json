@@ -1,1 +1,39 @@
-{}
+{
+  "page": {
+    "title": "Settings"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "Choose how Sofi looks. System matches your OS preference automatically.",
+    "ariaLabel": "Theme preference",
+    "system": "System",
+    "systemDescription": "Follow your operating system",
+    "light": "Light",
+    "lightDescription": "Daylight mode",
+    "dark": "Dark",
+    "darkDescription": "Sofi's default cyberpunk feel"
+  },
+  "language": {
+    "title": "Language",
+    "description": "Choose your preferred language. Sofi will restart the UI in the selected language.",
+    "english": "English",
+    "italian": "Italiano"
+  },
+  "apiTokens": {
+    "title": "API Tokens",
+    "description": "Long-lived bearer tokens for CLI or automation clients. The plaintext value is shown only once.",
+    "activeCount": "{{count}} active",
+    "loading": "…",
+    "newToken": "New token",
+    "creating": "Creating…",
+    "loadError": "Failed to load tokens: {{message}}",
+    "empty": "No API tokens yet.",
+    "createdAt": "Created {{date}}",
+    "expires": " · expires {{date}}",
+    "revoke": "Revoke",
+    "revealTitle": "Copy your token now — it won't be shown again.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "dismiss": "Dismiss"
+  }
+}
