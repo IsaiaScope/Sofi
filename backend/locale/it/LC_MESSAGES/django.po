@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 #: apps/users/serializers.py:39
 msgid "A user is already registered with this e-mail address."
-msgstr ""
+msgstr "Un utente è già registrato con questo indirizzo email."
 
 #: apps/users/templates/account/email/email_confirmation_message.txt:1
 #, python-format
@@ -38,38 +38,54 @@ msgid ""
 "\n"
 "— The Sofi team\n"
 msgstr ""
+"Ciao %(user_display)s,\n"
+"\n"
+"Grazie per esserti registrato a Sofi — il tuo centro di comando per agenti IA.\n"
+"\n"
+"Per completare la configurazione del tuo account, verifica la tua email cliccando sul link "
+"qui sotto:\n"
+"\n"
+"%(activate_url)s\n"
+"\n"
+"Questo link scade tra 3 giorni. Se non ti sei registrato a Sofi, puoi tranquillamente "
+"ignorare questo messaggio.\n"
+"\n"
+"— Il team di Sofi\n"
 
 #: apps/users/templates/account/email/email_confirmation_subject.txt:1
 msgid "Confirm your Sofi email"
-msgstr ""
+msgstr "Conferma la tua email Sofi"
 
 #: apps/users/templates/users/email_verified.html:7
 msgid "Email verified — Sofi"
-msgstr ""
+msgstr "Email verificata — Sofi"
 
 #: apps/users/templates/users/email_verified.html:121
 msgid "Email verified"
-msgstr ""
+msgstr "Email verificata"
 
 #: apps/users/templates/users/email_verified.html:122
 msgid ""
 "Your account is ready. Return to Sofi and sign in with your credentials."
 msgstr ""
+"Il tuo account è pronto. Torna su Sofi e accedi con le tue credenziali."
 
 #: apps/users/templates/users/email_verified.html:123
 msgid "Return to Sofi"
-msgstr ""
+msgstr "Torna su Sofi"
 
 #: apps/users/templates/users/email_verified.html:124
 msgid ""
 "If nothing happens, make sure the Sofi desktop app is installed, then open "
 "it manually and sign in."
 msgstr ""
+"Se non succede nulla, assicurati che l'app desktop Sofi sia installata, poi aprila "
+"manualmente e accedi."
 
 #: sofi_api/settings/base.py:94
 msgid "English"
-msgstr ""
+msgstr "Inglese"
 
 #: sofi_api/settings/base.py:95
 msgid "Italian"
-msgstr ""
+msgstr "Italiano"
