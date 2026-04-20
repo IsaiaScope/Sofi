@@ -1,1 +1,39 @@
-{}
+{
+  "page": {
+    "title": "Impostazioni"
+  },
+  "appearance": {
+    "title": "Aspetto",
+    "description": "Scegli come appare Sofi. «Sistema» segue automaticamente la preferenza del tuo sistema operativo.",
+    "ariaLabel": "Preferenza tema",
+    "system": "Sistema",
+    "systemDescription": "Segue il sistema operativo",
+    "light": "Chiaro",
+    "lightDescription": "Modalità giorno",
+    "dark": "Scuro",
+    "darkDescription": "L'aspetto cyberpunk predefinito di Sofi"
+  },
+  "language": {
+    "title": "Lingua",
+    "description": "Scegli la lingua preferita. Sofi riavvierà l'interfaccia nella lingua selezionata.",
+    "english": "English",
+    "italian": "Italiano"
+  },
+  "apiTokens": {
+    "title": "Token API",
+    "description": "Token bearer a lunga durata per CLI o client di automazione. Il valore in chiaro viene mostrato una sola volta.",
+    "activeCount": "{{count}} attivi",
+    "loading": "…",
+    "newToken": "Nuovo token",
+    "creating": "Creazione…",
+    "loadError": "Impossibile caricare i token: {{message}}",
+    "empty": "Ancora nessun token API.",
+    "createdAt": "Creato il {{date}}",
+    "expires": " · scade il {{date}}",
+    "revoke": "Revoca",
+    "revealTitle": "Copia subito il tuo token — non verrà mostrato di nuovo.",
+    "copy": "Copia",
+    "copied": "Copiato",
+    "dismiss": "Chiudi"
+  }
+}

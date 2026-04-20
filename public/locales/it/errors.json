@@ -1,1 +1,7 @@
-{}
+{
+  "keychain.access_denied": "Sofi non può accedere al portachiavi di sistema. Controlla le impostazioni del portachiavi.",
+  "keychain.unavailable": "Il portachiavi di sistema non è disponibile su questo dispositivo.",
+  "oauth.cancelled": "Accesso annullato.",
+  "oauth.provider_error": "Il provider di identità ha restituito un errore. Riprova.",
+  "internal.unknown": "Si è verificato un errore. Riprova."
+}
