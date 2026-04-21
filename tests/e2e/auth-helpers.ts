@@ -20,7 +20,9 @@ export async function register(page: Page, fields: RegisterFields): Promise<void
   if (fields.displayName) {
     await page.getByLabel(/display name/i).fill(fields.displayName);
   }
-  await page.getByLabel(/email/i).fill(fields.email);
+  // Use role-based textbox locator to avoid strict mode collision with
+  // TanStack Router devtools buttons that have aria-labels containing "email".
+  await page.getByRole("textbox", { name: /email/i }).fill(fields.email);
   await page.locator('input[type="password"]').first().fill(fields.password);
   await page.locator('input[type="password"]').nth(1).fill(fields.password);
   await page
@@ -36,7 +38,11 @@ export async function verifyEmail(page: Page, email: string): Promise<void> {
   await page.goto(url);
   // Django's allauth /accounts/confirm-email/ redirects to /email-verified/ (a Django template,
   // not an SPA route). Assert on visible content rather than router state.
-  await expect(page.getByText(/email verified|return to sofi/i)).toBeVisible({ timeout: 5_000 });
+  // Use .first() because the template contains both the <p> body text ("Email verified.") and
+  // the <a> CTA ("Return to Sofi"), both of which match the regex.
+  await expect(page.getByText(/email verified|return to sofi/i).first()).toBeVisible({
+    timeout: 5_000,
+  });
 }
 
 export async function requestPasswordReset(page: Page, email: string): Promise<void> {

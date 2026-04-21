@@ -29,7 +29,19 @@ setup("seed + sign in", async ({ page }) => {
       "--password",
       PASSWORD,
     ],
-    { encoding: "utf8", cwd: "backend" },
+    {
+      encoding: "utf8",
+      cwd: "backend",
+      // Must match the settings used by the Playwright webserver so that
+      // PASSWORD_HASHERS are identical (e2e.py inherits test.py's MD5 hasher).
+      // Without this, the seed uses dev.py (PBKDF2) while the webserver uses
+      // e2e.py (MD5-only), causing the login to return 400.
+      env: {
+        ...process.env,
+        DJANGO_SETTINGS_MODULE:
+          process.env.DJANGO_SETTINGS_MODULE ?? "sofi_api.settings.e2e",
+      },
+    },
   );
   const seed = JSON.parse(raw.trim());
   // biome-ignore lint/suspicious/noConsole: intentional setup diagnostic
