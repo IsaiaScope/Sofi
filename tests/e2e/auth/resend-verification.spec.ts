@@ -36,6 +36,6 @@ test.describe("resend verification", () => {
     await resend.click();
 
     await waitForRoute(page, /\/check-email/, { timeout: 10_000 });
-    await expect(page.getByText(user.email)).toBeVisible();
+    await expect(page.getByText(user.email).first()).toBeVisible();
   });
 });

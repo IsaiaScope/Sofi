@@ -37,7 +37,7 @@ test.describe("register page", () => {
 
       await waitForRoute(page, /\/check-email/, { timeout: 10_000 });
       await expect(page.getByText(/inbox incoming/i)).toBeVisible();
-      await expect(page.getByText(email)).toBeVisible();
+      await expect(page.getByText(email).first()).toBeVisible();
     } finally {
       try {
         deleteUser(email);
