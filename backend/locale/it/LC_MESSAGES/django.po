@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 13:55+0000\n"
+"POT-Creation-Date: 2026-04-21 15:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,75 +17,245 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: apps/users/serializers.py:39
+
+#: apps/users/serializers.py:38
 msgid "A user is already registered with this e-mail address."
 msgstr "Un utente è già registrato con questo indirizzo email."
+
+#: apps/users/templates/account/email/email_confirmation_message.html:8
+#: apps/users/templates/account/email/email_confirmation_subject.txt:1
+msgid "Confirm your Sofi email"
+msgstr "Conferma la tua email Sofi"
+
+#: apps/users/templates/account/email/email_confirmation_message.html:13
+msgid "Confirm your operator profile to activate Sofi."
+msgstr "Conferma il tuo profilo operatore per attivare Sofi."
+
+#: apps/users/templates/account/email/email_confirmation_message.html:24
+msgid "Secure Dispatch"
+msgstr "Dispaccio Sicuro"
+
+#: apps/users/templates/account/email/email_confirmation_message.html:36
+msgid "incoming transmission"
+msgstr "trasmissione in arrivo"
+
+#: apps/users/templates/account/email/email_confirmation_message.html:39
+#, python-format
+msgid "Welcome aboard, %(user_display)s."
+msgstr "Benvenuto a bordo, %(user_display)s."
+
+#: apps/users/templates/account/email/email_confirmation_message.html:48
+msgid "Verify your email"
+msgstr "Verifica la tua email"
+
+#: apps/users/templates/account/email/email_confirmation_message.html:57
+msgid ""
+"Thanks for signing up for Sofi — your AI agent command center. Confirm your "
+"email below to activate your operator profile."
+msgstr ""
+"Grazie per esserti registrato a Sofi — il tuo centro di comando per agenti "
+"IA. Conferma la tua email qui sotto per attivare il tuo profilo operatore."
+
+#: apps/users/templates/account/email/email_confirmation_message.html:69
+msgid "Confirm Email"
+msgstr "Conferma Email"
+
+#: apps/users/templates/account/email/email_confirmation_message.html:81
+#: apps/users/templates/account/email/password_reset_key_message.html:81
+msgid "Or copy this link:"
+msgstr "Oppure copia questo link:"
+
+#: apps/users/templates/account/email/email_confirmation_message.html:98
+msgid "If you didn't sign up for Sofi, you can safely ignore this message."
+msgstr ""
+"Se non ti sei registrato a Sofi, puoi tranquillamente ignorare questo "
+"messaggio."
+
+#: apps/users/templates/account/email/email_confirmation_message.html:101
+#: apps/users/templates/account/email/password_reset_key_message.html:101
+msgid "The Sofi team"
+msgstr "Il team di Sofi"
 
 #: apps/users/templates/account/email/email_confirmation_message.txt:1
 #, python-format
 msgid ""
-"Hi %(user_display)s,\n"
+"> INCOMING TRANSMISSION\n"
 "\n"
-"Thanks for signing up for Sofi — your AI agent command center.\n"
+"Welcome aboard, %(user_display)s.\n"
 "\n"
-"To finish setting up your account, verify your email by clicking the link "
-"below:\n"
+"Thanks for signing up for Sofi — your AI agent command center. Confirm your "
+"email below to activate your operator profile.\n"
 "\n"
-"%(activate_url)s\n"
+"  %(activate_url)s\n"
 "\n"
-"This link expires in 3 days. If you didn't sign up for Sofi, you can safely "
-"ignore this message.\n"
+"If you didn't sign up for Sofi, you can safely ignore this message.\n"
 "\n"
-"— The Sofi team\n"
+"// The Sofi team\n"
 msgstr ""
-"Ciao %(user_display)s,\n"
+"> TRASMISSIONE IN ARRIVO\n"
 "\n"
-"Grazie per esserti registrato a Sofi — il tuo centro di comando per agenti IA.\n"
+"Benvenuto a bordo, %(user_display)s.\n"
 "\n"
-"Per completare la configurazione del tuo account, verifica la tua email cliccando sul link "
-"qui sotto:\n"
+"Grazie per esserti registrato a Sofi — il tuo centro di comando per agenti "
+"IA. Conferma la tua email qui sotto per attivare il tuo profilo operatore.\n"
 "\n"
-"%(activate_url)s\n"
+"  %(activate_url)s\n"
 "\n"
-"Questo link scade tra 3 giorni. Se non ti sei registrato a Sofi, puoi tranquillamente "
-"ignorare questo messaggio.\n"
+"Se non ti sei registrato a Sofi, puoi tranquillamente ignorare questo "
+"messaggio.\n"
 "\n"
-"— Il team di Sofi\n"
+"// Il team di Sofi\n"
 
-#: apps/users/templates/account/email/email_confirmation_subject.txt:1
-msgid "Confirm your Sofi email"
-msgstr "Conferma la tua email Sofi"
+#: apps/users/templates/account/email/password_reset_key_message.html:8
+#: apps/users/templates/account/email/password_reset_key_subject.txt:1
+msgid "Reset your Sofi access key"
+msgstr "Reimposta la tua chiave di accesso Sofi"
+
+#: apps/users/templates/account/email/password_reset_key_message.html:13
+msgid "A password reset was requested for your operator profile."
+msgstr "È stata richiesta una reimpostazione per il tuo profilo operatore."
+
+#: apps/users/templates/account/email/password_reset_key_message.html:24
+msgid "Credential Reset"
+msgstr "Reset Credenziali"
+
+#: apps/users/templates/account/email/password_reset_key_message.html:36
+msgid "reset link dispatched"
+msgstr "link di reset inviato"
+
+#: apps/users/templates/account/email/password_reset_key_message.html:39
+msgid ""
+"Someone — hopefully you — requested a password reset for this operator "
+"profile."
+msgstr ""
+"Qualcuno — speriamo tu — ha richiesto una reimpostazione della password per "
+"questo profilo operatore."
+
+#: apps/users/templates/account/email/password_reset_key_message.html:48
+msgid "Reset access"
+msgstr "Reimposta accesso"
+
+#: apps/users/templates/account/email/password_reset_key_message.html:57
+msgid ""
+"Open the link below in Sofi to set a new access key. If you didn't request "
+"this, ignore this message — your existing key stays valid."
+msgstr ""
+"Apri il link qui sotto in Sofi per impostare una nuova chiave di accesso. Se "
+"non hai richiesto questa operazione, ignora questo messaggio — la tua chiave "
+"attuale rimane valida."
+
+#: apps/users/templates/account/email/password_reset_key_message.html:69
+msgid "Set new access key"
+msgstr "Imposta nuova chiave"
+
+#: apps/users/templates/account/email/password_reset_key_message.html:98
+msgid ""
+"This link expires shortly. If you didn't request a reset, no action is "
+"needed."
+msgstr ""
+"Questo link scade a breve. Se non hai richiesto una reimpostazione, non è "
+"necessaria alcuna azione."
+
+#: apps/users/templates/account/email/password_reset_key_message.txt:1
+msgid ""
+"A password reset was requested for your Sofi operator profile. Open the link "
+"below in Sofi to set a new access key:"
+msgstr ""
+"È stata richiesta una reimpostazione della password per il tuo profilo "
+"operatore Sofi. Apri il link qui sotto in Sofi per impostare una nuova "
+"chiave di accesso:"
+
+#: apps/users/templates/account/email/password_reset_key_message.txt:8
+msgid ""
+"This link expires shortly. If you didn't request a reset, ignore this "
+"message — your existing key stays valid. — The Sofi team"
+msgstr ""
+"Questo link scade a breve. Se non hai richiesto una reimpostazione, ignora "
+"questo messaggio — la tua chiave attuale rimane valida. — Il team di Sofi"
 
 #: apps/users/templates/users/email_verified.html:7
 msgid "Email verified — Sofi"
 msgstr "Email verificata — Sofi"
 
-#: apps/users/templates/users/email_verified.html:121
-msgid "Email verified"
-msgstr "Email verificata"
+#: apps/users/templates/users/email_verified.html:299
+#: apps/users/templates/users/email_verified.html:311
+msgid "Verified"
+msgstr "Verificato"
 
-#: apps/users/templates/users/email_verified.html:122
-msgid ""
-"Your account is ready. Return to Sofi and sign in with your credentials."
-msgstr ""
-"Il tuo account è pronto. Torna su Sofi e accedi con le tue credenziali."
+#: apps/users/templates/users/email_verified.html:302
+msgid "session verified"
+msgstr "sessione verificata"
 
-#: apps/users/templates/users/email_verified.html:123
+#: apps/users/templates/users/email_verified.html:305
+#: apps/users/templates/users/password_reset_landing.html:297
+msgid "Secure"
+msgstr "Sicuro"
+
+#: apps/users/templates/users/email_verified.html:314
+msgid "Uplink established"
+msgstr "Collegamento stabilito"
+
+#: apps/users/templates/users/email_verified.html:315
+msgid "Email verified. Proceed to command center."
+msgstr "Email verificata. Procedi al centro di comando."
+
+#: apps/users/templates/users/email_verified.html:318
 msgid "Return to Sofi"
 msgstr "Torna su Sofi"
 
-#: apps/users/templates/users/email_verified.html:124
+#: apps/users/templates/users/email_verified.html:320
+#: apps/users/templates/users/password_reset_landing.html:312
 msgid ""
 "If nothing happens, make sure the Sofi desktop app is installed, then open "
 "it manually and sign in."
 msgstr ""
-"Se non succede nulla, assicurati che l'app desktop Sofi sia installata, poi aprila "
-"manualmente e accedi."
+"Se non succede nulla, assicurati che l'app desktop Sofi sia installata, poi "
+"aprila manualmente e accedi."
 
-#: sofi_api/settings/base.py:94
+#: apps/users/templates/users/password_reset_landing.html:7
+#, fuzzy
+#| msgid "Reset access"
+msgid "Reset access — Sofi"
+msgstr "Reimposta accesso"
+
+#: apps/users/templates/users/password_reset_landing.html:291
+#: apps/users/templates/users/password_reset_landing.html:303
+msgid "Reset"
+msgstr ""
+
+#: apps/users/templates/users/password_reset_landing.html:294
+msgid "resetting credential"
+msgstr ""
+
+#: apps/users/templates/users/password_reset_landing.html:306
+msgid "Reset credential"
+msgstr ""
+
+#: apps/users/templates/users/password_reset_landing.html:307
+#, fuzzy
+#| msgid "Set new access key"
+msgid "Open Sofi to set a new access key."
+msgstr "Imposta nuova chiave"
+
+#: apps/users/templates/users/password_reset_landing.html:310
+#, fuzzy
+#| msgid "Return to Sofi"
+msgid "Open Sofi"
+msgstr "Torna su Sofi"
+
+#: apps/users/views.py:71
+msgid "E-mail is not verified."
+msgstr "Email non verificata."
+
+#: sofi_api/settings/base.py:96
 msgid "English"
 msgstr "Inglese"
 
-#: sofi_api/settings/base.py:95
+#: sofi_api/settings/base.py:97
 msgid "Italian"
 msgstr "Italiano"
+
+#~ msgid ""
+#~ "Your account is ready. Return to Sofi and sign in with your credentials."
+#~ msgstr ""
+#~ "Il tuo account è pronto. Torna su Sofi e accedi con le tue credenziali."

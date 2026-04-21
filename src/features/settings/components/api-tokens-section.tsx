@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Heading } from "@/components/ui/heading";
 import { useApiTokens } from "../queries/hooks";
 import { useCreateApiToken, useRevokeApiToken } from "../queries/mutations";
 import type { ApiTokenCreated } from "../types";
@@ -20,13 +22,15 @@ export function ApiTokensSection() {
   return (
     <section className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold text-sofi-text">{t("apiTokens.title")}</h2>
+        <Heading level={2} size="sm">
+          {t("apiTokens.title")}
+        </Heading>
         <p className="text-base text-sofi-text-muted">{t("apiTokens.description")}</p>
       </div>
 
       {revealed && <RevealedTokenCard token={revealed} onDismiss={() => setRevealed(null)} />}
 
-      <div className="rounded-lg border border-sofi-border bg-sofi-elevated">
+      <Card variant="elevated">
         <div className="flex items-center justify-between gap-4 border-b border-sofi-border px-4 py-3">
           <span className="text-base font-medium text-sofi-text">
             {list.data
@@ -74,7 +78,7 @@ export function ApiTokensSection() {
             </Button>
           </div>
         ))}
-      </div>
+      </Card>
     </section>
   );
 }
@@ -94,7 +98,7 @@ function RevealedTokenCard({
     setTimeout(() => setCopied(false), 1500);
   };
   return (
-    <div className="rounded-lg border border-violet-primary/40 bg-violet-primary/5 p-4">
+    <Card variant="primary" padding="lg">
       <p className="mb-2 text-base font-semibold text-sofi-text">{t("apiTokens.revealTitle")}</p>
       <div className="flex items-center gap-2">
         <code className="flex-1 overflow-x-auto rounded bg-sofi-terminal px-3 py-2 font-mono text-base text-sofi-text">
@@ -107,6 +111,6 @@ function RevealedTokenCard({
           {t("apiTokens.dismiss")}
         </Button>
       </div>
-    </div>
+    </Card>
   );
 }

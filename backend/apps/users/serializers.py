@@ -27,18 +27,20 @@ class RegisterSerializer(BaseRegisterSerializer):
     display_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
 
     def validate_email(self, email):
-        # Run the parent check (EmailAddress table) first.
-        email = super().validate_email(email)
-        # Extra guard: catch orphaned users_user rows that don't have a matching
-        # EmailAddress entry (e.g. after a partial manual DB cleanup, or when an
-        # OAuth signup wrote User but the EmailAddress was later deleted).
-        # Without this, the DB unique-constraint fires mid-insert and the view
-        # crashes with IntegrityError instead of returning a clean 400.
+        # Check User table first so duplicate emails — whether caused by an
+        # orphaned User row OR a normal EmailAddress-backed account — always
+        # raise with `code="unique"`. If we delegated to super() first, allauth
+        # would raise its own ValidationError with the default `"invalid"`
+        # code and our exception handler couldn't classify it as
+        # `auth.email_already_registered`.
         if User.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError(
                 _("A user is already registered with this e-mail address."),
+                code="unique",
             )
-        return email
+        # Delegate remaining format + adapter checks (MX validation etc.) to
+        # the dj-rest-auth base serializer.
+        return super().validate_email(email)
 
     def get_cleaned_data(self):
         data = super().get_cleaned_data()

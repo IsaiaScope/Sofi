@@ -16,6 +16,16 @@ export async function invoke<T>(cmd: string, args?: InvokeArgs): Promise<T> {
   }
 }
 
+// The Rust side's `write_terminal` takes `Vec<u8>`, which Tauri serializes as
+// a JSON array of numbers — not a raw string. Every caller has to do the same
+// UTF-8 encode + `Array.from`, so it lives here once.
+export async function writeTerminal(sessionId: string, data: string): Promise<void> {
+  await invoke("write_terminal", {
+    sessionId,
+    data: Array.from(new TextEncoder().encode(data)),
+  });
+}
+
 export async function listen<T>(
   event: string,
   handler: (event: { payload: T }) => void,
@@ -53,6 +63,12 @@ function getMockResponse<T>(cmd: string): T {
     git_branches: [],
     git_log: [],
     set_window_zoom: 1,
+    create_terminal: "mock-session-id",
+    write_terminal: undefined,
+    kill_terminal: undefined,
+    resize_terminal: undefined,
+    create_worktree: undefined,
+    remove_worktree: undefined,
   };
 
   if (cmd in mocks) {

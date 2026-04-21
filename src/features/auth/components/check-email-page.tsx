@@ -1,5 +1,5 @@
 import { Trans, useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+import { AuthHeading, AuthOutlineButton } from "./auth-primitives";
 import { AuthShell } from "./auth-shell";
 
 interface CheckEmailPageProps {
@@ -10,27 +10,28 @@ interface CheckEmailPageProps {
 export function CheckEmailPage({ email, onBackToLogin }: CheckEmailPageProps) {
   const { t } = useTranslation("auth");
   return (
-    <AuthShell>
-      <h1 className="mb-2 text-center font-heading text-xl font-semibold text-sofi-text">
-        {t("checkEmail.title")}
-      </h1>
-      <p className="mb-6 text-center text-base text-sofi-text-muted">
+    <AuthShell statusKey="hud.awaitingVerification">
+      <AuthHeading>{t("checkEmail.title")}</AuthHeading>
+
+      <p className="mb-4 font-body text-base text-sofi-text">
         {email ? (
           <Trans
-            i18nKey="auth:checkEmail.bodyWithEmail"
+            i18nKey="auth:checkEmail.dispatchedWithEmail"
             values={{ email }}
-            components={{ 1: <span className="font-medium text-sofi-text" /> }}
+            components={{ 1: <span key="email" className="text-cyan-accent" /> }}
           />
         ) : (
-          t("checkEmail.bodyNoEmail")
+          t("checkEmail.dispatchedNoEmail")
         )}
       </p>
 
-      <Button type="button" variant="outline" size="lg" onClick={onBackToLogin}>
-        {t("checkEmail.backToSignIn")}
-      </Button>
+      <p className="mb-6 font-body text-base text-sofi-text-muted">
+        {t("checkEmail.instructions")}
+      </p>
 
-      <p className="mt-5 text-center text-base text-sofi-text-dim">{t("checkEmail.spamHint")}</p>
+      <AuthOutlineButton onClick={onBackToLogin} icon="arrow_back" iconPosition="trailing">
+        {t("checkEmail.backToSignIn")}
+      </AuthOutlineButton>
     </AuthShell>
   );
 }

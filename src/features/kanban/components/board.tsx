@@ -153,8 +153,10 @@ export function Board({ onSwitchToTerminal }: BoardProps) {
               key={column.id}
               column={column}
               boardId={activeBoard.id}
+              repoPath={activeBoard.repo_path ?? ""}
               tasks={tasksByColumn.get(column.id) ?? []}
               onTaskClick={(task) => setSelectedTaskId(task.id)}
+              onTaskLaunched={onSwitchToTerminal}
             />
           ))}
         </div>

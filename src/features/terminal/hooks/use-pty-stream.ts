@@ -1,6 +1,6 @@
 import type { Terminal } from "@xterm/xterm";
 import { useEffect } from "react";
-import { invoke, listen } from "@/lib/tauri";
+import { listen, writeTerminal } from "@/lib/tauri";
 import type { TerminalExitEvent, TerminalOutputEvent } from "../types";
 
 export function usePtyStream(sessionId: string | null, terminal: Terminal | null) {
@@ -37,14 +37,8 @@ export function usePtyStream(sessionId: string | null, terminal: Terminal | null
       }
     });
 
-    // Handle user input → PTY write
     const disposable = terminal.onData((data) => {
-      if (!cancelled) {
-        invoke("write_terminal", {
-          sessionId,
-          data: Array.from(new TextEncoder().encode(data)),
-        }).catch(console.error);
-      }
+      if (!cancelled) writeTerminal(sessionId, data).catch(console.error);
     });
 
     return () => {

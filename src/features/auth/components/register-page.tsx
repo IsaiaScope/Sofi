@@ -1,13 +1,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { getDisplayMessage, shouldShowErrorBanner } from "@/lib/errors";
+import { useAutoFocusForm } from "@/lib/hooks/use-auto-focus-form";
+import { useServerFieldErrors } from "../hooks/use-server-field-errors";
 import { useRegister } from "../queries/mutations";
 import { type RegisterFormData, registerSchema } from "../schemas";
 import { isVerificationPending } from "../types";
+import {
+  AUTH_FOOTER_LINK_CLASS,
+  AuthFieldLabel,
+  AuthHeading,
+  AuthSubmitButton,
+  TERMINAL_INPUT_CLASS,
+} from "./auth-primitives";
 import { AuthShell } from "./auth-shell";
 import { ErrorBanner } from "./error-banner";
 
@@ -24,11 +33,14 @@ export function RegisterPage({
 }: RegisterPageProps) {
   const { t } = useTranslation("auth");
   const registerMutation = useRegister();
+  const formRef = useAutoFocusForm<HTMLFormElement>();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: { displayName: "", email: "", password1: "", password2: "" },
   });
+
+  useServerFieldErrors(form, registerMutation.error, { display_name: "displayName" });
 
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(
@@ -50,76 +62,75 @@ export function RegisterPage({
     );
   };
 
+  const busy = form.formState.isSubmitting || registerMutation.isPending;
+
   return (
     <AuthShell
+      statusKey="hud.registeringOperator"
       footer={
         <>
-          {t("register.haveAccess")}{" "}
-          <button
-            type="button"
-            onClick={onSwitchToLogin}
-            className="font-semibold text-violet-hover hover:underline"
-          >
+          <span className="text-sofi-text-dim">{t("register.haveAccess")} </span>
+          <button type="button" onClick={onSwitchToLogin} className={AUTH_FOOTER_LINK_CLASS}>
             {t("register.signIn")}
           </button>
         </>
       }
     >
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <h1 className="-mt-2 mb-6 text-center font-heading text-lg font-semibold text-sofi-text">
-          {t("register.title")}
-        </h1>
+      <AuthHeading>{t("register.heading")}</AuthHeading>
 
-        {registerMutation.error && <ErrorBanner message={registerMutation.error.message} />}
+      <p className="-mt-2 mb-6 font-body text-base text-sofi-text-muted">
+        {t("register.subheading")}
+      </p>
 
-        <Field className="mb-4">
-          <FieldLabel>{t("register.displayNameLabel")}</FieldLabel>
+      <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {registerMutation.error && shouldShowErrorBanner(registerMutation.error) && (
+          <ErrorBanner message={getDisplayMessage(registerMutation.error)} />
+        )}
+
+        <Field error={form.formState.errors.displayName?.message}>
+          <AuthFieldLabel icon="badge">{t("register.displayNameLabel")}</AuthFieldLabel>
           <Input
             {...form.register("displayName")}
+            autoComplete="nickname"
             placeholder={t("register.displayNamePlaceholder")}
-            aria-invalid={!!form.formState.errors.displayName}
+            className={TERMINAL_INPUT_CLASS}
           />
-          <FieldError>{form.formState.errors.displayName?.message}</FieldError>
         </Field>
 
-        <Field className="mb-4">
-          <FieldLabel>{t("register.emailLabel")}</FieldLabel>
+        <Field error={form.formState.errors.email?.message}>
+          <AuthFieldLabel icon="mail">{t("register.emailLabel")}</AuthFieldLabel>
           <Input
             {...form.register("email")}
             type="email"
-            placeholder={t("register.emailPlaceholder")}
-            aria-invalid={!!form.formState.errors.email}
+            autoComplete="email"
+            placeholder={t("register.emailPlaceholderOperator")}
+            className={TERMINAL_INPUT_CLASS}
           />
-          <FieldError>{form.formState.errors.email?.message}</FieldError>
         </Field>
 
-        <Field className="mb-4">
-          <FieldLabel>{t("register.passwordLabel")}</FieldLabel>
+        <Field error={form.formState.errors.password1?.message}>
+          <AuthFieldLabel icon="lock">{t("register.passwordLabel")}</AuthFieldLabel>
           <PasswordInput
             {...form.register("password1")}
+            autoComplete="new-password"
             placeholder="••••••••"
-            aria-invalid={!!form.formState.errors.password1}
+            className={TERMINAL_INPUT_CLASS}
           />
-          <FieldError>{form.formState.errors.password1?.message}</FieldError>
         </Field>
 
-        <Field className="mb-6">
-          <FieldLabel>{t("register.confirmPasswordLabel")}</FieldLabel>
+        <Field error={form.formState.errors.password2?.message}>
+          <AuthFieldLabel icon="lock">{t("register.confirmPasswordLabel")}</AuthFieldLabel>
           <PasswordInput
             {...form.register("password2")}
+            autoComplete="new-password"
             placeholder="••••••••"
-            aria-invalid={!!form.formState.errors.password2}
+            className={TERMINAL_INPUT_CLASS}
           />
-          <FieldError>{form.formState.errors.password2?.message}</FieldError>
         </Field>
 
-        <Button
-          type="submit"
-          size="lg"
-          disabled={form.formState.isSubmitting || registerMutation.isPending}
-        >
-          {registerMutation.isPending ? t("register.creating") : t("register.signUp")}
-        </Button>
+        <AuthSubmitButton disabled={busy} aria-busy={busy} icon="person_add">
+          {registerMutation.isPending ? t("register.creating") : t("register.createOperator")}
+        </AuthSubmitButton>
       </form>
     </AuthShell>
   );

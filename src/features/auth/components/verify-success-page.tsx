@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+import { AuthHeading, AuthSubmitButton, BracketGlyph } from "./auth-primitives";
 import { AuthShell } from "./auth-shell";
 
 interface VerifySuccessPageProps {
@@ -9,22 +9,15 @@ interface VerifySuccessPageProps {
 export function VerifySuccessPage({ onSignIn }: VerifySuccessPageProps) {
   const { t } = useTranslation("auth");
   return (
-    <AuthShell>
-      <div
-        aria-hidden="true"
-        className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-sofi-green/10 text-sofi-green"
-      >
-        <span className="material-symbols-outlined !text-[28px]">check_circle</span>
-      </div>
-
-      <h1 className="mb-2 text-center font-heading text-xl font-semibold text-sofi-text">
-        {t("verifySuccess.title")}
-      </h1>
-      <p className="mb-6 text-center text-base text-sofi-text-muted">{t("verifySuccess.body")}</p>
-
-      <Button type="button" size="lg" onClick={onSignIn}>
+    <AuthShell statusKey="hud.sessionVerified">
+      <BracketGlyph icon="check" label={t("verifySuccess.title")} />
+      <AuthHeading align="center">{t("verifySuccess.title")}</AuthHeading>
+      <p className="-mt-2 mb-6 text-center font-mono text-base text-sofi-text-muted">
+        {t("verifySuccess.body")}
+      </p>
+      <AuthSubmitButton type="button" onClick={onSignIn} icon="login">
         {t("verifySuccess.signIn")}
-      </Button>
+      </AuthSubmitButton>
     </AuthShell>
   );
 }

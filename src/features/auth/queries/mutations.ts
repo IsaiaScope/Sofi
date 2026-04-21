@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { apiClient, clearClientAuth, setBearerCache } from "@/lib/api-client";
 import { ErrorCode, toAppError } from "@/lib/errors";
+import { i18n } from "@/lib/i18n";
 import { invoke } from "@/lib/tauri";
 import {
   type AuthResponse,
@@ -52,6 +53,41 @@ export function useResendVerification() {
         { email },
         { authenticate: false },
       ),
+    meta: { suppressToast: true },
+  });
+}
+
+// Password reset — request phase. Always returns 200 from dj-rest-auth regardless
+// of whether the email is registered (intentional: prevents account enumeration).
+// The UI commits to the same contract and always shows the success state on 2xx.
+export function useRequestPasswordReset() {
+  return useMutation({
+    mutationFn: (email: string) =>
+      apiClient.post<{ detail: string }>(
+        "/auth/password/reset/",
+        { email },
+        { authenticate: false },
+      ),
+    meta: { suppressToast: true },
+  });
+}
+
+interface ConfirmPasswordResetInput {
+  uid: string;
+  token: string;
+  new_password1: string;
+  new_password2: string;
+}
+
+// Password reset — confirm phase. 400 with kind `password_reset.invalid_token`
+// means the link is dead (expired, tampered, or malformed uid); any other kind
+// came from a password validator and stays inline on the form.
+export function useConfirmPasswordReset() {
+  return useMutation({
+    mutationFn: (input: ConfirmPasswordResetInput) =>
+      apiClient.post<{ detail: string }>("/auth/password/reset/confirm/", input, {
+        authenticate: false,
+      }),
     meta: { suppressToast: true },
   });
 }
@@ -122,7 +158,15 @@ export function useOAuthLogin() {
       const partialUrl = `${PROVIDER_AUTH_URL[provider]}?${params.toString()}`;
 
       const { code, callback_url } = await invoke<OauthStartResult>("oauth_start", {
-        args: { partial_auth_url: partialUrl, expected_state: state },
+        // `locale` + `provider` let Rust render a localized, provider-aware
+        // success page on the loopback server. `i18n.language` is the live
+        // user preference (synced to localStorage + the backend on change).
+        args: {
+          partial_auth_url: partialUrl,
+          expected_state: state,
+          locale: i18n.language,
+          provider,
+        },
       });
 
       return apiClient.post<AuthResponse>(
@@ -133,5 +177,18 @@ export function useOAuthLogin() {
     },
     meta: { suppressToast: true },
     onSuccess: (response) => persistAuth(response, queryClient),
+  });
+}
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  return useMutation({
+    mutationFn: () => apiClient.delete<void>("/auth/account/"),
+    onSuccess: async () => {
+      await clearClientAuth();
+      queryClient.setQueryData(authKeys.session(), null);
+      await router.navigate({ to: "/login" });
+    },
   });
 }

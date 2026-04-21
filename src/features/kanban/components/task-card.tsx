@@ -1,4 +1,7 @@
 import { useTranslation } from "react-i18next";
+import { Badge, type BadgeProps } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { FOCUS_RING } from "@/lib/a11y";
 import { cn } from "@/lib/cn";
 import type { Task } from "../types";
 
@@ -8,15 +11,14 @@ interface TaskCardProps {
   isDragging?: boolean;
 }
 
-const STATUS_BADGE: Record<string, { labelKey: string | null; className: string }> = {
-  pending: { labelKey: null, className: "" },
-  running: { labelKey: "taskCard.status.live", className: "bg-sofi-green/20 text-sofi-green" },
-  review: {
-    labelKey: "taskCard.status.diffReady",
-    className: "bg-sofi-orange/20 text-sofi-orange",
-  },
-  done: { labelKey: "taskCard.status.done", className: "bg-sofi-green/10 text-sofi-green/60" },
-  failed: { labelKey: "taskCard.status.failed", className: "bg-sofi-red/20 text-sofi-red" },
+type StatusTone = NonNullable<BadgeProps["tone"]>;
+
+const STATUS_BADGE: Record<string, { labelKey: string | null; tone: StatusTone }> = {
+  pending: { labelKey: null, tone: "neutral" },
+  running: { labelKey: "taskCard.status.live", tone: "success" },
+  review: { labelKey: "taskCard.status.diffReady", tone: "warning" },
+  done: { labelKey: "taskCard.status.done", tone: "success-muted" },
+  failed: { labelKey: "taskCard.status.failed", tone: "danger" },
 };
 
 const AGENT_COLORS: Record<string, string> = {
@@ -31,15 +33,26 @@ export function TaskCard({ task, onClick, isDragging }: TaskCardProps) {
   const agentBorder = task.agent_type ? (AGENT_COLORS[task.agent_type] ?? "") : "";
 
   return (
-    <div
+    <Card
+      variant="surface"
+      padding="md"
+      hoverable
+      role="button"
+      tabIndex={0}
+      aria-label={task.title}
       className={cn(
-        "cursor-pointer rounded-lg border border-sofi-border bg-sofi-surface p-3 transition-colors hover:border-white/15",
         task.agent_type && `border-l-2 ${agentBorder}`,
         task.status === "done" && "opacity-50",
         isDragging && "opacity-50 ring-2 ring-violet-primary",
+        FOCUS_RING,
       )}
       onClick={onClick}
-      onKeyDown={(e) => e.key === "Enter" && onClick()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <p className="text-sm font-medium text-sofi-text">{task.title}</p>
 
@@ -47,18 +60,13 @@ export function TaskCard({ task, onClick, isDragging }: TaskCardProps) {
         <div className="mt-2 flex items-center justify-between">
           {task.agent_name && (
             <span className="text-xs text-sofi-text-muted">
-              {task.status === "done" ? "\u2713" : "\u25B6"} {task.agent_name}
+              {task.status === "done" ? "✓" : "▶"} {task.agent_name}
             </span>
           )}
           {badgeLabel && (
-            <span
-              className={cn(
-                "rounded-full px-2 py-0.5 font-label text-[10px] font-medium",
-                badge.className,
-              )}
-            >
+            <Badge tone={badge.tone} font="label">
               {badgeLabel}
-            </span>
+            </Badge>
           )}
         </div>
       )}
@@ -66,6 +74,6 @@ export function TaskCard({ task, onClick, isDragging }: TaskCardProps) {
       {!task.agent_name && task.status === "pending" && (
         <p className="mt-1.5 text-xs text-sofi-text-dim">{t("taskCard.noAgent")}</p>
       )}
-    </div>
+    </Card>
   );
 }

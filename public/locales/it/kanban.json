@@ -34,5 +34,26 @@
       "done": "Completata",
       "failed": "Fallita"
     }
+  },
+  "createDialog": {
+    "title": "Nuova attività",
+    "titleField": "Titolo",
+    "titlePlaceholder": "Riassunto breve",
+    "descriptionField": "Descrizione",
+    "descriptionPlaceholder": "Cosa deve fare l'agente? Contesto, vincoli, criteri di accettazione.",
+    "agentField": "Agente",
+    "agentPlaceholder": "Scegli un agente",
+    "agentUnavailable": "non installato",
+    "repoPathMissing": "Questa bacheca non ha repo_path configurato. Impostalo prima di creare attività.",
+    "create": "Crea e avvia",
+    "cancel": "Annulla",
+    "launching": "Avvio agente..."
+  },
+  "launchErrors": {
+    "task": "Creazione attività fallita",
+    "worktree": "Creazione worktree fallita",
+    "terminal": "Avvio terminale fallito",
+    "write": "Avvio agente fallito — digita il comando manualmente",
+    "link": "Attività creata ma i metadati di collegamento non sono stati salvati"
   }
 }

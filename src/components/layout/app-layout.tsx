@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { WindowChrome } from "@/components/layout/window-chrome";
 import { TopBar } from "@/components/top-bar/top-bar";
+import { MAIN_LANDMARK_ID } from "@/lib/a11y";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -15,7 +16,13 @@ export function AppLayout({ children, onNewTerminalSession }: AppLayoutProps) {
       <TopBar />
       <div className="flex min-h-0 flex-1">
         <Sidebar onNewTerminalSession={onNewTerminalSession} />
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</main>
+        <main
+          id={MAIN_LANDMARK_ID}
+          tabIndex={-1}
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto outline-none"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

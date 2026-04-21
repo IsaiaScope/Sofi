@@ -14,12 +14,16 @@ import { Route as AuthenticatedRouteImport } from "./routes/_authenticated"
 import { Route as IndexRouteImport } from "./routes/index"
 import { Route as PublicVerifySuccessRouteImport } from "./routes/_public/verify-success"
 import { Route as PublicRegisterRouteImport } from "./routes/_public/register"
+import { Route as PublicRecoverRouteImport } from "./routes/_public/recover"
 import { Route as PublicLoginRouteImport } from "./routes/_public/login"
+import { Route as PublicFaultPreviewRouteImport } from "./routes/_public/fault-preview"
 import { Route as PublicCheckEmailRouteImport } from "./routes/_public/check-email"
+import { Route as PublicRecoverIndexRouteImport } from "./routes/_public/recover.index"
 import { Route as AuthenticatedTerminalIndexRouteImport } from "./routes/_authenticated/terminal/index"
 import { Route as AuthenticatedSettingsIndexRouteImport } from "./routes/_authenticated/settings/index"
 import { Route as AuthenticatedKanbanIndexRouteImport } from "./routes/_authenticated/kanban/index"
 import { Route as AuthenticatedGitIndexRouteImport } from "./routes/_authenticated/git/index"
+import { Route as PublicRecoverConfirmRouteImport } from "./routes/_public/recover.confirm"
 import { Route as AuthenticatedTerminalSettingsRouteImport } from "./routes/_authenticated/terminal/settings"
 import { Route as AuthenticatedKanbanSettingsRouteImport } from "./routes/_authenticated/kanban/settings"
 import { Route as AuthenticatedKanbanListRouteImport } from "./routes/_authenticated/kanban/list"
@@ -48,15 +52,30 @@ const PublicRegisterRoute = PublicRegisterRouteImport.update({
   path: "/register",
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicRecoverRoute = PublicRecoverRouteImport.update({
+  id: "/recover",
+  path: "/recover",
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicLoginRoute = PublicLoginRouteImport.update({
   id: "/login",
   path: "/login",
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicFaultPreviewRoute = PublicFaultPreviewRouteImport.update({
+  id: "/fault-preview",
+  path: "/fault-preview",
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicCheckEmailRoute = PublicCheckEmailRouteImport.update({
   id: "/check-email",
   path: "/check-email",
   getParentRoute: () => PublicRoute,
+} as any)
+const PublicRecoverIndexRoute = PublicRecoverIndexRouteImport.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => PublicRecoverRoute,
 } as any)
 const AuthenticatedTerminalIndexRoute =
   AuthenticatedTerminalIndexRouteImport.update({
@@ -80,6 +99,11 @@ const AuthenticatedGitIndexRoute = AuthenticatedGitIndexRouteImport.update({
   id: "/git/",
   path: "/git/",
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const PublicRecoverConfirmRoute = PublicRecoverConfirmRouteImport.update({
+  id: "/confirm",
+  path: "/confirm",
+  getParentRoute: () => PublicRecoverRoute,
 } as any)
 const AuthenticatedTerminalSettingsRoute =
   AuthenticatedTerminalSettingsRouteImport.update({
@@ -108,21 +132,26 @@ const AuthenticatedKanbanAgentsRoute =
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/check-email": typeof PublicCheckEmailRoute
+  "/fault-preview": typeof PublicFaultPreviewRoute
   "/login": typeof PublicLoginRoute
+  "/recover": typeof PublicRecoverRouteWithChildren
   "/register": typeof PublicRegisterRoute
   "/verify-success": typeof PublicVerifySuccessRoute
   "/kanban/agents": typeof AuthenticatedKanbanAgentsRoute
   "/kanban/list": typeof AuthenticatedKanbanListRoute
   "/kanban/settings": typeof AuthenticatedKanbanSettingsRoute
   "/terminal/settings": typeof AuthenticatedTerminalSettingsRoute
+  "/recover/confirm": typeof PublicRecoverConfirmRoute
   "/git/": typeof AuthenticatedGitIndexRoute
   "/kanban/": typeof AuthenticatedKanbanIndexRoute
   "/settings/": typeof AuthenticatedSettingsIndexRoute
   "/terminal/": typeof AuthenticatedTerminalIndexRoute
+  "/recover/": typeof PublicRecoverIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/check-email": typeof PublicCheckEmailRoute
+  "/fault-preview": typeof PublicFaultPreviewRoute
   "/login": typeof PublicLoginRoute
   "/register": typeof PublicRegisterRoute
   "/verify-success": typeof PublicVerifySuccessRoute
@@ -130,10 +159,12 @@ export interface FileRoutesByTo {
   "/kanban/list": typeof AuthenticatedKanbanListRoute
   "/kanban/settings": typeof AuthenticatedKanbanSettingsRoute
   "/terminal/settings": typeof AuthenticatedTerminalSettingsRoute
+  "/recover/confirm": typeof PublicRecoverConfirmRoute
   "/git": typeof AuthenticatedGitIndexRoute
   "/kanban": typeof AuthenticatedKanbanIndexRoute
   "/settings": typeof AuthenticatedSettingsIndexRoute
   "/terminal": typeof AuthenticatedTerminalIndexRoute
+  "/recover": typeof PublicRecoverIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -141,38 +172,47 @@ export interface FileRoutesById {
   "/_authenticated": typeof AuthenticatedRouteWithChildren
   "/_public": typeof PublicRouteWithChildren
   "/_public/check-email": typeof PublicCheckEmailRoute
+  "/_public/fault-preview": typeof PublicFaultPreviewRoute
   "/_public/login": typeof PublicLoginRoute
+  "/_public/recover": typeof PublicRecoverRouteWithChildren
   "/_public/register": typeof PublicRegisterRoute
   "/_public/verify-success": typeof PublicVerifySuccessRoute
   "/_authenticated/kanban/agents": typeof AuthenticatedKanbanAgentsRoute
   "/_authenticated/kanban/list": typeof AuthenticatedKanbanListRoute
   "/_authenticated/kanban/settings": typeof AuthenticatedKanbanSettingsRoute
   "/_authenticated/terminal/settings": typeof AuthenticatedTerminalSettingsRoute
+  "/_public/recover/confirm": typeof PublicRecoverConfirmRoute
   "/_authenticated/git/": typeof AuthenticatedGitIndexRoute
   "/_authenticated/kanban/": typeof AuthenticatedKanbanIndexRoute
   "/_authenticated/settings/": typeof AuthenticatedSettingsIndexRoute
   "/_authenticated/terminal/": typeof AuthenticatedTerminalIndexRoute
+  "/_public/recover/": typeof PublicRecoverIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
     | "/check-email"
+    | "/fault-preview"
     | "/login"
+    | "/recover"
     | "/register"
     | "/verify-success"
     | "/kanban/agents"
     | "/kanban/list"
     | "/kanban/settings"
     | "/terminal/settings"
+    | "/recover/confirm"
     | "/git/"
     | "/kanban/"
     | "/settings/"
     | "/terminal/"
+    | "/recover/"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
     | "/check-email"
+    | "/fault-preview"
     | "/login"
     | "/register"
     | "/verify-success"
@@ -180,27 +220,33 @@ export interface FileRouteTypes {
     | "/kanban/list"
     | "/kanban/settings"
     | "/terminal/settings"
+    | "/recover/confirm"
     | "/git"
     | "/kanban"
     | "/settings"
     | "/terminal"
+    | "/recover"
   id:
     | "__root__"
     | "/"
     | "/_authenticated"
     | "/_public"
     | "/_public/check-email"
+    | "/_public/fault-preview"
     | "/_public/login"
+    | "/_public/recover"
     | "/_public/register"
     | "/_public/verify-success"
     | "/_authenticated/kanban/agents"
     | "/_authenticated/kanban/list"
     | "/_authenticated/kanban/settings"
     | "/_authenticated/terminal/settings"
+    | "/_public/recover/confirm"
     | "/_authenticated/git/"
     | "/_authenticated/kanban/"
     | "/_authenticated/settings/"
     | "/_authenticated/terminal/"
+    | "/_public/recover/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -246,11 +292,25 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof PublicRegisterRouteImport
       parentRoute: typeof PublicRoute
     }
+    "/_public/recover": {
+      id: "/_public/recover"
+      path: "/recover"
+      fullPath: "/recover"
+      preLoaderRoute: typeof PublicRecoverRouteImport
+      parentRoute: typeof PublicRoute
+    }
     "/_public/login": {
       id: "/_public/login"
       path: "/login"
       fullPath: "/login"
       preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    "/_public/fault-preview": {
+      id: "/_public/fault-preview"
+      path: "/fault-preview"
+      fullPath: "/fault-preview"
+      preLoaderRoute: typeof PublicFaultPreviewRouteImport
       parentRoute: typeof PublicRoute
     }
     "/_public/check-email": {
@@ -259,6 +319,13 @@ declare module "@tanstack/react-router" {
       fullPath: "/check-email"
       preLoaderRoute: typeof PublicCheckEmailRouteImport
       parentRoute: typeof PublicRoute
+    }
+    "/_public/recover/": {
+      id: "/_public/recover/"
+      path: "/"
+      fullPath: "/recover/"
+      preLoaderRoute: typeof PublicRecoverIndexRouteImport
+      parentRoute: typeof PublicRecoverRoute
     }
     "/_authenticated/terminal/": {
       id: "/_authenticated/terminal/"
@@ -287,6 +354,13 @@ declare module "@tanstack/react-router" {
       fullPath: "/git/"
       preLoaderRoute: typeof AuthenticatedGitIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    "/_public/recover/confirm": {
+      id: "/_public/recover/confirm"
+      path: "/confirm"
+      fullPath: "/recover/confirm"
+      preLoaderRoute: typeof PublicRecoverConfirmRouteImport
+      parentRoute: typeof PublicRecoverRoute
     }
     "/_authenticated/terminal/settings": {
       id: "/_authenticated/terminal/settings"
@@ -345,16 +419,34 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface PublicRecoverRouteChildren {
+  PublicRecoverConfirmRoute: typeof PublicRecoverConfirmRoute
+  PublicRecoverIndexRoute: typeof PublicRecoverIndexRoute
+}
+
+const PublicRecoverRouteChildren: PublicRecoverRouteChildren = {
+  PublicRecoverConfirmRoute: PublicRecoverConfirmRoute,
+  PublicRecoverIndexRoute: PublicRecoverIndexRoute,
+}
+
+const PublicRecoverRouteWithChildren = PublicRecoverRoute._addFileChildren(
+  PublicRecoverRouteChildren,
+)
+
 interface PublicRouteChildren {
   PublicCheckEmailRoute: typeof PublicCheckEmailRoute
+  PublicFaultPreviewRoute: typeof PublicFaultPreviewRoute
   PublicLoginRoute: typeof PublicLoginRoute
+  PublicRecoverRoute: typeof PublicRecoverRouteWithChildren
   PublicRegisterRoute: typeof PublicRegisterRoute
   PublicVerifySuccessRoute: typeof PublicVerifySuccessRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicCheckEmailRoute: PublicCheckEmailRoute,
+  PublicFaultPreviewRoute: PublicFaultPreviewRoute,
   PublicLoginRoute: PublicLoginRoute,
+  PublicRecoverRoute: PublicRecoverRouteWithChildren,
   PublicRegisterRoute: PublicRegisterRoute,
   PublicVerifySuccessRoute: PublicVerifySuccessRoute,
 }

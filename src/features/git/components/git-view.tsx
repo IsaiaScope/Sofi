@@ -1,5 +1,7 @@
 import { useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge";
 import { useKanbanUIStore } from "@/features/kanban/store/kanban-ui-store";
 import { cn } from "@/lib/cn";
 import { getGitSubView } from "@/lib/routes";
@@ -22,6 +24,7 @@ const STATUS_ICONS: Record<string, string> = {
 };
 
 export function GitView() {
+  const { t } = useTranslation("common");
   const { selectedFile, setSelectedFile, repoPath, setRepoPath } = useGitUIStore();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const subView = getGitSubView(pathname);
@@ -50,11 +53,11 @@ export function GitView() {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
         <div className="text-3xl text-sofi-text-dim">&#9683;</div>
-        <p className="text-sm text-sofi-text-muted">No repository linked</p>
+        <p className="text-sm text-sofi-text-muted">{t("git.noRepoTitle")}</p>
         <p className="text-xs text-sofi-text-dim">
-          Set a repository path on your active board to view git changes here.
+          {t("git.noRepoHelp")}
           <br />
-          Open the Kanban board selector → create or edit a board with a repo path.
+          {t("git.noRepoHint")}
         </p>
       </div>
     );
@@ -68,9 +71,11 @@ export function GitView() {
           {/* File sidebar */}
           <div className="hidden w-52 shrink-0 overflow-y-auto border-r border-sofi-border bg-white/[0.01] p-2 md:block">
             <p className="mb-2 font-label text-[9px] font-semibold uppercase tracking-wider text-sofi-text-dim">
-              Changed Files
+              {t("git.changedFiles")}
             </p>
-            {files.length === 0 && <p className="text-xs text-sofi-text-dim">No changes</p>}
+            {files.length === 0 && (
+              <p className="text-xs text-sofi-text-dim">{t("git.noChanges")}</p>
+            )}
             {files.map((file) => (
               <button
                 key={file.path}
@@ -100,7 +105,7 @@ export function GitView() {
           <div className="flex-1 overflow-hidden">
             {isLoading ? (
               <div className="flex h-full items-center justify-center text-sm text-sofi-text-dim">
-                Loading diff...
+                {t("git.loadingDiff")}
               </div>
             ) : (
               <DiffViewer hunks={hunks} selectedFile={selectedFile} />
@@ -128,14 +133,14 @@ export function GitView() {
                 />
                 <span className="font-mono">{branch.name}</span>
                 {branch.is_head && (
-                  <span className="ml-auto rounded-full bg-sofi-green/20 px-2 py-0.5 text-[10px]">
+                  <Badge tone="success" className="ml-auto">
                     HEAD
-                  </span>
+                  </Badge>
                 )}
               </div>
             ))}
             {branches.length === 0 && (
-              <p className="text-sm text-sofi-text-dim">No branches found.</p>
+              <p className="text-sm text-sofi-text-dim">{t("git.noBranches")}</p>
             )}
           </div>
         </div>
@@ -151,11 +156,11 @@ export function GitView() {
               >
                 <span className="font-mono text-xs text-sofi-purple">{commit.id}</span>
                 <span className="flex-1 truncate">{commit.message}</span>
-                <span className="shrink-0 text-[10px] text-sofi-text-dim">{commit.author}</span>
+                <span className="shrink-0 text-caption text-sofi-text-dim">{commit.author}</span>
               </div>
             ))}
             {commits.length === 0 && (
-              <p className="text-sm text-sofi-text-dim">No commits found.</p>
+              <p className="text-sm text-sofi-text-dim">{t("git.noCommits")}</p>
             )}
           </div>
         </div>

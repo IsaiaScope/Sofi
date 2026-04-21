@@ -1,127 +1,324 @@
 {% load i18n %}<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark light" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="color-scheme" content="dark light"/>
 <title>{% trans "Email verified — Sofi" %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet"/>
 <style>
+  /* Mirrors src/styles/globals.css so the browser verification page reads as the same product as the Tauri app. */
   :root {
-    --bg: #0a0a12;
+    --bg: #0f0f1a;
     --surface: #12121e;
-    --border: rgba(255, 255, 255, 0.08);
-    --text: rgba(255, 255, 255, 0.92);
+    --text: #e2e8f0;
     --text-muted: rgba(255, 255, 255, 0.5);
+    --text-dim: rgba(255, 255, 255, 0.3);
     --violet: #7c3aed;
     --violet-hover: #8b5cf6;
-    --success: #10b981;
+    --violet-muted: rgba(124, 58, 237, 0.15);
+    --cyan: #06b6d4;
+    --cyan-30: rgba(6, 182, 212, 0.3);
+    --cyan-20: rgba(6, 182, 212, 0.2);
+    --green: #10b981;
+    --grid: rgba(6, 182, 212, 0.06);
+    --scanline: rgba(0, 0, 0, 0.22);
   }
   @media (prefers-color-scheme: light) {
     :root {
       --bg: #faf9ff;
       --surface: #ffffff;
-      --border: rgba(0, 0, 0, 0.08);
-      --text: rgba(0, 0, 0, 0.92);
+      --text: #1e1e2e;
       --text-muted: rgba(0, 0, 0, 0.55);
+      --text-dim: rgba(0, 0, 0, 0.4);
       --violet: #6b21d8;
       --violet-hover: #7c3aed;
+      --violet-muted: rgba(107, 33, 216, 0.12);
+      --cyan: #0891b2;
+      --cyan-30: rgba(8, 145, 178, 0.3);
+      --cyan-20: rgba(8, 145, 178, 0.2);
+      --green: #059669;
+      --grid: rgba(8, 145, 178, 0.05);
+      --scanline: rgba(0, 0, 0, 0.04);
     }
   }
+
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body {
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
   }
+
+  /* Grid overlay + horizontal scanlines — painted as fixed pseudo-layers so they don't scroll. */
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+  }
+  body::before {
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    z-index: 0;
+  }
+  body::after {
+    background-image: linear-gradient(to bottom, transparent 50%, var(--scanline) 50%);
+    background-size: 100% 4px;
+    opacity: 0.3;
+    z-index: 1;
+  }
+
+  /* HUD corner boxes — each is a 384x56 rect pinned to a viewport corner with a 40px L-bracket
+     painted via two hard-stop linear gradients. Mirrors the lBracket() helper in auth-shell.tsx. */
+  .hud {
+    position: fixed;
+    width: 384px;
+    height: 56px;
+    padding: 12px;
+    display: none;
+    align-items: flex-start;
+    z-index: 2;
+    background-repeat: no-repeat;
+    background-size: 100% 2px, 2px 100%;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 16px;
+    line-height: 1;
+  }
+  @media (min-width: 1200px) {
+    .hud { display: flex; }
+  }
+
+  .hud-tl {
+    top: 48px; left: 48px;
+    justify-content: flex-start;
+    background-image:
+      linear-gradient(to right, var(--violet) 40px, transparent 40px),
+      linear-gradient(to bottom, var(--violet) 40px, transparent 40px);
+    background-position: top left, top left;
+  }
+  .hud-tl .wordmark {
+    font-family: "Space Grotesk", "Inter", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.05em;
+    color: var(--violet);
+  }
+  .hud-tl .material-symbols-outlined { color: var(--violet); font-size: 28px; }
+
+  .hud-tr {
+    top: 48px; right: 48px;
+    justify-content: flex-end;
+    background-image:
+      linear-gradient(to left, var(--cyan) 40px, transparent 40px),
+      linear-gradient(to bottom, var(--cyan) 40px, transparent 40px);
+    background-position: top right, top right;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hud-bl {
+    bottom: 48px; left: 48px;
+    align-items: flex-end;
+    justify-content: flex-start;
+    background-image:
+      linear-gradient(to right, var(--cyan) 40px, transparent 40px),
+      linear-gradient(to top, var(--cyan) 40px, transparent 40px);
+    background-position: bottom left, bottom left;
+    color: var(--cyan);
+    text-transform: lowercase;
+  }
+  .hud-bl .pulse { margin-left: 4px; animation: sofi-pulse-dot 1.2s ease-in-out infinite; }
+
+  .hud-br {
+    bottom: 48px; right: 48px;
+    align-items: flex-end;
+    justify-content: flex-end;
+    background-image:
+      linear-gradient(to left, var(--green) 40px, transparent 40px),
+      linear-gradient(to top, var(--green) 40px, transparent 40px);
+    background-position: bottom right, bottom right;
+    color: var(--green);
+    letter-spacing: 0.2em;
+  }
+
+  @keyframes sofi-pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hud-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   main {
+    position: relative;
+    z-index: 10;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: 32px 16px;
   }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    padding: 2.5rem 2rem;
-    max-width: 28rem;
+
+  /* Double-layer chamfered card — outer cyan/30 acts as a 1px border, inner surface holds content.
+     Mirrors the AuthShell card pattern: clip-path clips real borders, so the "border" is
+     painted as a tinted background + 1px padding. */
+  .card-outer {
     width: 100%;
-    text-align: center;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    max-width: 448px;
+    background: var(--cyan-30);
+    padding: 1px;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+    box-shadow: 0 0 40px var(--violet-muted);
   }
-  .wordmark {
-    font-family: "Space Grotesk", "Inter", sans-serif;
-    font-weight: 700;
-    font-size: 2rem;
-    letter-spacing: -0.02em;
-    background: linear-gradient(180deg, var(--violet) 0%, var(--violet-hover) 50%, var(--violet) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    margin: 0 0 1.5rem;
+  .card-inner {
+    background: var(--surface);
+    padding: 32px 24px;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
   }
-  .check {
-    width: 3.5rem;
-    height: 3.5rem;
-    margin: 0 auto 1.25rem;
-    border-radius: 999px;
-    background: rgba(16, 185, 129, 0.12);
-    color: var(--success);
-    display: inline-flex;
+  @media (min-width: 640px) {
+    .card-inner { padding: 40px; }
+  }
+
+  /* Four-corner bracket glyph — 8 stacked hard-stop gradients paint an L in each corner
+     of a 56x56 box. Matches the BracketGlyph primitive in auth-primitives.tsx. */
+  .glyph {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 20px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
+    background-repeat: no-repeat;
+    background-image:
+      linear-gradient(to right,  var(--cyan) 12px, transparent 12px),
+      linear-gradient(to bottom, var(--cyan) 12px, transparent 12px),
+      linear-gradient(to left,   var(--cyan) 12px, transparent 12px),
+      linear-gradient(to bottom, var(--cyan) 12px, transparent 12px),
+      linear-gradient(to right,  var(--cyan) 12px, transparent 12px),
+      linear-gradient(to top,    var(--cyan) 12px, transparent 12px),
+      linear-gradient(to left,   var(--cyan) 12px, transparent 12px),
+      linear-gradient(to top,    var(--cyan) 12px, transparent 12px);
+    background-size:
+      100% 2px, 2px 100%,
+      100% 2px, 2px 100%,
+      100% 2px, 2px 100%,
+      100% 2px, 2px 100%;
+    background-position:
+      top left,     top left,
+      top right,    top right,
+      bottom left,  bottom left,
+      bottom right, bottom right;
+  }
+  .glyph .material-symbols-outlined {
+    color: var(--cyan);
+    font-size: 28px;
     line-height: 1;
   }
+
   h1 {
-    font-size: 1.375rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem;
-    color: var(--text);
+    margin: 0 0 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--violet);
+    text-align: center;
+    line-height: 1.15;
   }
-  p {
-    font-size: 1rem;
-    line-height: 1.5;
+  @media (min-width: 640px) { h1 { font-size: 32px; } }
+
+  .body-text {
+    margin: 0 0 28px;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 16px;
     color: var(--text-muted);
-    margin: 0 0 1.75rem;
+    text-align: center;
+    line-height: 1.5;
   }
-  .button {
-    display: inline-block;
+
+  .cta {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid transparent;
     background: var(--violet);
     color: #ffffff;
-    font-weight: 600;
-    font-size: 1rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.625rem;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
     text-decoration: none;
-    transition: background 120ms ease;
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
   }
-  .button:hover { background: var(--violet-hover); }
-  .button:focus-visible {
-    outline: 2px solid var(--violet-hover);
-    outline-offset: 2px;
-  }
+  .cta:hover { background: var(--violet-hover); border-color: var(--violet-hover); }
+  .cta:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+  .cta .material-symbols-outlined { font-size: 20px; }
+
   .hint {
-    font-size: 0.9375rem;
-    color: var(--text-muted);
-    margin: 1.5rem 0 0;
+    margin: 24px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--cyan-20);
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 16px;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.5;
   }
 </style>
 </head>
 <body>
+<div class="hud hud-tl" aria-hidden="true">
+  <div class="hud-row">
+    <span class="material-symbols-outlined">terminal</span>
+    <span class="wordmark">SOFI</span>
+  </div>
+</div>
+<div class="hud hud-tr" aria-hidden="true">
+  <span>{% trans "Verified" %}</span>
+</div>
+<div class="hud hud-bl" aria-hidden="true">
+  <span>&gt; {% trans "session verified" %}</span><span class="pulse">_</span>
+</div>
+<div class="hud hud-br" aria-hidden="true">
+  <span>// {% trans "Secure" %}</span>
+</div>
+
 <main>
-  <div class="card">
-    <div class="wordmark">Sofi</div>
-    <div class="check" aria-hidden="true">&#10003;</div>
-    <h1>{% trans "Email verified" %}</h1>
-    <p>{% trans "Your account is ready. Return to Sofi and sign in with your credentials." %}</p>
-    <a class="button" href="sofi://verify-success">{% trans "Return to Sofi" %}</a>
-    <p class="hint">{% trans "If nothing happens, make sure the Sofi desktop app is installed, then open it manually and sign in." %}</p>
+  <div class="card-outer">
+    <div class="card-inner">
+      <div class="glyph" role="img" aria-label="{% trans "Verified" %}">
+        <span class="material-symbols-outlined">check</span>
+      </div>
+      <h1>{% trans "Uplink established" %}</h1>
+      <p class="body-text">{% trans "Email verified. Proceed to command center." %}</p>
+      <a class="cta" href="sofi://verify-success">
+        <span class="material-symbols-outlined">login</span>
+        {% trans "Return to Sofi" %}
+      </a>
+      <p class="hint">{% trans "If nothing happens, make sure the Sofi desktop app is installed, then open it manually and sign in." %}</p>
+    </div>
   </div>
 </main>
 </body>

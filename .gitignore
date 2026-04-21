@@ -46,6 +46,12 @@ pnpm-debug.log*
 test-results/
 playwright-report/
 playwright/.cache/
+.auth/
+.playwright-mcp/
+.screenshots/
+# Stray root-level PNGs (screenshots land here by default when the
+# browser MCP tool is invoked — keep them out of source control).
+/*.png
 
 # Python (backend/)
 .venv/

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -97,13 +98,13 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
 
           {/* Agent Info (read-only for now) */}
           {task.agent_name && (
-            <div className="mb-4 rounded-lg bg-white/[0.03] p-3">
+            <Card variant="muted" padding="md" className="mb-4">
               <FieldLabel className="mb-1">{t("taskDialog.agentLabel")}</FieldLabel>
               <p className="text-base text-sofi-text">{task.agent_name}</p>
               {task.branch_name && (
                 <p className="mt-1 font-mono text-base text-sofi-text-muted">{task.branch_name}</p>
               )}
-            </div>
+            </Card>
           )}
 
           {/* Actions */}

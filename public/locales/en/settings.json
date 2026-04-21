@@ -35,5 +35,16 @@
     "copy": "Copy",
     "copied": "Copied",
     "dismiss": "Dismiss"
+  },
+  "dangerZone": {
+    "title": "Danger zone",
+    "description": "Permanently delete your account and all associated data. This cannot be undone.",
+    "deleteAccount": "Delete account",
+    "deleteDescription": "Wipes your user, boards, tasks, attachments, and API tokens.",
+    "confirmTitle": "Delete account?",
+    "confirmDescription": "This will permanently delete your account and every board, task, attachment, and API token owned by you. There is no recovery.",
+    "cancel": "Cancel",
+    "confirmButton": "Yes, delete my account",
+    "deleting": "Deleting…"
   }
 }

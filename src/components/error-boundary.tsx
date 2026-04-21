@@ -1,19 +1,19 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import logo from "@/assets/sofi-icon.svg";
+import { FaultPage } from "@/components/fault-page";
 
 interface Props {
   children: ReactNode;
 }
 
 interface State {
-  hasError: boolean;
+  error: Error | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  state: State = { error: null };
 
-  static getDerivedStateFromError(): State {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): State {
+    return { error };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -21,25 +21,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   render() {
-    if (this.state.hasError) {
-      return (
-        <div className="flex min-h-screen items-center justify-center bg-sofi-bg p-4">
-          <div className="w-full max-w-md text-center">
-            <img src={logo} alt="Sofi" className="mx-auto mb-4 h-12 w-12" />
-            <h1 className="mb-2 font-heading text-xl font-bold text-white">Something went wrong</h1>
-            <p className="mb-6 text-base text-sofi-text-muted">
-              The application encountered an unexpected error.
-            </p>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="rounded-lg bg-violet-primary px-4 py-2 text-base font-medium text-white hover:bg-violet-hover"
-            >
-              Reload Application
-            </button>
-          </div>
-        </div>
-      );
+    if (this.state.error) {
+      return <FaultPage statusKey="hud.faultRuntime" scope="boundary" error={this.state.error} />;
     }
     return this.props.children;
   }

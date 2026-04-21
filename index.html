@@ -10,22 +10,22 @@
     <meta name="theme-color" content="#7c3aed" media="(prefers-color-scheme: light)" />
     <script>
       // Theme pre-hydration: apply .light class before React mounts to
-      // prevent FOUC. Mirrors ThemeProvider logic exactly.
-      (() => {
-        let stored;
-        let mode;
-        let wantsLight;
-        try {
-          stored = localStorage.getItem("sofi:theme");
-          mode = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
-          wantsLight =
-            mode === "light" ||
-            (mode === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
-          if (wantsLight) document.documentElement.classList.add("light");
-        } catch (_) {
-          /* localStorage unavailable (privacy mode) — fall through to :root dark default */
-        }
-      })();
+            // prevent FOUC. Mirrors ThemeProvider logic exactly.
+            (() => {
+              let stored;
+              let mode;
+              let wantsLight;
+              try {
+                stored = localStorage.getItem("sofi:theme");
+                mode = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+                wantsLight =
+                  mode === "light" ||
+                  (mode === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+                if (wantsLight) document.documentElement.classList.add("light");
+              } catch (_) {
+                /* localStorage unavailable (privacy mode) — fall through to :root dark default */
+              }
+            })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

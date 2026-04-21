@@ -27,32 +27,73 @@ export async function clearClientAuth(): Promise<void> {
   setBearerCache(null);
 }
 
-function normalizeError(status: number, body: unknown): AppError {
+// Parse `Retry-After` which per RFC 7231 is either a delta-seconds integer or
+// an HTTP-date. Returns seconds from now, or undefined if unparsable.
+function parseRetryAfter(headerValue: string | null): number | undefined {
+  if (!headerValue) return undefined;
+  const asInt = Number.parseInt(headerValue, 10);
+  if (Number.isFinite(asInt) && asInt >= 0) return asInt;
+  const asDate = Date.parse(headerValue);
+  if (!Number.isNaN(asDate)) {
+    return Math.max(0, Math.ceil((asDate - Date.now()) / 1000));
+  }
+  return undefined;
+}
+
+function normalizeFieldErrors(raw: unknown): Record<string, string[]> | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const out: Record<string, string[]> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (Array.isArray(value)) {
+      out[key] = value.filter((v): v is string => typeof v === "string");
+    }
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function normalizeError(
+  status: number,
+  body: unknown,
+  headerRetryAfter: number | undefined,
+): AppError {
   const statusCode = Number.isInteger(status) ? status : ErrorCode.INTERNAL;
   let message = "Request failed";
   let kind: string | undefined;
+  let fieldErrors: Record<string, string[]> | undefined;
+  let retryAfterSeconds = headerRetryAfter;
+
   if (body && typeof body === "object") {
     const record = body as Record<string, unknown>;
+    // Sofi envelope (post-exception-handler shape).
     if (typeof record.code === "string") kind = record.code;
     if (typeof record.detail === "string") message = record.detail;
-    else if (
-      typeof record.non_field_errors === "object" &&
-      Array.isArray(record.non_field_errors)
-    ) {
-      message = String(record.non_field_errors[0] ?? message);
-    } else {
-      const firstKey = Object.keys(record).find((k) => k !== "code");
-      const firstVal = firstKey ? record[firstKey] : undefined;
-      if (Array.isArray(firstVal) && typeof firstVal[0] === "string") {
-        message = `${firstKey}: ${firstVal[0]}`;
-      } else if (typeof firstVal === "string") {
-        message = `${firstKey}: ${firstVal}`;
+    fieldErrors = normalizeFieldErrors(record.field_errors);
+    if (typeof record.retry_after === "number") {
+      retryAfterSeconds = retryAfterSeconds ?? record.retry_after;
+    }
+    // Fallback: older/un-reshaped payloads (e.g. third-party routes that
+    // bypass the DRF exception handler). Take any string value we can find.
+    if (message === "Request failed") {
+      if (Array.isArray(record.non_field_errors) && record.non_field_errors.length > 0) {
+        message = String(record.non_field_errors[0]);
+      } else {
+        for (const [, value] of Object.entries(record)) {
+          if (Array.isArray(value) && typeof value[0] === "string") {
+            message = value[0];
+            break;
+          }
+          if (typeof value === "string" && value.length > 0) {
+            message = value;
+            break;
+          }
+        }
       }
     }
   } else if (typeof body === "string" && body.trim().length > 0) {
     message = body;
   }
-  return toAppError({ code: statusCode, message, kind });
+
+  return toAppError({ code: statusCode, message, kind, fieldErrors, retryAfterSeconds });
 }
 
 export async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
@@ -90,7 +131,8 @@ export async function request<T>(path: string, options: ApiRequestOptions = {}):
     : await response.text();
 
   if (!response.ok) {
-    throw normalizeError(response.status, parsed);
+    const retryAfter = parseRetryAfter(response.headers.get("Retry-After"));
+    throw normalizeError(response.status, parsed, retryAfter);
   }
   return parsed as T;
 }

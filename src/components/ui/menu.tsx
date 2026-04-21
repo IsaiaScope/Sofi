@@ -1,5 +1,6 @@
 import { Menu as BaseMenu } from "@base-ui/react/menu";
 import type { ReactElement, ReactNode } from "react";
+import { FOCUS_RING_INSET } from "@/lib/a11y";
 import { cn } from "@/lib/cn";
 
 interface MenuProps {
@@ -41,6 +42,7 @@ interface MenuItemProps {
   className?: string;
 }
 
+// Inset ring avoids clipping inside the popup's overflow boundary.
 export function MenuItem({ children, onClick, active, className }: MenuItemProps) {
   return (
     <BaseMenu.Item
@@ -50,6 +52,7 @@ export function MenuItem({ children, onClick, active, className }: MenuItemProps
         active
           ? "bg-violet-muted text-white"
           : "text-sofi-text-muted data-[highlighted]:bg-white/5 data-[highlighted]:text-sofi-text",
+        FOCUS_RING_INSET,
         className,
       )}
     >

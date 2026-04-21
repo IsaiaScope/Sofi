@@ -1,58 +1,52 @@
-import { Tooltip } from "@/components/ui/tooltip";
+import { FOCUS_RING } from "@/lib/a11y";
+import { cn } from "@/lib/cn";
 import type { OAuthProvider } from "../types";
 
 interface OAuthButtonProps {
   provider: OAuthProvider;
+  label: string;
   disabled: boolean;
   onClick: () => void;
 }
 
-const PROVIDER_STYLE: Record<OAuthProvider, { label: string; className: string }> = {
-  google: {
-    label: "Continue with Google",
-    className: "border-sofi-border bg-white hover:bg-white/90",
-  },
-  github: {
-    label: "Continue with GitHub",
-    className: "border-sofi-border bg-[#24292f] text-white hover:bg-[#1b1f24]",
-  },
-};
-
-export function OAuthButton({ provider, disabled, onClick }: OAuthButtonProps) {
-  const { label, className } = PROVIDER_STYLE[provider];
+export function OAuthButton({ provider, label, disabled, onClick }: OAuthButtonProps) {
   return (
-    <Tooltip content={label}>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={onClick}
-        aria-label={label}
-        className={`flex h-12 w-12 items-center justify-center rounded-lg border transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
-      >
-        {provider === "google" ? <GoogleIcon /> : <GitHubIcon />}
-      </button>
-    </Tooltip>
+    <button
+      type="button"
+      disabled={disabled}
+      aria-busy={disabled}
+      onClick={onClick}
+      className={cn(
+        "flex w-full items-center justify-center gap-3 border border-cyan-accent/30 py-3 font-mono text-base uppercase tracking-wider text-cyan-accent transition-colors",
+        "hover:border-cyan-accent/80 hover:bg-cyan-accent/10",
+        "disabled:cursor-not-allowed disabled:opacity-40",
+        FOCUS_RING,
+      )}
+    >
+      {provider === "google" ? <GoogleIcon /> : <GitHubIcon />}
+      <span>{label}</span>
+    </button>
   );
 }
 
 function GoogleIcon() {
   return (
-    <svg className="h-6 w-6" viewBox="0 0 48 48" aria-hidden="true">
-      <path
-        fill="#EA4335"
-        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-      />
+    <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill="#4285F4"
-        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
       />
       <path
         fill="#34A853"
-        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
       />
     </svg>
   );
@@ -60,8 +54,12 @@ function GoogleIcon() {
 
 function GitHubIcon() {
   return (
-    <svg className="h-6 w-6" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+    <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.682-.103-.253-.447-1.27.098-2.646 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.376.202 2.394.1 2.646.64.699 1.026 1.591 1.026 2.682 0 3.841-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"
+      />
     </svg>
   );
 }

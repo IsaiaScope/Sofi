@@ -23,6 +23,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    # Local apps first — so their templates/ dirs win over third-party defaults
+    # (e.g. allauth ships account/email/email_confirmation_message.txt that we
+    # override in apps/users/templates/).
+    "apps.users",
+    "apps.boards",
+    "apps.tasks",
+    "apps.attachments",
     # auth stack
     "rest_framework",
     "rest_framework.authtoken",
@@ -35,11 +42,6 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "corsheaders",
-    # local
-    "apps.users",
-    "apps.boards",
-    "apps.tasks",
-    "apps.attachments",
 ]
 
 MIDDLEWARE = [
@@ -121,6 +123,16 @@ ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+# Custom adapter silences allauth's `account_already_exists` email. The signup
+# serializer already returns a coded 400 for duplicates — the extra email was
+# both unstyled and redundant.
+ACCOUNT_ADAPTER = "apps.users.adapter.SofiAccountAdapter"
+# Silences the `unknown_account` email that allauth would send during a
+# password-reset request with an unregistered email. The password-reset
+# endpoint still returns 2xx either way (enumeration opacity stays intact via
+# `ACCOUNT_PREVENT_ENUMERATION` default) — we just don't send mail that would
+# otherwise land in a stranger's inbox from an unverified sender.
+ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/email-verified/"
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/email-verified/"
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
@@ -179,6 +191,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.UserRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {"user": "1000/hour", "anon": "30/hour"},
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    # Reshapes every error into {code, detail, field_errors?, retry_after?}.
+    "EXCEPTION_HANDLER": "apps.users.exception_handler.custom_exception_handler",
 }
 
 REST_AUTH = {

@@ -6,6 +6,9 @@
     "boards": "Bacheche",
     "newBoard": "+ Nuova bacheca...",
     "signOut": "Esci",
+    "settings": "Impostazioni",
+    "notifications": "Notifiche",
+    "userMenu": "Menu utente",
     "newBoardDialog": {
       "title": "Nuova bacheca",
       "nameLabel": "Nome bacheca",
@@ -34,5 +37,26 @@
     "save": "Salva",
     "delete": "Elimina",
     "retry": "Riprova"
+  },
+  "comingSoon": {
+    "boardSettings": "Impostazioni bacheca — prossimamente",
+    "shellSettings": "Impostazioni shell — prossimamente",
+    "listView": "Vista elenco — prossimamente",
+    "agentOverview": "Panoramica agenti — prossimamente"
+  },
+  "git": {
+    "noRepoTitle": "Nessun repository collegato",
+    "noRepoHelp": "Imposta un percorso repository sulla bacheca attiva per vedere le modifiche git qui.",
+    "noRepoHint": "Apri il selettore bacheche Kanban → crea o modifica una bacheca con un percorso repository.",
+    "changedFiles": "File modificati",
+    "noChanges": "Nessuna modifica",
+    "loadingDiff": "Caricamento diff...",
+    "noBranches": "Nessun ramo trovato.",
+    "noCommits": "Nessun commit trovato."
+  },
+  "terminal": {
+    "defaultLabel": "Terminale",
+    "shellLabel": "terminale {{shell}}",
+    "agentFallback": "agente"
   }
 }

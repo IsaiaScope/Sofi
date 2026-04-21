@@ -11,6 +11,14 @@
   --color-sofi-terminal: #0a0a12;
   --color-sofi-border: rgba(255, 255, 255, 0.08);
 
+  /* HUD overlay tokens — cyan-tinted grid + horizontal scanlines. Shared by
+     AuthShell, LoadingSplash (via <HudBackdrop/>), and email_verified.html. */
+  --sofi-hud-grid: rgba(6, 182, 212, 0.06);
+  --sofi-hud-scanline: rgba(0, 0, 0, 0.22);
+  /* Terminal-style input tint — slightly darker than the card; flips per theme */
+  --sofi-input-tint: rgba(10, 10, 18, 0.5);
+  --sofi-input-tint-focus: rgba(10, 10, 18, 0.8);
+
   /* Primary: Dark Violet */
   --color-violet-primary: #7c3aed;
   --color-violet-hover: #8b5cf6;
@@ -24,6 +32,7 @@
   /* Semantic Colors */
   --color-sofi-green: #10b981;
   --color-sofi-orange: #f97316;
+  --color-sofi-orange-muted: rgba(249, 115, 22, 0.15);
   --color-sofi-blue: #3b82f6;
   --color-sofi-red: #ef4444;
   --color-sofi-purple: #8b5cf6;
@@ -52,6 +61,13 @@
   /* --color-sofi-terminal intentionally unchanged — dark in both modes */
   --color-sofi-border: rgba(0, 0, 0, 0.08);
 
+  /* HUD overlay tokens — cyan-tinted grid dimmed for light bg; scanlines become faint shadow stripes */
+  --sofi-hud-grid: rgba(8, 145, 178, 0.05);
+  --sofi-hud-scanline: rgba(0, 0, 0, 0.04);
+  /* Terminal input tint in light mode — very subtle off-white so the cyan border still defines the field */
+  --sofi-input-tint: rgba(0, 0, 0, 0.025);
+  --sofi-input-tint-focus: rgba(0, 0, 0, 0.05);
+
   /* Primary: Dark Violet (darker for contrast on light) */
   --color-violet-primary: #6b21d8;
   --color-violet-hover: #7c3aed;
@@ -65,6 +81,7 @@
   /* Semantic Colors (tuned for light) */
   --color-sofi-green: #059669;
   --color-sofi-orange: #b45309;
+  --color-sofi-orange-muted: rgba(180, 83, 9, 0.12);
   --color-sofi-blue: #1d4ed8;
   --color-sofi-red: #dc2626;
   --color-sofi-purple: #7c3aed;
@@ -80,6 +97,14 @@
    custom properties above. Without `inline`, Tailwind would capture the
    values at build time and the .light toggle would not work.
    ====================================================================== */
+/* Named type-scale tokens. `text-caption` replaces ad-hoc `text-[10px]` for
+   column headers, badges, and timestamps so the size participates in theme
+   tooling and IntelliSense. */
+@theme {
+  --text-caption: 10px;
+  --text-caption--line-height: calc(12 / 10);
+}
+
 @theme inline {
   --color-sofi-bg: var(--color-sofi-bg);
   --color-sofi-surface: var(--color-sofi-surface);
@@ -97,6 +122,7 @@
 
   --color-sofi-green: var(--color-sofi-green);
   --color-sofi-orange: var(--color-sofi-orange);
+  --color-sofi-orange-muted: var(--color-sofi-orange-muted);
   --color-sofi-blue: var(--color-sofi-blue);
   --color-sofi-red: var(--color-sofi-red);
   --color-sofi-purple: var(--color-sofi-purple);
@@ -126,6 +152,27 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes sofi-scan {
+  0% {
+    transform: translateX(-40px);
+  }
+  100% {
+    transform: translateX(340px);
+  }
+}
+
+@keyframes sofi-pulse-dot {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 button,

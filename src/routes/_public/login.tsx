@@ -8,6 +8,7 @@ function LoginRoute() {
       onSwitchToRegister={() => navigate({ to: "/register" })}
       onAuthenticated={() => navigate({ to: "/kanban" })}
       onVerificationPending={(email) => navigate({ to: "/check-email", search: { email } })}
+      onForgotPassword={() => navigate({ to: "/recover" })}
     />
   );
 }

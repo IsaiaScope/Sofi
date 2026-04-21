@@ -34,5 +34,26 @@
       "done": "Done",
       "failed": "Failed"
     }
+  },
+  "createDialog": {
+    "title": "New Task",
+    "titleField": "Title",
+    "titlePlaceholder": "Short task summary",
+    "descriptionField": "Description",
+    "descriptionPlaceholder": "What does the agent need to do? Context, constraints, acceptance criteria.",
+    "agentField": "Agent",
+    "agentPlaceholder": "Pick an agent",
+    "agentUnavailable": "not installed",
+    "repoPathMissing": "This board has no repo_path set. Configure it before creating tasks.",
+    "create": "Create & launch",
+    "cancel": "Cancel",
+    "launching": "Launching agent..."
+  },
+  "launchErrors": {
+    "task": "Task creation failed",
+    "worktree": "Worktree creation failed",
+    "terminal": "Terminal spawn failed",
+    "write": "Agent launch failed — type the command manually",
+    "link": "Task created but linkage metadata did not save"
   }
 }

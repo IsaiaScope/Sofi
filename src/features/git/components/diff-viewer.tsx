@@ -52,7 +52,7 @@ export function DiffViewer({ hunks, selectedFile }: DiffViewerProps) {
         return (
           <div key={`hunk-${hunkIdx}-${hunk.old_start}`}>
             {/* Hunk header */}
-            <div className="sticky top-0 bg-sofi-elevated/80 px-4 py-1 text-[10px] text-sofi-text-dim backdrop-blur">
+            <div className="sticky top-0 bg-sofi-elevated/80 px-4 py-1 text-caption text-sofi-text-dim backdrop-blur">
               {hunk.file_path} @@ -{hunk.old_start},{hunk.old_lines} +{hunk.new_start},
               {hunk.new_lines} @@
             </div>

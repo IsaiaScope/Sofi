@@ -44,5 +44,8 @@ export interface UpdateTaskInput {
   status?: string;
   agent_type?: string;
   agent_name?: string;
+  agent_session_id?: string;
+  terminal_session_id?: string;
   branch_name?: string;
+  worktree_path?: string;
 }

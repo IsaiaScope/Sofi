@@ -5,9 +5,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import wordmark from "@/assets/sofi-wordmark.svg";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Menu, MenuItem, MenuLabel, MenuSeparator } from "@/components/ui/menu";
 import { useAgents } from "@/features/agents/queries/hooks";
@@ -17,6 +18,7 @@ import { useBoards } from "@/features/kanban/queries/hooks";
 import { useCreateBoard } from "@/features/kanban/queries/mutations";
 import { type CreateBoardFormData, createBoardSchema } from "@/features/kanban/schemas";
 import { useKanbanUIStore } from "@/features/kanban/store/kanban-ui-store";
+import { FOCUS_RING } from "@/lib/a11y";
 import { cn } from "@/lib/cn";
 import { APP_NAME } from "@/lib/constants";
 import { getActiveSection } from "@/lib/routes";
@@ -136,10 +138,7 @@ export function TopBar() {
         {/* Agent Status Pills */}
         <div className="hidden items-center gap-1.5 lg:flex">
           {agents.map((a) => (
-            <span
-              key={a.config.agent_type}
-              className="flex items-center gap-1.5 rounded-full bg-sofi-elevated px-2.5 py-1 text-base text-sofi-text-muted"
-            >
+            <Badge key={a.config.agent_type} tone="muted" size="md">
               <span
                 className={cn(
                   "h-1.5 w-1.5 rounded-full",
@@ -147,7 +146,7 @@ export function TopBar() {
                 )}
               />
               {a.config.display_name}
-            </span>
+            </Badge>
           ))}
         </div>
 
@@ -155,17 +154,29 @@ export function TopBar() {
         <button
           type="button"
           onClick={() => navigate({ to: "/settings" })}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-sofi-text-dim hover:bg-white/5 hover:text-sofi-text"
+          aria-label={t("topbar.settings")}
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-lg text-sofi-text-dim hover:bg-white/5 hover:text-sofi-text",
+            FOCUS_RING,
+          )}
         >
-          <span className="material-symbols-outlined text-xl">settings</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-xl">
+            settings
+          </span>
         </button>
 
         {/* Notifications (placeholder) */}
         <button
           type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-sofi-text-dim hover:bg-white/5 hover:text-sofi-text"
+          aria-label={t("topbar.notifications")}
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-lg text-sofi-text-dim hover:bg-white/5 hover:text-sofi-text",
+            FOCUS_RING,
+          )}
         >
-          <span className="material-symbols-outlined text-xl">notifications</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-xl">
+            notifications
+          </span>
         </button>
 
         {/* User Avatar */}
@@ -174,7 +185,11 @@ export function TopBar() {
           trigger={
             <button
               type="button"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-muted text-base font-medium text-violet-hover"
+              aria-label={t("topbar.userMenu")}
+              className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-full bg-violet-muted text-base font-medium text-violet-hover",
+                FOCUS_RING,
+              )}
             >
               {userInitial}
             </button>
@@ -192,14 +207,13 @@ export function TopBar() {
         title={t("topbar.newBoardDialog.title")}
       >
         <form onSubmit={boardForm.handleSubmit(handleCreateBoard)}>
-          <Field className="mb-4">
+          <Field className="mb-4" error={boardForm.formState.errors.name?.message}>
             <FieldLabel>{t("topbar.newBoardDialog.nameLabel")}</FieldLabel>
             <Input
               {...boardForm.register("name")}
               placeholder={t("topbar.newBoardDialog.namePlaceholder")}
               autoFocus
             />
-            <FieldError>{boardForm.formState.errors.name?.message}</FieldError>
           </Field>
           <Field className="mb-6">
             <FieldLabel>{t("topbar.newBoardDialog.repoLabel")}</FieldLabel>
@@ -238,7 +252,11 @@ function NavSelect({ label, icon, isActive, activeColor, activeShadow, onClick }
     : "bg-white/5 border border-white/10 text-sofi-text-muted hover:bg-white/10 hover:text-sofi-text";
 
   return (
-    <button type="button" onClick={onClick} className="flex items-center gap-0.5">
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn("flex items-center gap-0.5 rounded-md", FOCUS_RING)}
+    >
       <span
         className={cn(
           "flex items-center gap-1.5 rounded-l-md px-3 py-1 text-base font-semibold tracking-wider transition-colors",

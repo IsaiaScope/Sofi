@@ -16,10 +16,17 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "factory-boy>=3.3.3",
+    "freezegun>=1.5.5",
     "pytest>=9.0.3",
     "pytest-django>=4.12.0",
+    "pytest-mock>=3.15.1",
 ]
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "sofi_api.settings.dev"
+DJANGO_SETTINGS_MODULE = "sofi_api.settings.test"
 python_files = ["tests_*.py", "test_*.py", "*_tests.py"]
+addopts = "-ra --strict-markers --tb=short"
+markers = [
+    "slow: tests that take longer than a second (opt in with -m slow)",
+]

@@ -52,6 +52,16 @@ urlpatterns = [
         TemplateView.as_view(template_name="users/email_verified.html"),
         name="email_verified",
     ),
+    # Password-reset landing page. Email clients strip/ignore sofi:// links, so
+    # reset emails have to carry a real https:// URL; this view renders a
+    # branded "Open Sofi" page that fires the sofi://recover/confirm deep link.
+    # The URL name `password_reset_confirm` is also what dj-rest-auth's default
+    # `url_generator` reverses when building the link in the email body.
+    path(
+        "password-reset/<str:uidb64>/<str:token>/",
+        TemplateView.as_view(template_name="users/password_reset_landing.html"),
+        name="password_reset_confirm",
+    ),
 
     path("api/users/", include("apps.users.urls")),
     path("api/v1/", include("apps.boards.urls")),

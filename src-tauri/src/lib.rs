@@ -39,6 +39,9 @@ pub fn run() {
             commands::git::git_diff,
             commands::git::git_branches,
             commands::git::git_log,
+            // Worktree (per-task git worktree for agent isolation)
+            commands::worktree::create_worktree,
+            commands::worktree::remove_worktree,
             // Window (webview zoom control)
             commands::window::set_window_zoom,
         ])

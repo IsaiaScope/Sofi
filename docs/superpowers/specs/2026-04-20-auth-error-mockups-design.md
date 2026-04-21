@@ -70,7 +70,7 @@ Always-on, deliberately static text that makes the viewport feel alive without a
 - Sharp corners with 8px chamfer on one corner (or 1/3-strength corner brackets — finalized in Stitch).
 - 1px stroke border in accent color at ~30% opacity; intensifies to ~60% on focus-within.
 - Low-opacity bloom: violet (calm) / amber (fault), ~20px spread. **Dropped in light mode** (replaced with higher-opacity crisp stroke).
-- Header strip inside card: `▸ MODULE / AUTH` (or `/ RECOVERY`, `/ FAULT`) in 16px mono, muted, with small colored pulse dot.
+- ~~Header strip inside card: `▸ MODULE / AUTH` (or `/ RECOVERY`, `/ FAULT`)~~ — **REMOVED** 2026-04-20 session #3. Card content now starts directly with either the screen heading (form screens) or the bracket-ring glyph (success/fault screens). No `▸ MODULE / X` label anywhere.
 - Inputs use Base UI `Field` + `Input` + custom `PasswordInput`. Labels in 16px mono small-caps.
 
 ### 1d. Typography
@@ -236,7 +236,7 @@ Derived from diffing the two approved screens (Login + Register, 2026-04-20). Th
 9. **Card chamfer:** `clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)` — 16px cut on bottom-right corner only. All other corners 0 border-radius.
 10. **Card glow:** `shadow-[0_0_40px_rgba(124,58,237,0.15)]` applied to the card element directly — no extra wrapper div for the bloom.
 11. **Card padding + internal flow:** `p-8` uniform 2rem padding, content arranged as `flex flex-col gap-6`. No segmented `pt-8 pb-4 pt-2` padding.
-12. **Header strip:** `font-mono text-[16px] text-[#727297] uppercase tracking-wider pb-2 border-b border-[#06b6d4]/20`, with a leading `w-1.5 h-1.5 bg-[#7c3aed] animate-pulse` violet dot. Minimum 16px — no `text-xs` fallback.
+12. ~~**Header strip**~~ — **REMOVED 2026-04-20 session #3.** Card content starts directly with the heading (form screens) or bracket-ring glyph (success/fault screens). No `▸ MODULE / X` label. This rule is now a no-op; kept numbered only to preserve downstream rule numbering.
 13. **Screen heading:** `font-headline text-[30px] font-black text-[#7c3aed] tracking-widest uppercase`. Violet anchor. No `font-variant: small-caps`, no `tracking-tight`.
 14. **Form fields:** `space-y-6` between fields. Each field = label + input stack with `space-y-2`. Label: `font-mono text-[16px] text-[#a8a7cf] uppercase tracking-wider`. Input: `w-full px-4 py-3 bg-[#0a0a12] border border-[#06b6d4]/30 font-mono text-[16px]` + `focus:border-[#06b6d4] focus:ring-1 focus:ring-[#06b6d4]` + `border-radius: 0`.
 15. **Primary button:** `w-full py-4 bg-[#7c3aed] text-white font-mono text-[16px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(124,58,237,0.3)] hover:bg-[#8a4cfc] transition-colors` + `border-radius: 0`. No pill shape, glow on rest state.
@@ -252,6 +252,7 @@ These deltas are recorded for reference. The contract above supersedes them; new
 
 ## Stitch asset IDs
 
-- Login (dark): `1cdf40941b094a9590a85411649c7835` — card-style-unified edit of earlier `4aa2465606c543a683058719fae30fa9`; card frame now matches Register (solid `#111126`, no backdrop-blur, box-shadow glow replacing separate bloom div, `overflow-hidden`). Content inside card unchanged. User-approved 2026-04-20.
-- Register (dark): `c5e1937bdbcd4b67a40ce9f5fe69ff86` — user-selected 2026-04-20
-- Check Email (dark): `fdee66081e094ef4a0fe9134ac1c38dd` — accepted 2026-04-20 with minor adjustments to be made later. Known DOM-level drift from Login/Register chassis (chrome bars as flow flex children instead of `fixed` overlays; no `<main>`; `font-mono` key missing from Tailwind config; `pulse-violet` custom animation; left-edge gradient accent strip). Visual appearance acceptable; structural alignment to be reconciled during React implementation cycle when all three are translated to a single shared component.
+- Login (dark): `d3392e230a114176930a502941b82b06` — header-strip removal edit of `1cdf4094…` (which itself was a card-style-unification edit of original `4aa24656…`). Card content now starts directly with the `AUTHORIZE OPERATOR` heading. User-approved 2026-04-20 session #3.
+- Register (dark): `9d587a67aeed4ba3a01cb31e2e8787f8` — header-strip removal edit of `c5e1937b…`. Card starts with `REQUEST ACCESS` heading. User-approved 2026-04-20 session #3.
+- Check Email (dark): `3f874a6efea44e7e961a299f596f042e` — header-strip removal edit of `fdee6608…`. Card starts with `INBOX INCOMING` heading. Still has the pre-existing DOM-level drift from the original (chrome bars as flow flex children instead of `fixed` overlays; no `<main>`; `font-mono` missing from Tailwind config; `pulse-violet` custom animation; left-edge gradient accent strip). To be reconciled at React implementation. User-approved 2026-04-20 session #3.
+- Verify Success (dark): `6bbfab8854254f1394bda032d5648e64` — header-strip removal edit of `7a1f757a…` (first generation followed strict DOM-anchoring prompt referencing Login+Register by ID and came out cleanly on chassis — proof that concrete screen-ID references beat CSS rules alone). User-approved 2026-04-20 session #3.

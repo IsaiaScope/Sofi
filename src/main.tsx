@@ -51,7 +51,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
 const router = createAppRouter(queryClient);
 
 bootstrapI18n()

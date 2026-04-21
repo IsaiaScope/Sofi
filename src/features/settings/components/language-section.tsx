@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { Card } from "@/components/ui/card";
+import { Heading } from "@/components/ui/heading";
 import { cn } from "@/lib/cn";
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/lib/i18n/resources";
 import { useUpdateLocale } from "../queries/mutations";
@@ -15,13 +17,17 @@ export function LanguageSection() {
   return (
     <section className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold text-sofi-text">{t("language.title")}</h2>
+        <Heading level={2} size="sm">
+          {t("language.title")}
+        </Heading>
         <p className="text-base text-sofi-text-muted">{t("language.description")}</p>
       </div>
-      <div
+      <Card
+        variant="elevated"
+        padding="xs"
         role="radiogroup"
         aria-label={t("language.title")}
-        className="flex items-center gap-2 rounded-lg border border-sofi-border bg-sofi-elevated p-1"
+        className="flex items-center gap-2"
       >
         {SUPPORTED_LANGUAGES.map((code) => {
           const isActive = i18n.language === code;
@@ -45,7 +51,7 @@ export function LanguageSection() {
             </button>
           );
         })}
-      </div>
+      </Card>
     </section>
   );
 }

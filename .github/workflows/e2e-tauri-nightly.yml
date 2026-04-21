@@ -1,0 +1,93 @@
+name: E2E (Tauri, nightly)
+
+# Runs the Playwright auth specs against the actual Tauri desktop binary
+# rather than the Vite web build. This is the only coverage surface that
+# exercises the OS keychain, the sofi:// deep link, and the native
+# window-chrome. It's SLOW (full Rust release build + headless display)
+# so we gate it behind a schedule + manual trigger, NOT every PR.
+#
+# Run locally via:
+#   gh workflow run e2e-tauri-nightly.yml
+on:
+  schedule:
+    # 03:30 UTC daily — well after most teams' working hours.
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-tauri-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tauri-e2e:
+    runs-on: macos-14  # Apple Silicon runner — matches the primary dev platform.
+    timeout-minutes: 45
+    env:
+      DJANGO_SETTINGS_MODULE: sofi_api.settings.test
+      DJANGO_SECRET_KEY: nightly-only-secret
+      DATABASE_URL: postgres://sofi:sofi@localhost:5432/sofi_test
+      VITE_SOFI_API_BASE: http://127.0.0.1:8000
+      VITE_GOOGLE_CLIENT_ID: oauth-stub
+      VITE_GITHUB_CLIENT_ID: oauth-stub
+    steps:
+      - uses: actions/checkout@v5
+
+      # Postgres via Homebrew (macOS runner — no Linux services shortcut).
+      - name: Start Postgres
+        run: |
+          brew install postgresql@16
+          brew services start postgresql@16
+          for i in 1 2 3 4 5 6 7 8 9 10; do pg_isready -h localhost -p 5432 && break; sleep 2; done
+          psql postgres -c "CREATE USER sofi WITH PASSWORD 'sofi' SUPERUSER;"
+          psql postgres -c "CREATE DATABASE sofi_test OWNER sofi;"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: 'backend/uv.lock'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --frozen
+        working-directory: backend
+      - run: uv run python manage.py migrate --noinput
+        working-directory: backend
+
+      # Produce a release bundle that has the sofi:// scheme baked into
+      # its Info.plist (this is the key thing the web e2e job can't cover).
+      - name: Build Tauri bundle
+        run: pnpm tauri build
+
+      # Register the fresh bundle with Launch Services so macOS knows
+      # which app handles sofi://.
+      - name: Install bundle to /Applications + register URL scheme
+        run: |
+          cp -R ~/.sofi-build/target/release/bundle/macos/Sofi.app /Applications/
+          /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f /Applications/Sofi.app
+
+      # Run a dedicated Playwright project against the installed binary.
+      # TODO: Add a `tauri-native` project to playwright.config.ts that
+      # launches /Applications/Sofi.app via @tauri-apps/playwright-launcher
+      # (not yet added as a dependency — see docs/testing.md "Tauri nightly
+      # gaps" for the follow-up checklist).
+      - run: pnpm exec playwright test --project=chromium-auth
+        env:
+          SOFI_E2E_BASE_URL: http://127.0.0.1:1420
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-tauri-nightly
+          path: playwright-report/
+          retention-days: 14

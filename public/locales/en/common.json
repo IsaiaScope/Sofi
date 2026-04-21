@@ -6,6 +6,9 @@
     "boards": "Boards",
     "newBoard": "+ New Board...",
     "signOut": "Sign Out",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "userMenu": "User menu",
     "newBoardDialog": {
       "title": "New Board",
       "nameLabel": "Board Name",
@@ -34,5 +37,26 @@
     "save": "Save",
     "delete": "Delete",
     "retry": "Retry"
+  },
+  "comingSoon": {
+    "boardSettings": "Board settings — coming soon",
+    "shellSettings": "Shell settings — coming soon",
+    "listView": "List view — coming soon",
+    "agentOverview": "Agent overview — coming soon"
+  },
+  "git": {
+    "noRepoTitle": "No repository linked",
+    "noRepoHelp": "Set a repository path on your active board to view git changes here.",
+    "noRepoHint": "Open the Kanban board selector → create or edit a board with a repo path.",
+    "changedFiles": "Changed Files",
+    "noChanges": "No changes",
+    "loadingDiff": "Loading diff...",
+    "noBranches": "No branches found.",
+    "noCommits": "No commits found."
+  },
+  "terminal": {
+    "defaultLabel": "Terminal",
+    "shellLabel": "{{shell}} terminal",
+    "agentFallback": "agent"
   }
 }

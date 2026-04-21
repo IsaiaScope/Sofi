@@ -39,17 +39,20 @@ export function useCreateTask() {
       boardId,
       title,
       description,
+      agent_type,
     }: {
       columnId: string;
       boardId: string;
       title: string;
       description?: string;
+      agent_type?: string;
     }): Promise<Task> => {
       const raw = await apiClient.post<RawTask>("/api/v1/tasks/", {
         column: columnId,
         board: boardId,
         title,
         description,
+        agent_type,
       });
       return mapTask(raw);
     },

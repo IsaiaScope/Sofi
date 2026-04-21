@@ -6,6 +6,7 @@ import { GitView } from "@/features/git/components/git-view";
 import { Board } from "@/features/kanban/components/board";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { TerminalView } from "@/features/terminal/components/terminal-view";
+import { cn } from "@/lib/cn";
 import { APP_SECTIONS, getActiveSection } from "@/lib/routes";
 
 function AuthenticatedLayout() {
@@ -18,7 +19,7 @@ function AuthenticatedLayout() {
   return (
     <AppLayout>
       {APP_SECTIONS.map((section) => (
-        <div key={section} className={activeSection === section ? "" : "hidden"}>
+        <div key={section} className={cn(activeSection !== section && "hidden")}>
           {section === "kanban" && <Board />}
           {section === "terminal" && <TerminalView />}
           {section === "git" && <GitView />}

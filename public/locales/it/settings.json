@@ -35,5 +35,16 @@
     "copy": "Copia",
     "copied": "Copiato",
     "dismiss": "Chiudi"
+  },
+  "dangerZone": {
+    "title": "Zona pericolosa",
+    "description": "Elimina definitivamente il tuo account e tutti i dati associati. L'operazione è irreversibile.",
+    "deleteAccount": "Elimina account",
+    "deleteDescription": "Cancella il tuo utente, le bacheche, i task, gli allegati e i token API.",
+    "confirmTitle": "Eliminare l'account?",
+    "confirmDescription": "Questa operazione eliminerà definitivamente il tuo account e ogni bacheca, task, allegato e token API di tua proprietà. Non è possibile recuperarli.",
+    "cancel": "Annulla",
+    "confirmButton": "Sì, elimina il mio account",
+    "deleting": "Eliminazione…"
   }
 }

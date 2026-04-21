@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#
+# Auto-bump version on every commit, then amend it into the same commit.
+# Mirror of the glass-ui post-commit, adapted for Sofi:
+#   - uses pnpm-lock.yaml (not package-lock.json)
+#   - also syncs src-tauri/Cargo.toml + src-tauri/tauri.conf.json so the
+#     Tauri bundle's reported version matches package.json
+
+# Prevent infinite loop: the amend below re-triggers post-commit.
+[ -n "$VERSION_BUMP_RUNNING" ] && exit 0
+
+COMMIT_MSG=$(git log -1 --format=%s HEAD)
+
+# Skip merge commits.
+echo "$COMMIT_MSG" | grep -qE '^Merge ' && exit 0
+
+# Determine bump type: feat → minor, everything else → patch.
+if echo "$COMMIT_MSG" | grep -qE '^feat(\(.+\))?!?:'; then
+    BUMP="minor"
+else
+    BUMP="patch"
+fi
+
+export VERSION_BUMP_RUNNING=1
+
+# Bump package.json (and stage it). pnpm version updates package.json only.
+pnpm version "$BUMP" --no-git-tag-version >/dev/null
+
+# Read the new version back from package.json.
+NEW_VERSION=$(node -p "require('./package.json').version")
+
+# Sync src-tauri/Cargo.toml (only the [package] version line).
+# macOS sed needs `-i ''` (we're dev-local on macOS per CLAUDE.md).
+sed -i '' -E "s/^(version = )\"[^\"]+\"/\1\"${NEW_VERSION}\"/" src-tauri/Cargo.toml
+
+# Sync src-tauri/tauri.conf.json (top-level "version" field).
+node -e "
+const fs = require('fs');
+const p = 'src-tauri/tauri.conf.json';
+const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+j.version = '${NEW_VERSION}';
+fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n');
+"
+
+# Sync src/lib/constants.ts (APP_VERSION — surfaced in the UI's HUD "BUILD:" label).
+sed -i '' -E "s/^(export const APP_VERSION = )\"[^\"]+\";$/\1\"${NEW_VERSION}\";/" src/lib/constants.ts
+
+git add package.json pnpm-lock.yaml src-tauri/Cargo.toml src-tauri/tauri.conf.json src/lib/constants.ts 2>/dev/null
+git commit --amend --no-edit --no-verify

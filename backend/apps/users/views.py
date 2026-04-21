@@ -14,6 +14,7 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
 from dj_rest_auth.views import LoginView
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from knox.models import AuthToken
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -66,8 +67,8 @@ class KnoxLoginView(KnoxIssueMixin, LoginView):
                 if primary and not primary.verified:
                     return Response(
                         {
-                            "code": "email_not_verified",
-                            "detail": "E-mail is not verified.",
+                            "code": "auth.email_not_verified",
+                            "detail": _("E-mail is not verified."),
                         },
                         status=status.HTTP_400_BAD_REQUEST,
                     )

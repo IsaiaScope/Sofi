@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 13:55+0000\n"
+"POT-Creation-Date: 2026-04-21 13:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,59 +17,93 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: apps/users/serializers.py:39
+
 msgid "A user is already registered with this e-mail address."
 msgstr ""
 
-#: apps/users/templates/account/email/email_confirmation_message.txt:1
+msgid "Confirm your Sofi email"
+msgstr ""
+
+msgid "Confirm your operator profile to activate Sofi."
+msgstr ""
+
+msgid "Secure Dispatch"
+msgstr ""
+
+msgid "incoming transmission"
+msgstr ""
+
+#, python-format
+msgid "Welcome aboard, %(user_display)s."
+msgstr ""
+
+msgid "Verify your email"
+msgstr ""
+
+msgid ""
+"Thanks for signing up for Sofi — your AI agent command center. Confirm your "
+"email below to activate your operator profile."
+msgstr ""
+
+msgid "Confirm Email"
+msgstr ""
+
+msgid "Or copy this link:"
+msgstr ""
+
+msgid ""
+"This link expires in 3 days. If you didn't sign up for Sofi, you can safely "
+"ignore this message."
+msgstr ""
+
+msgid "The Sofi team"
+msgstr ""
+
 #, python-format
 msgid ""
-"Hi %(user_display)s,\n"
+"> INCOMING TRANSMISSION\n"
 "\n"
-"Thanks for signing up for Sofi — your AI agent command center.\n"
+"Welcome aboard, %(user_display)s.\n"
 "\n"
-"To finish setting up your account, verify your email by clicking the link "
-"below:\n"
+"Thanks for signing up for Sofi — your AI agent command center. Confirm your "
+"email below to activate your operator profile.\n"
 "\n"
-"%(activate_url)s\n"
+"  %(activate_url)s\n"
 "\n"
 "This link expires in 3 days. If you didn't sign up for Sofi, you can safely "
 "ignore this message.\n"
 "\n"
-"— The Sofi team\n"
+"// The Sofi team\n"
 msgstr ""
 
-#: apps/users/templates/account/email/email_confirmation_subject.txt:1
-msgid "Confirm your Sofi email"
-msgstr ""
-
-#: apps/users/templates/users/email_verified.html:7
 msgid "Email verified — Sofi"
 msgstr ""
 
-#: apps/users/templates/users/email_verified.html:121
-msgid "Email verified"
+msgid "Verified"
 msgstr ""
 
-#: apps/users/templates/users/email_verified.html:122
-msgid ""
-"Your account is ready. Return to Sofi and sign in with your credentials."
+msgid "session verified"
 msgstr ""
 
-#: apps/users/templates/users/email_verified.html:123
+msgid "Secure"
+msgstr ""
+
+msgid "Uplink established"
+msgstr ""
+
+msgid "Email verified. Proceed to command center."
+msgstr ""
+
 msgid "Return to Sofi"
 msgstr ""
 
-#: apps/users/templates/users/email_verified.html:124
 msgid ""
 "If nothing happens, make sure the Sofi desktop app is installed, then open "
 "it manually and sign in."
 msgstr ""
 
-#: sofi_api/settings/base.py:94
 msgid "English"
 msgstr ""
 
-#: sofi_api/settings/base.py:95
 msgid "Italian"
 msgstr ""
