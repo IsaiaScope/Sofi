@@ -82,6 +82,12 @@ def _classify(field: str, error_detail) -> str:
     """Map a single DRF ErrorDetail to a semantic code."""
     drf_code = getattr(error_detail, "code", None) or "invalid"
 
+    # UUID validation errors from dj-rest-auth's PasswordResetConfirmSerializer
+    # come through non_field_errors with code="invalid" but their message contains
+    # "UUID". Check this before the code table so they don't hit auth.invalid_credentials.
+    if "UUID" in str(error_detail):
+        return "password_reset.invalid_token"
+
     if (field, drf_code) in _CODE_TABLE:
         return _CODE_TABLE[(field, drf_code)]
     if ("", drf_code) in _CODE_TABLE:
