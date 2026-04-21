@@ -70,3 +70,18 @@ def test_e2e_sweep_test_users_skips_non_test_emails(db):
     real = User.objects.create(email="real-person@example.com", is_active=True)
     call_command("e2e_sweep_test_users", "--older-than-hours", "0")
     assert User.objects.filter(pk=real.pk).exists()
+
+
+def test_e2e_revoke_tokens_kills_all_tokens_for_email(verified_user):
+    from knox.models import AuthToken
+    AuthToken.objects.create(verified_user)
+    AuthToken.objects.create(verified_user)
+    assert verified_user.auth_token_set.count() == 2
+
+    call_command("e2e_revoke_tokens", "--email", verified_user.email)
+    assert verified_user.auth_token_set.count() == 0
+
+
+def test_e2e_revoke_tokens_unknown_email_is_noop(db, capsys):
+    call_command("e2e_revoke_tokens", "--email", "nobody@test.sofi.local")
+    assert "0 tokens" in capsys.readouterr().out
