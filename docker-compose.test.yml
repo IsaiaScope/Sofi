@@ -14,6 +14,10 @@ services:
     environment:
       # JSON config inline. Defines two issuers ("google", "github") so
       # allauth's per-provider client config maps cleanly.
+      #
+      # requestMappings matches against the token endpoint request parameters.
+      # "grant_type":"authorization_code" triggers the claim injection for
+      # every code exchange regardless of scope.
       JSON_CONFIG: >
         {
           "interactiveLogin": false,
@@ -22,14 +26,14 @@ services:
               "issuerId": "google",
               "tokenExpiry": 3600,
               "requestMappings": [
-                { "requestParam": "scope", "match": "*", "claims": { "sub": "${random}", "email": "oauth-test@test.sofi.local", "email_verified": true, "name": "OAuth Test User" } }
+                { "requestParam": "grant_type", "match": "authorization_code", "claims": { "sub": "google-sub-001", "email": "oauth-test@test.sofi.local", "email_verified": true, "name": "OAuth Test User" } }
               ]
             },
             {
               "issuerId": "github",
               "tokenExpiry": 3600,
               "requestMappings": [
-                { "requestParam": "scope", "match": "*", "claims": { "sub": "${random}", "email": "oauth-test@test.sofi.local", "name": "OAuth Test User" } }
+                { "requestParam": "grant_type", "match": "authorization_code", "claims": { "sub": "github-sub-001", "email": "oauth-test@test.sofi.local", "name": "OAuth Test User" } }
               ]
             }
           ]
