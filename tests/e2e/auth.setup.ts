@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { test as setup } from "@playwright/test";
 import { TEST_PASSWORD, signIn } from "./fixtures";
+import { bootApp, navigateTo, waitForRoute } from "./router-helpers";
 
 /**
  * Playwright setup project — runs once before any auth'd spec.
@@ -34,10 +35,11 @@ setup("seed + sign in", async ({ page }) => {
   // biome-ignore lint/suspicious/noConsole: intentional setup diagnostic
   console.log(`[auth.setup] seeded ${seed.email} (created=${seed.created})`);
 
-  await page.goto("/login");
+  await bootApp(page);
+  await navigateTo(page, "/login");
   await signIn(page, seed.email, PASSWORD);
   // `/kanban` is the default post-login destination per _authenticated.beforeLoad.
-  await page.waitForURL(/\/kanban($|\/)/, { timeout: 10_000 });
+  await waitForRoute(page, /^\/kanban($|\/)/, { timeout: 10_000 });
 
   await page.context().storageState({ path: AUTH_FILE });
 });

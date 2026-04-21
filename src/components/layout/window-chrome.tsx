@@ -4,6 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import { isMacOS } from "@/lib/platform";
 
+// Guard: getCurrentWindow() throws outside Tauri. Only render window controls
+// in the actual Tauri shell (not in Playwright / plain browser).
+const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
 const IS_MAC = isMacOS();
 
 export function WindowChrome() {
@@ -16,7 +20,7 @@ export function WindowChrome() {
           IS_MAC ? "right-0 left-20" : "right-36 left-0",
         )}
       />
-      {!IS_MAC && <WindowControls />}
+      {!IS_MAC && IS_TAURI && <WindowControls />}
     </>
   );
 }

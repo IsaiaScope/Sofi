@@ -33,7 +33,10 @@ export function deleteSeededUser(email: string): void {
 }
 
 export async function signIn(page: Page, email: string, password: string): Promise<void> {
-  await page.getByLabel(/email/i).fill(email);
+  // Use role-based textbox locator to avoid strict mode collision with
+  // TanStack Router devtools buttons that have aria-labels containing "email"
+  // (e.g. "Open match details for /_public/check-email").
+  await page.getByRole("textbox", { name: /email/i }).fill(email);
   // The password input has type="password"; the show/hide toggle is a button.
   // Targeting by selector avoids the strict-mode collision with the toggle's
   // accessible name.

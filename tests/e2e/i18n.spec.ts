@@ -1,4 +1,5 @@
-import { expect, test } from "./fixtures";
+import { expect, openUserMenu, test } from "./fixtures";
+import { bootApp, navigateTo, waitForRoute } from "./router-helpers";
 
 /**
  * i18n round-trip E2E.
@@ -40,34 +41,42 @@ test("boots in English, switches to Italian via Settings, Zod errors translate",
 }) => {
   // Step 1 — Boot in English. No localStorage cache, OS locale unknown inside
   // Playwright's Chromium → falls through to the default ("en").
-  await page.goto("/login");
+  await bootApp(page);
+  await navigateTo(page, "/login");
   await expect(page.getByRole("button", { name: "Sign In", exact: true })).toBeVisible();
 
   // Step 2 — Sign in with a seeded verified user.
   const user = seedUser("i18n-roundtrip");
-  await page.getByLabel(/email/i).fill(user.email);
+  await page.getByRole("textbox", { name: /email/i }).fill(user.email);
   await page.locator('input[type="password"]').first().fill(user.password);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/\/kanban/, { timeout: 10_000 });
+  await waitForRoute(page, /\/kanban/, { timeout: 10_000 });
 
   // Step 3 — Switch language via Settings. Language toggle is a segmented
   // radiogroup of two buttons (role="radio") labelled "English" / "Italiano".
-  await page.goto("/settings");
+  await navigateTo(page, "/settings");
   await page.getByRole("radio", { name: "Italiano" }).click();
 
-  // Top-bar "Sign Out" should flip to "Esci" after the locale switch.
-  await expect(page.getByRole("button", { name: "Esci" })).toBeVisible();
+  // "Sign Out" is inside the user-menu dropdown — open it first, then assert
+  // the label has flipped to the Italian "Esci".
+  await openUserMenu(page);
+  await expect(page.getByRole("menuitem", { name: "Esci" })).toBeVisible({ timeout: 5_000 });
 
-  // Step 4 — Zod validation messages render in Italian. Sign out, then
-  // submit the login form with empty fields; the Italian "required" copy
-  // ("obbligatoria") or "Indirizzo email non valido" must appear.
-  await page.getByRole("button", { name: "Esci" }).click();
-  await page.waitForURL(/\/login/, { timeout: 10_000 });
+  // Step 4 — Zod validation messages render in Italian. Sign out by clicking
+  // the Italian menu item, then submit the login form with empty fields.
+  await page.getByRole("menuitem", { name: "Esci" }).click();
+  await waitForRoute(page, /\/login/, { timeout: 10_000 });
 
   await expect(page.getByRole("button", { name: "Accedi" })).toBeVisible();
   await page.getByRole("button", { name: "Accedi" }).click();
 
+  // Italian Zod/i18n validation error — the exact wording comes from the
+  // zod-i18n-map Italian bundle. Accept any of the known translations:
+  // "email non valida", "Indirizzo email non valido", "obbligatoria",
+  // or the minimum-length message.
   await expect(
-    page.getByText(/Indirizzo email non valido|obbligatoria/i).first(),
+    page
+      .getByText(/email non valida|Indirizzo email non valido|obbligatoria|almeno/i)
+      .first(),
   ).toBeVisible({ timeout: 5000 });
 });

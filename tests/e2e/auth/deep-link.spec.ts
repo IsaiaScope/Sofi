@@ -1,4 +1,5 @@
 import { test, expect } from "../fixtures";
+import { bootApp, navigateTo, waitForRoute } from "../router-helpers";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -17,7 +18,8 @@ test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe("/verify-success route", () => {
   test("shows the success card with Sign In CTA", async ({ page }) => {
-    await page.goto("/verify-success");
+    await bootApp(page);
+    await navigateTo(page, "/verify-success");
     await expect(
       page.getByRole("heading", { name: /uplink established|you're in/i }),
     ).toBeVisible();
@@ -28,8 +30,9 @@ test.describe("/verify-success route", () => {
   });
 
   test("clicking Sign In navigates to /login", async ({ page }) => {
-    await page.goto("/verify-success");
+    await bootApp(page);
+    await navigateTo(page, "/verify-success");
     await page.getByRole("button", { name: /sign in/i }).click();
-    await page.waitForURL(/\/login/);
+    await waitForRoute(page, /\/login/);
   });
 });

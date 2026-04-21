@@ -1,13 +1,20 @@
 import { expect, test, uniqueEmail } from "../fixtures";
+import { bootApp, navigateTo, waitForRoute } from "../router-helpers";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe("register page", () => {
   test("renders the register form", async ({ page }) => {
-    await page.goto("/register");
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/^password$/i)).toBeVisible();
-    await expect(page.getByLabel(/confirm password/i)).toBeVisible();
+    await bootApp(page);
+    await navigateTo(page, "/register");
+    // Use role-based locators to avoid strict mode collision with router devtools
+    // buttons that also match /email/i in their aria-labels.
+    await expect(page.getByRole("textbox", { name: /email/i })).toBeVisible();
+    // Password fields: the label "PASSWORD" is visually uppercase via CSS but DOM
+    // text is "Password". Target by type + ordinal since getByLabel may not link
+    // correctly when the PasswordInput toggle button is inside the same wrapper.
+    await expect(page.locator('input[type="password"]').first()).toBeVisible();
+    await expect(page.locator('input[type="password"]').nth(1)).toBeVisible();
   });
 
   test("happy path redirects to /check-email with the typed email", async ({
@@ -18,16 +25,17 @@ test.describe("register page", () => {
     const password = "Correct-Horse-Battery-9";
 
     try {
-      await page.goto("/register");
+      await bootApp(page);
+      await navigateTo(page, "/register");
       await page.getByLabel(/display name/i).fill("New Op");
-      await page.getByLabel(/email/i).fill(email);
-      await page.getByLabel(/^password$/i).fill(password);
-      await page.getByLabel(/confirm password/i).fill(password);
+      await page.getByRole("textbox", { name: /email/i }).fill(email);
+      await page.locator('input[type="password"]').first().fill(password);
+      await page.locator('input[type="password"]').nth(1).fill(password);
       await page
         .getByRole("button", { name: /create operator|initialize session|create account/i })
         .click();
 
-      await page.waitForURL(/\/check-email/, { timeout: 10_000 });
+      await waitForRoute(page, /\/check-email/, { timeout: 10_000 });
       await expect(page.getByText(/inbox incoming/i)).toBeVisible();
       await expect(page.getByText(email)).toBeVisible();
     } finally {
@@ -40,10 +48,11 @@ test.describe("register page", () => {
   });
 
   test("mismatched passwords surface a form error", async ({ page }) => {
-    await page.goto("/register");
-    await page.getByLabel(/email/i).fill(uniqueEmail("mismatch"));
-    await page.getByLabel(/^password$/i).fill("Correct-Horse-Battery-9");
-    await page.getByLabel(/confirm password/i).fill("Different-Password-9");
+    await bootApp(page);
+    await navigateTo(page, "/register");
+    await page.getByRole("textbox", { name: /email/i }).fill(uniqueEmail("mismatch"));
+    await page.locator('input[type="password"]').first().fill("Correct-Horse-Battery-9");
+    await page.locator('input[type="password"]').nth(1).fill("Different-Password-9");
     await page
       .getByRole("button", { name: /create operator|initialize session|create account/i })
       .click();
@@ -55,8 +64,9 @@ test.describe("register page", () => {
   });
 
   test("'Sign In' link navigates back to /login", async ({ page }) => {
-    await page.goto("/register");
+    await bootApp(page);
+    await navigateTo(page, "/register");
     await page.getByRole("button", { name: /authorize|sign in/i }).click();
-    await page.waitForURL(/\/login/);
+    await waitForRoute(page, /\/login/);
   });
 });

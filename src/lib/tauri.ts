@@ -7,7 +7,7 @@ const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window
 export async function invoke<T>(cmd: string, args?: InvokeArgs): Promise<T> {
   if (!isTauri) {
     console.warn(`[Sofi] Tauri not available, mock for: ${cmd}`);
-    return getMockResponse<T>(cmd);
+    return handleMock<T>(cmd, args);
   }
   try {
     return await tauriInvoke<T>(cmd, args);
@@ -36,10 +36,34 @@ export async function listen<T>(
   return tauriListen<T>(event, handler);
 }
 
+const E2E_TOKEN_KEY = "sofi:e2e-token";
+
 // Mocks for non-Tauri (Playwright) runtime. HTTP-backed commands are mocked via MSW, not here.
+
+// Handle commands with side effects before falling through to the static mock table.
+function handleMock<T>(cmd: string, args?: InvokeArgs): T {
+  if (cmd === "auth_store_token") {
+    const token = (args as { token?: string } | undefined)?.token ?? null;
+    if (token) {
+      localStorage.setItem(E2E_TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(E2E_TOKEN_KEY);
+    }
+    return undefined as T;
+  }
+  if (cmd === "auth_clear_token") {
+    localStorage.removeItem(E2E_TOKEN_KEY);
+    return undefined as T;
+  }
+  return getMockResponse<T>(cmd);
+}
+
 function getMockResponse<T>(cmd: string): T {
   const mocks: Record<string, unknown> = {
-    auth_get_token: null,
+    // In browser (Playwright) mode, persist the Knox token in localStorage so
+    // that Playwright's storage-state mechanism can capture and restore it
+    // between the auth-setup step and individual test runs.
+    auth_get_token: localStorage.getItem(E2E_TOKEN_KEY),
     auth_store_token: undefined,
     auth_clear_token: undefined,
     oauth_start: { code: "mock-oauth-code", callback_url: "http://127.0.0.1:53682" },
