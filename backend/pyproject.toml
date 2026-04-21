@@ -29,4 +29,5 @@ python_files = ["tests_*.py", "test_*.py", "*_tests.py"]
 addopts = "-ra --strict-markers --tb=short"
 markers = [
     "slow: tests that take longer than a second (opt in with -m slow)",
+    "throttling: tests that exercise DRF throttle limits (run via test_throttled settings)",
 ]
