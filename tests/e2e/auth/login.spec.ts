@@ -11,7 +11,7 @@ test.describe("login page", () => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: /authorize operator/i })).toBeVisible();
     await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
+    await expect(page.locator('input[type="password"]').first()).toBeVisible();
     await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
   });
 

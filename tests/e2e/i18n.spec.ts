@@ -46,7 +46,7 @@ test("boots in English, switches to Italian via Settings, Zod errors translate",
   // Step 2 — Sign in with a seeded verified user.
   const user = seedUser("i18n-roundtrip");
   await page.getByLabel(/email/i).fill(user.email);
-  await page.getByLabel(/password/i).fill(user.password);
+  await page.locator('input[type="password"]').first().fill(user.password);
   await page.getByRole("button", { name: /sign in/i }).click();
   await page.waitForURL(/\/kanban/, { timeout: 10_000 });
 

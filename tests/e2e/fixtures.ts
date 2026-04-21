@@ -34,7 +34,10 @@ export function deleteSeededUser(email: string): void {
 
 export async function signIn(page: Page, email: string, password: string): Promise<void> {
   await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
+  // The password input has type="password"; the show/hide toggle is a button.
+  // Targeting by selector avoids the strict-mode collision with the toggle's
+  // accessible name.
+  await page.locator('input[type="password"]').first().fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
 }
 
