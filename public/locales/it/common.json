@@ -1,62 +1,14 @@
 {
   "topbar": {
-    "kanban": "Kanban",
-    "terminal": "TERMINALE",
-    "git": "GIT",
-    "boards": "Bacheche",
-    "newBoard": "+ Nuova bacheca...",
+    "welcome": "Benvenuto",
     "signOut": "Esci",
     "settings": "Impostazioni",
-    "notifications": "Notifiche",
-    "userMenu": "Menu utente",
-    "newBoardDialog": {
-      "title": "Nuova bacheca",
-      "nameLabel": "Nome bacheca",
-      "namePlaceholder": "Il mio progetto",
-      "repoLabel": "Percorso repository (opzionale)",
-      "repoPlaceholder": "/percorso/al/repo/git",
-      "browse": "Sfoglia",
-      "create": "Crea bacheca",
-      "defaultName": "Bacheca senza titolo",
-      "folderPickerTitle": "Seleziona cartella del progetto"
-    }
-  },
-  "sidebar": {
-    "board": "Bacheca",
-    "agents": "Agenti",
-    "list": "Elenco",
-    "settings": "Impostazioni",
-    "sessions": "Sessioni",
-    "newSession": "Nuova sessione",
-    "diff": "Diff",
-    "branches": "Rami",
-    "history": "Cronologia"
+    "userMenu": "Menu utente"
   },
   "actions": {
     "cancel": "Annulla",
     "save": "Salva",
     "delete": "Elimina",
     "retry": "Riprova"
-  },
-  "comingSoon": {
-    "boardSettings": "Impostazioni bacheca — prossimamente",
-    "shellSettings": "Impostazioni shell — prossimamente",
-    "listView": "Vista elenco — prossimamente",
-    "agentOverview": "Panoramica agenti — prossimamente"
-  },
-  "git": {
-    "noRepoTitle": "Nessun repository collegato",
-    "noRepoHelp": "Imposta un percorso repository sulla bacheca attiva per vedere le modifiche git qui.",
-    "noRepoHint": "Apri il selettore bacheche Kanban → crea o modifica una bacheca con un percorso repository.",
-    "changedFiles": "File modificati",
-    "noChanges": "Nessuna modifica",
-    "loadingDiff": "Caricamento diff...",
-    "noBranches": "Nessun ramo trovato.",
-    "noCommits": "Nessun commit trovato."
-  },
-  "terminal": {
-    "defaultLabel": "Terminale",
-    "shellLabel": "terminale {{shell}}",
-    "agentFallback": "agente"
   }
 }

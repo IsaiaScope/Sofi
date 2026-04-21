@@ -48,7 +48,7 @@ test("boots in English, switches to Italian via Settings, Zod errors translate",
   await page.getByLabel(/email/i).fill(user.email);
   await page.getByLabel(/password/i).fill(user.password);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/\/kanban/, { timeout: 10_000 });
+  await page.waitForURL(/\/$/, { timeout: 10_000 });
 
   // Step 3 — Switch language via Settings. Language toggle is a segmented
   // radiogroup of two buttons (role="radio") labelled "English" / "Italiano".

@@ -1,6 +1,6 @@
 [package]
 name = "sofi"
-version = "0.23.6"
+version = "0.23.7"
 description = "Sofi — Agent Command Center"
 authors = ["IsaiaScope"]
 edition = "2021"
@@ -19,7 +19,6 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
-tauri-plugin-dialog = "2.7.0"
 tauri-plugin-oauth = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-os = "2"
@@ -32,6 +31,3 @@ keyring = { version = "3", features = ["apple-native", "linux-native-sync-persis
 tokio = { version = "1", features = ["full"] }
 url = "2"
 thiserror = "2"
-portable-pty = "0.8"
-git2 = "0.19"
-log = "0.4"

@@ -7,7 +7,7 @@ function RegisterRoute() {
     <RegisterPage
       onSwitchToLogin={() => navigate({ to: "/login" })}
       onVerificationPending={(email) => navigate({ to: "/check-email", search: { email } })}
-      onAuthenticated={() => navigate({ to: "/kanban" })}
+      onAuthenticated={() => navigate({ to: "/" })}
     />
   );
 }

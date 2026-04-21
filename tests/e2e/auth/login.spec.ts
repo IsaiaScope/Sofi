@@ -27,13 +27,13 @@ test.describe("login page", () => {
     ).toHaveCount(0);
   });
 
-  test("happy path lands on /kanban", async ({ page, seedUser }) => {
+  test("happy path lands on /", async ({ page, seedUser }) => {
     const user = seedUser(`login-happy-${Date.now()}@test.sofi.local`);
     await page.goto("/login");
     await signIn(page, user.email, user.password);
 
-    await page.waitForURL(/\/kanban/, { timeout: 10_000 });
-    expect(page.url()).toMatch(/\/kanban/);
+    await page.waitForURL(/\/$/, { timeout: 10_000 });
+    expect(page.url()).toMatch(/\/$/);
   });
 
   test("'Request access' link navigates to /register", async ({ page }) => {

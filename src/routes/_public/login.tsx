@@ -6,7 +6,7 @@ function LoginRoute() {
   return (
     <LoginPage
       onSwitchToRegister={() => navigate({ to: "/register" })}
-      onAuthenticated={() => navigate({ to: "/kanban" })}
+      onAuthenticated={() => navigate({ to: "/" })}
       onVerificationPending={(email) => navigate({ to: "/check-email", search: { email } })}
       onForgotPassword={() => navigate({ to: "/recover" })}
     />

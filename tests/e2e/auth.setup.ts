@@ -36,8 +36,8 @@ setup("seed + sign in", async ({ page }) => {
 
   await page.goto("/login");
   await signIn(page, seed.email, PASSWORD);
-  // `/kanban` is the default post-login destination per _authenticated.beforeLoad.
-  await page.waitForURL(/\/kanban($|\/)/, { timeout: 10_000 });
+  // `/` is the default post-login destination per _authenticated.beforeLoad.
+  await page.waitForURL(/\/$/, { timeout: 10_000 });
 
   await page.context().storageState({ path: AUTH_FILE });
 });

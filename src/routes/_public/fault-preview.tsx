@@ -17,12 +17,11 @@ function FaultPreview() {
   const fakeError = new Error(
     scope === "route"
       ? "Cannot read properties of undefined (reading 'map')"
-      : "ReferenceError: agentRegistry is not defined",
+      : "ReferenceError: greetingFormatter is not defined",
   );
   fakeError.stack = [
     fakeError.message,
-    "    at renderKanbanBoard (src/features/kanban/components/board.tsx:47:12)",
-    "    at Board (src/features/kanban/components/board.tsx:23:5)",
+    "    at WelcomePage (src/routes/_authenticated/index.tsx:12:5)",
     "    at renderWithHooks (react-dom/cjs/react-dom.development.js:16305:18)",
     "    at updateFunctionComponent (react-dom/cjs/react-dom.development.js:19588:20)",
   ].join("\n");
