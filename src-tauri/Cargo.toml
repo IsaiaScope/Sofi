@@ -1,6 +1,6 @@
 [package]
 name = "sofi"
-version = "0.29.7"
+version = "0.29.8"
 description = "Sofi — Agent Command Center"
 authors = ["IsaiaScope"]
 edition = "2021"
