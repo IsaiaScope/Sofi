@@ -75,14 +75,24 @@ jobs:
           cp -R ~/.sofi-build/target/release/bundle/macos/Sofi.app /Applications/
           /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f /Applications/Sofi.app
 
-      # Run a dedicated Playwright project against the installed binary.
-      # TODO: Add a `tauri-native` project to playwright.config.ts that
-      # launches /Applications/Sofi.app via @tauri-apps/playwright-launcher
-      # (not yet added as a dependency — see docs/testing.md "Tauri nightly
-      # gaps" for the follow-up checklist).
-      - run: pnpm exec playwright test --project=chromium-auth
+      # Start mock-oauth2-server for native OAuth callback spec.
+      # macOS runner has no Linux-style services block — use docker run.
+      - name: Start mock-oauth2-server
+        run: |
+          docker run -d --name mock-oauth -p 8081:8080 \
+            -e JSON_CONFIG='{"interactiveLogin":false,"tokenCallbacks":[{"issuerId":"google","tokenExpiry":3600,"requestMappings":[{"requestParam":"scope","match":"*","claims":{"sub":"${random}","email":"oauth-test@test.sofi.local","email_verified":true,"name":"OAuth Test User"}}]},{"issuerId":"github","tokenExpiry":3600,"requestMappings":[{"requestParam":"scope","match":"*","claims":{"sub":"${random}","email":"oauth-test@test.sofi.local","name":"OAuth Test User"}}]}]}' \
+            ghcr.io/navikt/mock-oauth2-server:2.1.10
+          for i in 1 2 3 4 5 6 7 8 9 10; do curl -sf http://localhost:8081/google/.well-known/openid-configuration && break; sleep 2; done
+
+      # Run the tauri-native project against the installed binary.
+      # @tauri-apps/playwright is not yet published; the project currently
+      # points baseURL at the dev server. When the package ships, the fixtures
+      # file (tests/e2e/native/fixtures.ts) wires in the webview launcher.
+      - run: pnpm exec playwright test --project=tauri-native
         env:
           SOFI_E2E_BASE_URL: http://127.0.0.1:1420
+          SOFI_E2E_APP_PATH: /Applications/Sofi.app
+          DJANGO_SETTINGS_MODULE: sofi_api.settings.test_oauth
 
       - name: Upload report
         if: always()
