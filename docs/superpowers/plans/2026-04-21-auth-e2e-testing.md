@@ -80,6 +80,7 @@
 - **Backend test command:** `cd backend && uv run pytest <args>`.
 - **Frontend e2e command:** `pnpm test:e2e <args>`.
 - **Playwright spec layout:** anonymous specs (no logged-in user) start with `test.use({ storageState: { cookies: [], origins: [] } })`. Specs that need a logged-in user do nothing — the `chromium-auth` project applies the saved storage state by default.
+- **Navigation in specs** (CRITICAL — the codebase uses `createMemoryHistory`): drive in-app navigation via `tests/e2e/router-helpers.ts` — `bootApp(page)` → load the SPA, `navigateTo(page, "/login")` → `__TSR_ROUTER__.navigate({ to })`, `waitForRoute(page, /\/kanban/)` → poll `__TSR_ROUTER__.state.location.pathname`, `currentRoute(page)` → read the current pathname. **Never use `page.goto(<route>)`, `page.waitForURL()`, or `expect(page).toHaveURL()`** — the browser URL never reflects in-app navigation. Code blocks below sometimes show `page.goto("/login")` for brevity; replace with `await bootApp(page); await navigateTo(page, "/login");` when you write the actual spec.
 - **Commit cadence:** every chunk = one commit, scoped per the existing `type(scope): subject` convention (`test(e2e):`, `feat(backend):`, `ci(throttling):`).
 
 ---
