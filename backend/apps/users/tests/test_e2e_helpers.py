@@ -43,3 +43,30 @@ def test_e2e_last_email_no_match_exits_nonzero(capsys):
         assert "no email" in str(exc).lower()
     else:
         raise AssertionError("Expected CommandError when mailbox is empty")
+
+
+def test_e2e_sweep_test_users_deletes_old_test_emails(verified_user, db):
+    from datetime import timedelta
+    from django.utils import timezone
+    from apps.users.models import User
+
+    # Make the verified_user "old" by backdating date_joined.
+    User.objects.filter(pk=verified_user.pk).update(date_joined=timezone.now() - timedelta(hours=48))
+
+    assert verified_user.email.endswith(TEST_EMAIL_SUFFIX)
+    call_command("e2e_sweep_test_users", "--older-than-hours", "24")
+
+    assert not User.objects.filter(pk=verified_user.pk).exists()
+
+
+def test_e2e_sweep_test_users_skips_recent(verified_user):
+    from apps.users.models import User
+    call_command("e2e_sweep_test_users", "--older-than-hours", "24")
+    assert User.objects.filter(pk=verified_user.pk).exists()
+
+
+def test_e2e_sweep_test_users_skips_non_test_emails(db):
+    from apps.users.models import User
+    real = User.objects.create(email="real-person@example.com", is_active=True)
+    call_command("e2e_sweep_test_users", "--older-than-hours", "0")
+    assert User.objects.filter(pk=real.pk).exists()
