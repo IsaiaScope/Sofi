@@ -50,10 +50,14 @@ export async function bootApp(page: Page): Promise<void> {
  * drives the memory history without going through React's rendering cycle.
  * Safer than router.navigate() when called from outside React.
  * Boots the app first if the router is not yet ready.
+ *
+ * Optional `search` param object is serialized to a query string and appended
+ * to the path — use for routes that read from `Route.useSearch()`.
  */
 export async function navigateTo(
   page: Page,
   path: string,
+  search?: Record<string, string>,
 ): Promise<void> {
   // Ensure router has completed its first navigation before pushing a new route.
   const isReady = await page.evaluate(() => {
@@ -65,6 +69,12 @@ export async function navigateTo(
   if (!isReady) {
     await bootApp(page);
   }
+  // Build the full path with optional search params.
+  const fullPath =
+    search && Object.keys(search).length > 0
+      ? `${path}?${new URLSearchParams(search).toString()}`
+      : path;
+
   // Use router.history.push() to drive the memory history.
   // Skip push if already at the target path to avoid re-triggering route errors
   // that can occur when pushing the same route that was just set by a redirect.
@@ -90,7 +100,7 @@ export async function navigateTo(
       throw new Error("__TSR_ROUTER__ has no history.push or navigate method");
     }
     return true;
-  }, path);
+  }, fullPath);
 
   if (navigated) {
     // Wait for the router to settle after navigation (idle + resolvedLocation set).
