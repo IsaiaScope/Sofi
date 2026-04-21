@@ -11,6 +11,14 @@ function manage(...args: string[]): string {
   return execFileSync("uv", ["run", "python", "manage.py", ...args], {
     encoding: "utf8",
     cwd: "backend",
+    // Use e2e settings so e2e_last_email reads from the file-based mail dir
+    // (written by the Playwright webserver process). Falls back to test
+    // settings default from pyproject.toml when DJANGO_SETTINGS_MODULE isn't set.
+    env: {
+      ...process.env,
+      DJANGO_SETTINGS_MODULE:
+        process.env.DJANGO_SETTINGS_MODULE ?? "sofi_api.settings.e2e",
+    },
   }).trim();
 }
 

@@ -9,7 +9,7 @@ your own check.
 from django.conf import settings
 from django.core.management.base import CommandError
 
-ALLOWED_SUFFIXES = (".test", ".dev", ".test_throttled", ".test_oauth")
+ALLOWED_SUFFIXES = (".test", ".dev", ".test_throttled", ".test_oauth", ".e2e")
 
 
 def assert_test_or_dev_settings(command_name: str) -> None:

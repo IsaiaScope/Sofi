@@ -42,10 +42,16 @@ export async function verifyEmail(page: Page, email: string): Promise<void> {
 export async function requestPasswordReset(page: Page, email: string): Promise<void> {
   await bootApp(page);
   await navigateTo(page, "/recover");
-  await page.getByLabel(/email/i).fill(email);
+  // Use role-based textbox locator to avoid strict mode collision with
+  // TanStack Router devtools buttons that have aria-labels containing "email".
+  await page.getByRole("textbox", { name: /email/i }).fill(email);
   await page.getByRole("button", { name: /dispatch|send/i }).click();
   // Success swap: same route, "LINK DISPATCHED" heading visible.
-  await expect(page.getByText(/link dispatched/i)).toBeVisible({ timeout: 5_000 });
+  // Use role-based heading locator to avoid strict-mode collision with the
+  // status bar span that also contains "link dispatched".
+  await expect(page.getByRole("heading", { name: /link dispatched/i })).toBeVisible({
+    timeout: 5_000,
+  });
 }
 
 export async function completePasswordReset(
@@ -60,7 +66,11 @@ export async function completePasswordReset(
   await page.locator('input[type="password"]').nth(1).fill(newPassword);
   await page.getByRole("button", { name: /commit|reset/i }).click();
   // Success swap: "CREDENTIAL RESET" heading + "Sign In" button visible.
-  await expect(page.getByText(/credential reset/i)).toBeVisible({ timeout: 5_000 });
+  // Use role-based heading locator to avoid strict-mode collision with the
+  // status bar span that also contains "credential reset".
+  await expect(page.getByRole("heading", { name: /credential reset/i })).toBeVisible({
+    timeout: 5_000,
+  });
 }
 
 export async function mockNetworkFailure(

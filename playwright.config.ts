@@ -58,7 +58,7 @@ export default defineConfig({
       command: "uv run python manage.py runserver 127.0.0.1:8000",
       cwd: "backend",
       env: {
-        DJANGO_SETTINGS_MODULE: process.env.DJANGO_SETTINGS_MODULE ?? "sofi_api.settings.test",
+        DJANGO_SETTINGS_MODULE: process.env.DJANGO_SETTINGS_MODULE ?? "sofi_api.settings.e2e",
       },
       url: "http://127.0.0.1:8000/auth/user/",
       reuseExistingServer: !process.env.CI,
