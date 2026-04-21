@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiClient, getBearer } from "@/lib/api-client";
+import { apiClient, clearClientAuth, getBearer } from "@/lib/api-client";
 import { ErrorCode, isAppError } from "@/lib/errors";
 import type { User } from "../types";
 import { authKeys } from "./keys";
@@ -12,7 +12,12 @@ export const sessionQueryOptions = queryOptions({
     try {
       return await apiClient.get<User>("/auth/user/");
     } catch (error) {
-      if (isAppError(error) && error.code === ErrorCode.AUTH) return null;
+      if (isAppError(error) && error.code === ErrorCode.AUTH) {
+        // Token is dead server-side — clear it locally so the next reload
+        // doesn't re-send it and loop through the 401 → /login bounce.
+        await clearClientAuth();
+        return null;
+      }
       throw error;
     }
   },
