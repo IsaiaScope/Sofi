@@ -1,5 +1,5 @@
 export const APP_NAME = "Sofi";
-export const APP_VERSION = "0.29.5";
+export const APP_VERSION = "0.29.6";
 export const APP_DESCRIPTION = "Agent Command Center";
 
 // Tauri-registered deep link scheme; mirrored in src-tauri/tauri.conf.json.

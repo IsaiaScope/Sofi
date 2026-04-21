@@ -40,11 +40,23 @@ export default defineConfig({
     },
     {
       name: "chromium-auth",
+      testIgnore: /\/native\//,
       use: {
         ...devices["Desktop Chrome"],
         storageState: ".auth/user.json",
       },
       dependencies: ["setup"],
+    },
+    {
+      name: "tauri-native",
+      testMatch: /\/native\/.*\.spec\.ts$/,
+      use: {
+        // Driven by the bundled Sofi.app via @tauri-apps/playwright (not yet
+        // published — see tests/e2e/native/fixtures.ts). The launcher will
+        // attach Playwright's chromium driver to the Tauri webview rather than
+        // spawning a separate browser. Until then, points at the dev server.
+        baseURL: process.env.SOFI_E2E_BASE_URL ?? "http://127.0.0.1:1420",
+      },
     },
   ],
   webServer: [
