@@ -108,4 +108,40 @@ export const test = base.extend<{
   },
 });
 
+/**
+ * Pre-arms the Tauri `oauth_start` IPC mock to return a code that the mock
+ * OAuth provider has already issued. The web build's src/lib/tauri.ts
+ * already returns `{ code: "mock-oauth-code", callback_url: "..." }` when
+ * not running in Tauri — but that code wouldn't validate against
+ * mock-oauth2-server. We override the mock per-spec by injecting a real
+ * code obtained from the mock provider.
+ */
+export async function mockOauthUser(
+  page: Page,
+  options: { provider: "google" | "github"; email?: string },
+): Promise<string> {
+  const scope = options.provider === "google" ? "openid email profile" : "openid user:email";
+  const url = new URL(`http://localhost:8081/${options.provider}/authorize`);
+  url.searchParams.set("client_id", `${options.provider}-test-client`);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", scope);
+  url.searchParams.set("redirect_uri", "http://localhost:1420/auth/callback");
+  url.searchParams.set("state", "test-state");
+  // Fetch from the test process (Node), get the redirect Location header.
+  const response = await fetch(url.toString(), { redirect: "manual" });
+  const location = response.headers.get("location") ?? "";
+  const code = new URL(location, "http://localhost:1420").searchParams.get("code");
+  if (!code) throw new Error(`mock-oauth2-server returned no code: ${location}`);
+
+  // Override the Tauri IPC mock for this page so click-through returns the real code.
+  await page.addInitScript((injected) => {
+    // The web build's tauri.ts checks `__TAURI_INTERNALS__`. We don't fake that;
+    // instead we monkey-patch a global the tauri.ts mock layer reads.
+    (window as unknown as { __SOFI_E2E_OAUTH_CODE__?: string }).__SOFI_E2E_OAUTH_CODE__ =
+      injected.code;
+  }, { code });
+
+  return code;
+}
+
 export { expect };

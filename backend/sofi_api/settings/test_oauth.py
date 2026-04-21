@@ -18,12 +18,13 @@ SOCIALACCOUNT_PROVIDERS = {
         "OAUTH_PKCE_ENABLED": False,
         "SCOPE": ["openid", "email", "profile"],
         "AUTH_PARAMS": {"access_type": "online"},
-        # allauth honors these per-provider URL overrides starting at v0.50+.
         "ACCESS_TOKEN_URL": f"{MOCK_OAUTH_BASE}/google/token",
         "AUTHORIZE_URL": f"{MOCK_OAUTH_BASE}/google/authorize",
         "USERINFO_URL": f"{MOCK_OAUTH_BASE}/google/userinfo",
-        "OAUTH2_AUTH_URL": f"{MOCK_OAUTH_BASE}/google/authorize",
-        "OAUTH2_ACCESS_TOKEN_URL": f"{MOCK_OAUTH_BASE}/google/token",
+        # _SettingsGoogleOAuth2Adapter reads these two keys to verify id_token JWTs
+        # using the mock's JWK endpoint instead of Google's X.509-certificate JWKS.
+        "CERTS_URL": f"{MOCK_OAUTH_BASE}/google/jwks",
+        "ID_TOKEN_ISSUER": f"{MOCK_OAUTH_BASE}/google",
     },
     "github": {
         "APP": {
@@ -34,8 +35,8 @@ SOCIALACCOUNT_PROVIDERS = {
         "SCOPE": ["user:email"],
         "ACCESS_TOKEN_URL": f"{MOCK_OAUTH_BASE}/github/token",
         "AUTHORIZE_URL": f"{MOCK_OAUTH_BASE}/github/authorize",
+        # _SettingsGitHubOAuth2Adapter reads USERINFO_URL to call mock's OIDC
+        # userinfo endpoint instead of the real GitHub /user API.
         "USERINFO_URL": f"{MOCK_OAUTH_BASE}/github/userinfo",
-        "OAUTH2_AUTH_URL": f"{MOCK_OAUTH_BASE}/github/authorize",
-        "OAUTH2_ACCESS_TOKEN_URL": f"{MOCK_OAUTH_BASE}/github/token",
     },
 }

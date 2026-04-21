@@ -8,9 +8,11 @@ and return it in the response body.
 
 from allauth.account.models import EmailAddress
 from allauth.account.utils import complete_signup
+from allauth.socialaccount.adapter import get_adapter as get_social_adapter
+from allauth.socialaccount.internal import jwtkit
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client, OAuth2Error
 from dj_rest_auth.registration.views import RegisterView, SocialLoginView
 from dj_rest_auth.views import LoginView
 from django.conf import settings
@@ -23,6 +25,92 @@ from rest_framework.views import APIView
 
 from .models import UserSettings
 from .serializers import ApiTokenSerializer, UserSerializer, UserSettingsSerializer
+
+
+def _github_provider_settings() -> dict:
+    return getattr(settings, "SOCIALACCOUNT_PROVIDERS", {}).get("github", {})
+
+
+def _google_provider_settings() -> dict:
+    return getattr(settings, "SOCIALACCOUNT_PROVIDERS", {}).get("google", {})
+
+
+class _SettingsGitHubOAuth2Adapter(GitHubOAuth2Adapter):
+    """GitHub adapter that reads endpoint URLs from SOCIALACCOUNT_PROVIDERS settings.
+
+    Production behaviour is unchanged — the parent's hardcoded github.com URLs
+    remain as defaults. Under test_oauth settings the mock-oauth2-server URLs
+    override the defaults so the E2E suite doesn't hit the real GitHub.
+    """
+
+    @property
+    def access_token_url(self):  # type: ignore[override]
+        return _github_provider_settings().get("ACCESS_TOKEN_URL", super().access_token_url)
+
+    @property
+    def authorize_url(self):  # type: ignore[override]
+        return _github_provider_settings().get("AUTHORIZE_URL", super().authorize_url)
+
+    def complete_login(self, request, app, token, **kwargs):
+        userinfo_url = _github_provider_settings().get("USERINFO_URL")
+        if not userinfo_url:
+            return super().complete_login(request, app, token, **kwargs)
+
+        # Under test settings: hit the mock OIDC userinfo endpoint instead
+        # of the real GitHub /user API.
+        headers = {"Authorization": f"Bearer {token.token}"}
+        with get_social_adapter().get_requests_session() as sess:
+            resp = sess.get(userinfo_url, headers=headers)
+            if not resp.ok:
+                raise OAuth2Error(f"Userinfo request failed: {resp.status_code}")
+            extra_data = resp.json()
+
+        # GitHub's provider.extract_uid() reads data["id"]; map OIDC "sub" → "id".
+        if "id" not in extra_data and "sub" in extra_data:
+            extra_data["id"] = extra_data["sub"]
+        if "login" not in extra_data:
+            extra_data["login"] = extra_data.get("email", "mock-github-user")
+
+        return self.get_provider().sociallogin_from_response(request, extra_data)
+
+
+class _SettingsGoogleOAuth2Adapter(GoogleOAuth2Adapter):
+    """Google adapter that verifies id_token JWTs using the configured JWKS URL.
+
+    Production behaviour is unchanged (Google's certs URL is the default).
+    Under test_oauth settings the mock-oauth2-server's JWK endpoint is used,
+    with lookup_kid_jwk (JWK format) instead of X.509 certificates.
+    """
+
+    @property
+    def _mock_certs_url(self):
+        return _google_provider_settings().get("CERTS_URL")
+
+    @property
+    def _mock_issuer(self):
+        return _google_provider_settings().get("ID_TOKEN_ISSUER")
+
+    @property
+    def access_token_url(self):  # type: ignore[override]
+        return _google_provider_settings().get("ACCESS_TOKEN_URL", super().access_token_url)
+
+    @property
+    def authorize_url(self):  # type: ignore[override]
+        return _google_provider_settings().get("AUTHORIZE_URL", super().authorize_url)
+
+    def _decode_id_token(self, app, id_token):
+        certs_url = self._mock_certs_url
+        if not certs_url:
+            return super()._decode_id_token(app, id_token)
+        # Use JWK-format key lookup instead of X.509 certificates.
+        issuer = self._mock_issuer or self.id_token_issuer
+        return jwtkit.verify_and_decode(
+            credential=id_token,
+            keys_url=certs_url,
+            issuer=issuer,
+            audience=app.client_id,
+            lookup_kid=jwtkit.lookup_kid_jwk,
+        )
 
 
 def _issue_knox_token(user, request) -> dict:
@@ -103,12 +191,12 @@ class KnoxRegisterView(RegisterView):
 
 
 class GoogleLogin(DynamicCallbackMixin, KnoxIssueMixin, SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
+    adapter_class = _SettingsGoogleOAuth2Adapter
     client_class = OAuth2Client
 
 
 class GitHubLogin(DynamicCallbackMixin, KnoxIssueMixin, SocialLoginView):
-    adapter_class = GitHubOAuth2Adapter
+    adapter_class = _SettingsGitHubOAuth2Adapter
     client_class = OAuth2Client
 
 

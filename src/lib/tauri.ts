@@ -66,7 +66,16 @@ function getMockResponse<T>(cmd: string): T {
     auth_get_token: localStorage.getItem(E2E_TOKEN_KEY),
     auth_store_token: undefined,
     auth_clear_token: undefined,
-    oauth_start: { code: "mock-oauth-code", callback_url: "http://127.0.0.1:53682" },
+    oauth_start: (() => {
+      const override =
+        typeof window !== "undefined"
+          ? (window as unknown as { __SOFI_E2E_OAUTH_CODE__?: string }).__SOFI_E2E_OAUTH_CODE__
+          : undefined;
+      return {
+        code: override ?? "mock-oauth-code",
+        callback_url: "http://127.0.0.1:53682",
+      };
+    })(),
     list_shells: [
       { name: "Zsh", path: "/bin/zsh" },
       { name: "Bash", path: "/bin/bash" },
