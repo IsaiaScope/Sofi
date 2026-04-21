@@ -97,6 +97,39 @@ jobs:
       # pre-migrate of `sofi_test` needed for this job.
       - run: uv run pytest -q
 
+  backend-throttling:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: sofi
+          POSTGRES_PASSWORD: sofi
+          POSTGRES_DB: sofi_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U sofi -d sofi_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://sofi:sofi@localhost:5432/sofi_test
+      DJANGO_SETTINGS_MODULE: sofi_api.settings.test_throttled
+      DJANGO_SECRET_KEY: test-only-secret-not-used-for-anything-real
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: 'backend/uv.lock'
+      - run: uv sync --frozen
+      - run: uv run pytest -m throttling --ds=sofi_api.settings.test_throttled -q
+
   rust-check:
     needs: changes
     if: needs.changes.outputs.rust == 'true'
