@@ -1,17 +1,11 @@
 import { execFileSync } from "node:child_process";
 import { type Page, test as base, expect } from "@playwright/test";
 
-/**
- * Extended Playwright test + helpers that talk to Django via argv-array
- * management commands (no shell, no interpolation — seed/delete inputs
- * can't be injected into a subprocess).
- */
-
 export const TEST_PASSWORD = "Correct-Horse-Battery-9";
 export const TEST_EMAIL_SUFFIX = "@test.sofi.local";
 
 type SeedResult = { email: string; password: string };
-type Seeder = (email: string, password?: string) => SeedResult;
+type Seeder = (emailPrefix: string, password?: string) => SeedResult;
 
 function manage(...args: string[]): string {
   return execFileSync("uv", ["run", "python", "manage.py", ...args], {
@@ -20,11 +14,16 @@ function manage(...args: string[]): string {
   }).trim();
 }
 
+export function uniqueEmail(prefix: string): string {
+  // crypto.randomUUID is single-call worker-safe; replaces Date.now() to remove
+  // the rare millisecond-collision in fullyParallel runs.
+  const suffix = crypto.randomUUID().slice(0, 8);
+  return `${prefix}-${suffix}${TEST_EMAIL_SUFFIX}`;
+}
+
 function seed(email: string, password: string, verified: boolean): SeedResult {
   const args = ["e2e_seed_user", "--email", email, "--password", password];
-  if (!verified) {
-    args.push("--unverified");
-  }
+  if (!verified) args.push("--unverified");
   manage(...args);
   return { email, password };
 }
@@ -47,12 +46,24 @@ export async function openUserMenu(page: Page): Promise<void> {
   await trigger.click();
 }
 
-async function provideSeeder(
-  verified: boolean,
-  use: (seeder: Seeder) => Promise<void>,
-) {
+export function verificationUrl(email: string): { url: string; key: string } {
+  const raw = manage("e2e_last_email", "--email", email, "--kind", "verify");
+  return JSON.parse(raw);
+}
+
+export function resetUrl(email: string): { url: string; uid: string; token: string } {
+  const raw = manage("e2e_last_email", "--email", email, "--kind", "reset");
+  return JSON.parse(raw);
+}
+
+export function revokeAllTokens(email: string): void {
+  manage("e2e_revoke_tokens", "--email", email);
+}
+
+async function provideSeeder(verified: boolean, use: (s: Seeder) => Promise<void>) {
   const created: string[] = [];
-  const seeder: Seeder = (email, password) => {
+  const seeder: Seeder = (prefix, password) => {
+    const email = uniqueEmail(prefix);
     const result = seed(email, password ?? TEST_PASSWORD, verified);
     created.push(email);
     return result;

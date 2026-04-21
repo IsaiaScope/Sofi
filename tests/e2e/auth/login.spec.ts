@@ -16,7 +16,7 @@ test.describe("login page", () => {
   });
 
   test("wrong password shows error banner, not the resend CTA", async ({ page, seedUser }) => {
-    const user = seedUser(`login-wrong-pw-${Date.now()}@test.sofi.local`);
+    const user = seedUser("login-wrong-pw");
     await page.goto("/login");
     await signIn(page, user.email, "ObviouslyWrong1");
 
@@ -28,7 +28,7 @@ test.describe("login page", () => {
   });
 
   test("happy path lands on /kanban", async ({ page, seedUser }) => {
-    const user = seedUser(`login-happy-${Date.now()}@test.sofi.local`);
+    const user = seedUser("login-happy");
     await page.goto("/login");
     await signIn(page, user.email, user.password);
 

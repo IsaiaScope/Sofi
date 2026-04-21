@@ -7,7 +7,7 @@ test.describe("resend verification", () => {
     page,
     seedUnverifiedUser,
   }) => {
-    const user = seedUnverifiedUser(`unverified-${Date.now()}@test.sofi.local`);
+    const user = seedUnverifiedUser("unverified");
     await page.goto("/login");
     await signIn(page, user.email, user.password);
 
@@ -24,7 +24,7 @@ test.describe("resend verification", () => {
     page,
     seedUnverifiedUser,
   }) => {
-    const user = seedUnverifiedUser(`unverified-${Date.now()}@test.sofi.local`);
+    const user = seedUnverifiedUser("unverified");
     await page.goto("/login");
     await signIn(page, user.email, user.password);
 

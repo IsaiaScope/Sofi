@@ -1,4 +1,4 @@
-import { expect, test } from "../fixtures";
+import { expect, test, uniqueEmail } from "../fixtures";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -14,7 +14,7 @@ test.describe("register page", () => {
     page,
     deleteUser,
   }) => {
-    const email = `register-new-${Date.now()}@test.sofi.local`;
+    const email = uniqueEmail("register-new");
     const password = "Correct-Horse-Battery-9";
 
     try {
@@ -41,7 +41,7 @@ test.describe("register page", () => {
 
   test("mismatched passwords surface a form error", async ({ page }) => {
     await page.goto("/register");
-    await page.getByLabel(/email/i).fill(`mismatch-${Date.now()}@test.sofi.local`);
+    await page.getByLabel(/email/i).fill(uniqueEmail("mismatch"));
     await page.getByLabel(/^password$/i).fill("Correct-Horse-Battery-9");
     await page.getByLabel(/confirm password/i).fill("Different-Password-9");
     await page

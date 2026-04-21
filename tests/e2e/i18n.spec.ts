@@ -44,7 +44,7 @@ test("boots in English, switches to Italian via Settings, Zod errors translate",
   await expect(page.getByRole("button", { name: "Sign In", exact: true })).toBeVisible();
 
   // Step 2 — Sign in with a seeded verified user.
-  const user = seedUser(`i18n-roundtrip-${Date.now()}@test.sofi.local`);
+  const user = seedUser("i18n-roundtrip");
   await page.getByLabel(/email/i).fill(user.email);
   await page.getByLabel(/password/i).fill(user.password);
   await page.getByRole("button", { name: /sign in/i }).click();
