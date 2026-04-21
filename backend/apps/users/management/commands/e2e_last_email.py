@@ -6,11 +6,11 @@ but the explicit guard matches the other ``e2e_*`` commands.
 
 import json
 import re
-import sys
 
-from django.conf import settings
 from django.core import mail
 from django.core.management.base import BaseCommand, CommandError
+
+from apps.users.management.commands._e2e_utils import assert_test_or_dev_settings
 
 VERIFY_RE = re.compile(r"https?://[\w.:-]+(/accounts/confirm-email/(?P<key>[\w:.-]+)/?)")
 RESET_RE = re.compile(
@@ -26,8 +26,7 @@ class Command(BaseCommand):
         parser.add_argument("--kind", choices=("verify", "reset"), required=True)
 
     def handle(self, *_args, **opts):
-        if not settings.DEBUG and not _is_test_settings():
-            raise CommandError("e2e_last_email refuses to run outside dev/test settings.")
+        assert_test_or_dev_settings("e2e_last_email")
 
         addr = opts["email"].strip().lower()
         kind = opts["kind"]
@@ -53,8 +52,4 @@ class Command(BaseCommand):
                 "token": match.group("token"),
             }
 
-        sys.stdout.write(json.dumps(payload) + "\n")
-
-
-def _is_test_settings() -> bool:
-    return settings.SETTINGS_MODULE.endswith((".test", ".dev", ".test_throttled", ".test_oauth"))
+        self.stdout.write(json.dumps(payload) + "\n")

@@ -1,11 +1,15 @@
 """Smoke tests for the e2e management helpers — fast, no Playwright required."""
 
 import json
+from datetime import timedelta
 
 from django.core import mail
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.utils import timezone
+from knox.models import AuthToken
 
+from apps.users.models import User
 from apps.users.tests.factories import DEFAULT_TEST_PASSWORD, TEST_EMAIL_SUFFIX
 from apps.users.tests.helpers import register_user
 
@@ -36,7 +40,7 @@ def test_e2e_last_email_returns_reset_url(api_client, verified_user, mailbox, ca
     assert payload["kind"] == "reset"
 
 
-def test_e2e_last_email_no_match_exits_nonzero(capsys):
+def test_e2e_last_email_no_match_exits_nonzero(mailbox, capsys):
     try:
         call_command("e2e_last_email", "--email", "nobody@test.sofi.local", "--kind", "verify")
     except CommandError as exc:
@@ -46,10 +50,6 @@ def test_e2e_last_email_no_match_exits_nonzero(capsys):
 
 
 def test_e2e_sweep_test_users_deletes_old_test_emails(verified_user, db):
-    from datetime import timedelta
-    from django.utils import timezone
-    from apps.users.models import User
-
     # Make the verified_user "old" by backdating date_joined.
     User.objects.filter(pk=verified_user.pk).update(date_joined=timezone.now() - timedelta(hours=48))
 
@@ -60,20 +60,17 @@ def test_e2e_sweep_test_users_deletes_old_test_emails(verified_user, db):
 
 
 def test_e2e_sweep_test_users_skips_recent(verified_user):
-    from apps.users.models import User
     call_command("e2e_sweep_test_users", "--older-than-hours", "24")
     assert User.objects.filter(pk=verified_user.pk).exists()
 
 
 def test_e2e_sweep_test_users_skips_non_test_emails(db):
-    from apps.users.models import User
     real = User.objects.create(email="real-person@example.com", is_active=True)
     call_command("e2e_sweep_test_users", "--older-than-hours", "0")
     assert User.objects.filter(pk=real.pk).exists()
 
 
 def test_e2e_revoke_tokens_kills_all_tokens_for_email(verified_user):
-    from knox.models import AuthToken
     AuthToken.objects.create(verified_user)
     AuthToken.objects.create(verified_user)
     assert verified_user.auth_token_set.count() == 2

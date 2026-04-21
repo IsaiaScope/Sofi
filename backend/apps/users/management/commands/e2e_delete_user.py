@@ -4,9 +4,9 @@ Case-insensitive match on ``--email``. Refuses to run outside dev/test
 settings. Exits 0 even when no row matched (idempotent teardown).
 """
 
-from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
+from apps.users.management.commands._e2e_utils import assert_test_or_dev_settings
 from apps.users.models import User
 
 
@@ -17,12 +17,5 @@ class Command(BaseCommand):
         parser.add_argument("--email", required=True)
 
     def handle(self, *_args, **opts):
-        if not settings.DEBUG and not _is_test_settings():
-            raise CommandError(
-                "e2e_delete_user refuses to run outside dev/test settings."
-            )
+        assert_test_or_dev_settings("e2e_delete_user")
         User.objects.filter(email__iexact=opts["email"].strip()).delete()
-
-
-def _is_test_settings() -> bool:
-    return settings.SETTINGS_MODULE.endswith((".test", ".dev"))
