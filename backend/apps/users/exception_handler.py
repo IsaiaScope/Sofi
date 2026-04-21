@@ -177,6 +177,13 @@ def custom_exception_handler(exc, context):
     else:
         code = "internal.unknown"
 
+    # Token/UID validation errors arrive via non_field_errors (dj-rest-auth raises
+    # them without a field name), but they conceptually belong to the `token`
+    # field in the password-reset-confirm form. Promote them so the envelope
+    # always carries `field_errors` and the frontend can highlight the right field.
+    if code == "password_reset.invalid_token" and not field_errors:
+        field_errors = {"token": ["password_reset.invalid_token"]}
+
     payload: dict = {"code": code, "detail": detail or ""}
     if field_errors:
         payload["field_errors"] = field_errors
