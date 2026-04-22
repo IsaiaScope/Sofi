@@ -108,7 +108,7 @@ export function TaskDetailModal({ task, onClose, onOpenTerminal }: TaskDetailMod
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-2 border-t border-sofi-border pt-4">
+          <div className="flex items-center gap-2 border-sofi-border border-t pt-4">
             {task.agent_type && (
               <Button variant="success" size="sm" onClick={onOpenTerminal}>
                 {t("taskDialog.openTerminal")}

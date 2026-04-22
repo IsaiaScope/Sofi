@@ -91,13 +91,13 @@ export function LoginPage({
             aria-live="assertive"
             className="border border-sofi-orange/30 bg-sofi-orange/10 p-3"
           >
-            <div className="flex items-center gap-2 font-mono text-base uppercase tracking-wider text-sofi-orange">
+            <div className="flex items-center gap-2 font-mono text-base text-sofi-orange uppercase tracking-wider">
               <span aria-hidden="true" className="material-symbols-outlined !text-[18px]">
                 mail
               </span>
               {t("login.verificationRequired.title")}
             </div>
-            <p className="mt-1.5 text-base leading-snug text-sofi-text-muted">
+            <p className="mt-1.5 text-base text-sofi-text-muted leading-snug">
               {t("login.verificationRequired.body")}
             </p>
             <button
@@ -105,7 +105,7 @@ export function LoginPage({
               disabled={busy}
               onClick={handleResend}
               className={cn(
-                "mt-2.5 inline-flex items-center gap-1.5 border border-sofi-orange/40 bg-sofi-orange/10 px-2.5 py-1 font-mono text-base uppercase tracking-wider text-sofi-orange transition-colors hover:bg-sofi-orange/20 disabled:cursor-not-allowed disabled:opacity-60",
+                "mt-2.5 inline-flex items-center gap-1.5 border border-sofi-orange/40 bg-sofi-orange/10 px-2.5 py-1 font-mono text-base text-sofi-orange uppercase tracking-wider transition-colors hover:bg-sofi-orange/20 disabled:cursor-not-allowed disabled:opacity-60",
                 focusRing("warning"),
               )}
             >
@@ -160,7 +160,7 @@ export function LoginPage({
 
         <div className="flex items-center gap-3" aria-hidden="true">
           <div className="h-px flex-1 bg-cyan-accent/20" />
-          <span className="font-mono text-base uppercase text-sofi-text-dim">{t("login.or")}</span>
+          <span className="font-mono text-base text-sofi-text-dim uppercase">{t("login.or")}</span>
           <div className="h-px flex-1 bg-cyan-accent/20" />
         </div>
 

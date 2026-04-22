@@ -31,8 +31,8 @@ export function ApiTokensSection() {
       {revealed && <RevealedTokenCard token={revealed} onDismiss={() => setRevealed(null)} />}
 
       <Card variant="elevated">
-        <div className="flex items-center justify-between gap-4 border-b border-sofi-border px-4 py-3">
-          <span className="text-base font-medium text-sofi-text">
+        <div className="flex items-center justify-between gap-4 border-sofi-border border-b px-4 py-3">
+          <span className="font-medium text-base text-sofi-text">
             {list.data
               ? t("apiTokens.activeCount", { count: list.data.length })
               : t("apiTokens.loading")}
@@ -57,7 +57,7 @@ export function ApiTokensSection() {
         {list.data?.map((token) => (
           <div
             key={token.digest}
-            className="flex items-center justify-between gap-4 border-b border-sofi-border px-4 py-3 last:border-b-0"
+            className="flex items-center justify-between gap-4 border-sofi-border border-b px-4 py-3 last:border-b-0"
           >
             <div className="min-w-0">
               <div className="font-mono text-base text-sofi-text">{token.token_key}…</div>
@@ -99,7 +99,7 @@ function RevealedTokenCard({
   };
   return (
     <Card variant="primary" padding="lg">
-      <p className="mb-2 text-base font-semibold text-sofi-text">{t("apiTokens.revealTitle")}</p>
+      <p className="mb-2 font-semibold text-base text-sofi-text">{t("apiTokens.revealTitle")}</p>
       <div className="flex items-center gap-2">
         <code className="flex-1 overflow-x-auto rounded bg-sofi-terminal px-3 py-2 font-mono text-base text-sofi-text">
           {token.token}

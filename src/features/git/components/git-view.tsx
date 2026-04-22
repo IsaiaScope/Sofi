@@ -54,7 +54,7 @@ export function GitView() {
       <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
         <div className="text-3xl text-sofi-text-dim">&#9683;</div>
         <p className="text-sm text-sofi-text-muted">{t("git.noRepoTitle")}</p>
-        <p className="text-xs text-sofi-text-dim">
+        <p className="text-sofi-text-dim text-xs">
           {t("git.noRepoHelp")}
           <br />
           {t("git.noRepoHint")}
@@ -69,12 +69,12 @@ export function GitView() {
       {subView === "diff" && (
         <div className="flex flex-1 overflow-hidden">
           {/* File sidebar */}
-          <div className="hidden w-52 shrink-0 overflow-y-auto border-r border-sofi-border bg-white/[0.01] p-2 md:block">
-            <p className="mb-2 font-label text-[9px] font-semibold uppercase tracking-wider text-sofi-text-dim">
+          <div className="hidden w-52 shrink-0 overflow-y-auto border-sofi-border border-r bg-white/[0.01] p-2 md:block">
+            <p className="mb-2 font-label font-semibold text-[9px] text-sofi-text-dim uppercase tracking-wider">
               {t("git.changedFiles")}
             </p>
             {files.length === 0 && (
-              <p className="text-xs text-sofi-text-dim">{t("git.noChanges")}</p>
+              <p className="text-sofi-text-dim text-xs">{t("git.noChanges")}</p>
             )}
             {files.map((file) => (
               <button
@@ -90,7 +90,7 @@ export function GitView() {
               >
                 <span
                   className={cn(
-                    "font-mono text-[9px] font-bold",
+                    "font-bold font-mono text-[9px]",
                     STATUS_COLORS[file.status] ?? "text-sofi-text-dim",
                   )}
                 >
@@ -154,7 +154,7 @@ export function GitView() {
                 key={commit.id}
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sofi-text-muted hover:bg-sofi-elevated"
               >
-                <span className="font-mono text-xs text-sofi-purple">{commit.id}</span>
+                <span className="font-mono text-sofi-purple text-xs">{commit.id}</span>
                 <span className="flex-1 truncate">{commit.message}</span>
                 <span className="shrink-0 text-caption text-sofi-text-dim">{commit.author}</span>
               </div>

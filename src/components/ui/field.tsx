@@ -51,7 +51,7 @@ export function FieldLabel({ children, className, htmlFor, ...props }: FieldLabe
     <label
       htmlFor={htmlFor ?? field?.id}
       className={cn(
-        "block text-base font-semibold uppercase tracking-wider text-sofi-text-muted",
+        "block font-semibold text-base text-sofi-text-muted uppercase tracking-wider",
         className,
       )}
       {...props}

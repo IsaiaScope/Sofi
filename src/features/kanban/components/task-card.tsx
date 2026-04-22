@@ -54,12 +54,12 @@ export function TaskCard({ task, onClick, isDragging }: TaskCardProps) {
         }
       }}
     >
-      <p className="text-sm font-medium text-sofi-text">{task.title}</p>
+      <p className="font-medium text-sm text-sofi-text">{task.title}</p>
 
       {(task.agent_name || badgeLabel) && (
         <div className="mt-2 flex items-center justify-between">
           {task.agent_name && (
-            <span className="text-xs text-sofi-text-muted">
+            <span className="text-sofi-text-muted text-xs">
               {task.status === "done" ? "✓" : "▶"} {task.agent_name}
             </span>
           )}
@@ -72,7 +72,7 @@ export function TaskCard({ task, onClick, isDragging }: TaskCardProps) {
       )}
 
       {!task.agent_name && task.status === "pending" && (
-        <p className="mt-1.5 text-xs text-sofi-text-dim">{t("taskCard.noAgent")}</p>
+        <p className="mt-1.5 text-sofi-text-dim text-xs">{t("taskCard.noAgent")}</p>
       )}
     </Card>
   );

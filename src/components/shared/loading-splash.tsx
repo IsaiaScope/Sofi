@@ -23,7 +23,7 @@ export function LoadingSplash() {
       <HudCorners
         topRight={
           <div className="flex items-center gap-3">
-            <span className="font-mono text-base uppercase tracking-wider text-cyan-accent">
+            <span className="font-mono text-base text-cyan-accent uppercase tracking-wider">
               {isLight ? t("hud.modeLight") : t("hud.modeDark")}
             </span>
             <ThemeToggle />
@@ -31,7 +31,7 @@ export function LoadingSplash() {
         }
         bottomLeft={
           <div className="flex items-center gap-2">
-            <span className="whitespace-nowrap font-mono text-base lowercase text-cyan-accent">
+            <span className="whitespace-nowrap font-mono text-base text-cyan-accent lowercase">
               sofi://boot
             </span>
             <span
@@ -44,7 +44,7 @@ export function LoadingSplash() {
           </div>
         }
         bottomRight={
-          <span className="font-mono text-base tracking-widest text-sofi-green">
+          <span className="font-mono text-base text-sofi-green tracking-widest">
             {t("hud.build", { version: APP_VERSION })}
           </span>
         }
@@ -61,7 +61,7 @@ export function LoadingSplash() {
           draggable={false}
         />
 
-        <div className="mt-10 h-[5px] w-[340px] max-w-full overflow-hidden rounded-full bg-gradient-to-r from-violet-primary to-cyan-accent">
+        <div className="mt-10 h-[5px] w-[340px] max-w-full overflow-hidden rounded-full bg-linear-to-r from-violet-primary to-cyan-accent">
           <div
             className="h-full w-10"
             style={{
@@ -72,7 +72,7 @@ export function LoadingSplash() {
           />
         </div>
 
-        <p className="mt-5 max-w-full text-center font-label text-base uppercase tracking-[0.25em] text-sofi-text-muted">
+        <p className="mt-5 max-w-full text-center font-label text-base text-sofi-text-muted uppercase tracking-[0.25em]">
           Initializing agent runtime
           <span
             aria-hidden="true"

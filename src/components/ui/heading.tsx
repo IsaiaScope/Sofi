@@ -9,10 +9,10 @@ import { cn } from "@/lib/cn";
 const headingVariants = cva("font-heading", {
   variants: {
     size: {
-      sm: "text-lg font-semibold",
-      md: "text-xl font-semibold",
-      lg: "text-2xl font-semibold",
-      display: "text-2xl font-black uppercase tracking-widest md:text-3xl",
+      sm: "font-semibold text-lg",
+      md: "font-semibold text-xl",
+      lg: "font-semibold text-2xl",
+      display: "font-black text-2xl uppercase tracking-widest md:text-3xl",
     },
     tone: {
       default: "text-sofi-text",

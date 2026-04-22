@@ -10,7 +10,7 @@
  *   DJANGO_SETTINGS_MODULE=sofi_api.settings.test_oauth pnpm test:e2e
  */
 import { test, expect, mockOauthUser, deleteSeededUser } from "../fixtures";
-import { bootApp, navigateTo, waitForRoute } from "../router-helpers";
+import { bootApp, currentRoute, navigateTo, waitForRoute } from "../router-helpers";
 
 // Run all specs in this file serially so Google + GitHub don't race over the
 // shared oauth-test@test.sofi.local user row.
@@ -48,12 +48,7 @@ test("OAuth — Google: clicking Google button completes the flow and lands on /
   await page.getByRole("button", { name: /continue via google/i }).click();
 
   await waitForRoute(page, /\/kanban/, { timeout: 15_000 });
-  expect(await page.evaluate(() => {
-    const r = (window as Record<string, unknown>).__TSR_ROUTER__ as
-      | { state?: { location?: { pathname?: string } } }
-      | undefined;
-    return r?.state?.location?.pathname ?? "";
-  })).toMatch(/\/kanban/);
+  expect(await currentRoute(page)).toMatch(/\/kanban/);
 });
 
 test("OAuth — GitHub: clicking GitHub button completes the flow and lands on /kanban", async ({
@@ -66,10 +61,5 @@ test("OAuth — GitHub: clicking GitHub button completes the flow and lands on /
   await page.getByRole("button", { name: /continue via github/i }).click();
 
   await waitForRoute(page, /\/kanban/, { timeout: 15_000 });
-  expect(await page.evaluate(() => {
-    const r = (window as Record<string, unknown>).__TSR_ROUTER__ as
-      | { state?: { location?: { pathname?: string } } }
-      | undefined;
-    return r?.state?.location?.pathname ?? "";
-  })).toMatch(/\/kanban/);
+  expect(await currentRoute(page)).toMatch(/\/kanban/);
 });

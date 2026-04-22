@@ -3907,7 +3907,7 @@ dependencies = [
 
 [[package]]
 name = "sofi"
-version = "0.23.4"
+version = "0.29.12"
 dependencies = [
  "git2",
  "keyring",

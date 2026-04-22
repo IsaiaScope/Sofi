@@ -42,6 +42,11 @@ pnpm-debug.log*
 # Superpowers brainstorm sessions
 .superpowers/
 
+# Git worktrees created by the /batch workflow — sibling checkouts of this repo
+# on branches; they ship their own tooling configs and must not be scanned
+# from the main tree (Biome treats nested configs as conflicting roots).
+.worktrees/
+
 # Playwright test artifacts
 test-results/
 playwright-report/

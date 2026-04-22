@@ -129,7 +129,7 @@ export function Board({ onSwitchToTerminal }: BoardProps) {
               description: t("board.defaultBoardDescription"),
             })
           }
-          className="rounded-lg bg-violet-primary px-4 py-2 text-base font-semibold text-white hover:bg-violet-hover"
+          className="rounded-lg bg-violet-primary px-4 py-2 font-semibold text-base text-white hover:bg-violet-hover"
         >
           {t("board.emptyCta")}
         </button>

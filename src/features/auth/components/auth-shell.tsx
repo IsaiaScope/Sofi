@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import sofiWordmark from "@/assets/sofi-wordmark-tight.svg";
+import { WindowChrome } from "@/components/layout/window-chrome";
 import { HudBackdrop } from "@/components/shared/hud-backdrop";
 import { HudCorners, ThemeToggle } from "@/components/shared/hud-corners";
 import { useTheme } from "@/components/theme/theme-provider";
@@ -39,6 +40,7 @@ export function AuthShell({
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-sofi-bg font-body text-sofi-text">
+      <WindowChrome />
       <HudBackdrop />
 
       <HudCorners
@@ -74,7 +76,7 @@ export function AuthShell({
           </div>
         }
         bottomRight={
-          <span className="font-mono text-base tracking-widest text-sofi-green">
+          <span className="font-mono text-base text-sofi-green tracking-widest">
             {t("hud.build", { version: APP_VERSION })}
           </span>
         }

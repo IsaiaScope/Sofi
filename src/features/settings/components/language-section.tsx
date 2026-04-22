@@ -41,7 +41,7 @@ export function LanguageSection() {
               onClick={() => mutation.mutate(code)}
               disabled={mutation.isPending}
               className={cn(
-                "flex-1 rounded-md px-4 py-2 text-base font-medium transition-colors",
+                "flex-1 rounded-md px-4 py-2 font-medium text-base transition-colors",
                 isActive
                   ? "bg-violet-primary text-white shadow-lg shadow-violet-primary/20"
                   : "text-sofi-text-muted hover:bg-sofi-border hover:text-sofi-text",

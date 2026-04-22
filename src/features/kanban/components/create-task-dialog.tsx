@@ -137,7 +137,7 @@ export function CreateTaskDialog({
           </p>
         )}
 
-        <div className="mt-2 flex items-center justify-end gap-2 border-t border-sofi-border pt-4">
+        <div className="mt-2 flex items-center justify-end gap-2 border-sofi-border border-t pt-4">
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             {t("createDialog.cancel")}
           </Button>

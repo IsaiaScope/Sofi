@@ -31,7 +31,7 @@ export function Dialog({ open, onClose, title, ariaLabel, children, className }:
         >
           {title && (
             <div className="mb-4 flex items-center justify-between">
-              <BaseDialog.Title className="font-heading text-lg font-semibold text-white">
+              <BaseDialog.Title className="font-heading font-semibold text-lg text-white">
                 {title}
               </BaseDialog.Title>
               <BaseDialog.Close

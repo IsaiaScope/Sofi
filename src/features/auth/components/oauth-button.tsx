@@ -17,7 +17,7 @@ export function OAuthButton({ provider, label, disabled, onClick }: OAuthButtonP
       aria-busy={disabled}
       onClick={onClick}
       className={cn(
-        "flex w-full items-center justify-center gap-3 border border-cyan-accent/30 py-3 font-mono text-base uppercase tracking-wider text-cyan-accent transition-colors",
+        "flex w-full items-center justify-center gap-3 border border-cyan-accent/30 py-3 font-mono text-base text-cyan-accent uppercase tracking-wider transition-colors",
         "hover:border-cyan-accent/80 hover:bg-cyan-accent/10",
         "disabled:cursor-not-allowed disabled:opacity-40",
         FOCUS_RING,

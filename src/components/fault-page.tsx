@@ -57,12 +57,12 @@ function DevTrace({ error }: { error: Error }) {
   // framework noise that obscures the actual crash site.
   const frames = (error.stack ?? "").split("\n").slice(1, 4).join("\n").trim();
   return (
-    <div className="mt-4 border-t border-sofi-orange/20 pt-4">
+    <div className="mt-4 border-sofi-orange/20 border-t pt-4">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center gap-2 font-mono text-base uppercase tracking-wider text-sofi-text-dim transition-colors hover:text-sofi-orange"
+        className="flex w-full items-center gap-2 font-mono text-base text-sofi-text-dim uppercase tracking-wider transition-colors hover:text-sofi-orange"
       >
         <span
           className="material-symbols-outlined !text-[18px] transition-transform"

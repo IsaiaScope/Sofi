@@ -84,7 +84,7 @@ export function Sidebar({ onNewTerminalSession }: SidebarProps) {
   const bottomItems = items.filter((i) => i.position === "bottom");
 
   return (
-    <aside className="flex w-11 shrink-0 flex-col items-center gap-1 border-r border-sofi-border bg-sofi-bg py-2">
+    <aside className="flex w-11 shrink-0 flex-col items-center gap-1 border-sofi-border border-r bg-sofi-bg py-2">
       {topItems.map((item) => (
         <SidebarIcon
           key={item.icon + item.labelKey}

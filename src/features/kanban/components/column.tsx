@@ -43,7 +43,7 @@ export function Column({
       <div className="mb-3 flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <span
-            className="text-caption font-semibold uppercase tracking-wider"
+            className="font-semibold text-caption uppercase tracking-wider"
             style={{ color: column.color ? `${column.color}cc` : undefined }}
           >
             {column.name}

@@ -59,7 +59,7 @@ export function DiffViewer({ hunks, selectedFile }: DiffViewerProps) {
             {/* Side-by-side */}
             <div className="grid grid-cols-2">
               {/* Old (left) */}
-              <div className="border-r border-sofi-border">
+              <div className="border-sofi-border border-r">
                 {oldLines.map((line, i) => (
                   <div
                     key={`old-${i}`}

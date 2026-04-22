@@ -25,7 +25,7 @@ export function Tooltip({
           <BaseTooltip.Popup
             className={cn(
               "rounded-md border border-sofi-border bg-sofi-elevated px-3 py-1.5 text-base text-sofi-text shadow-lg",
-              "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 transition-opacity duration-150",
+              "transition-opacity duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0",
               className,
             )}
           >

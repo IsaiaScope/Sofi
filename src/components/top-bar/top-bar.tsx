@@ -74,7 +74,7 @@ export function TopBar() {
 
   return (
     <>
-      <header className="flex h-12 shrink-0 items-center gap-2.5 border-b border-sofi-border bg-sofi-surface px-4">
+      <header className="flex h-12 shrink-0 items-center gap-2.5 border-sofi-border border-b bg-sofi-surface px-4">
         {/* Logo */}
         <div className="mr-1 flex items-center">
           <img src={wordmark} alt={APP_NAME} className="hidden h-6 md:block" />
@@ -187,7 +187,7 @@ export function TopBar() {
               type="button"
               aria-label={t("topbar.userMenu")}
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-full bg-violet-muted text-base font-medium text-violet-hover",
+                "flex h-7 w-7 items-center justify-center rounded-full bg-violet-muted font-medium text-base text-violet-hover",
                 FOCUS_RING,
               )}
             >
@@ -259,7 +259,7 @@ function NavSelect({ label, icon, isActive, activeColor, activeShadow, onClick }
     >
       <span
         className={cn(
-          "flex items-center gap-1.5 rounded-l-md px-3 py-1 text-base font-semibold tracking-wider transition-colors",
+          "flex items-center gap-1.5 rounded-l-md px-3 py-1 font-semibold text-base tracking-wider transition-colors",
           base,
         )}
       >

@@ -4,7 +4,7 @@ import { focusRing } from "@/lib/a11y";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors text-base disabled:opacity-40 disabled:cursor-not-allowed",
+  "inline-flex items-center justify-center gap-2 rounded-lg font-semibold text-base transition-colors disabled:cursor-not-allowed disabled:opacity-40",
   {
     variants: {
       variant: {

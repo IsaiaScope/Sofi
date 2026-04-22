@@ -67,7 +67,7 @@ export function MenuSeparator() {
 
 export function MenuLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="px-3 py-1.5 text-base font-semibold uppercase tracking-wider text-sofi-text-dim">
+    <div className="px-3 py-1.5 font-semibold text-base text-sofi-text-dim uppercase tracking-wider">
       {children}
     </div>
   );

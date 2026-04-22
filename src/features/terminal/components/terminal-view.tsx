@@ -39,7 +39,7 @@ export function TerminalView() {
   return (
     <div className="flex h-full flex-col bg-sofi-terminal">
       {/* Tab bar */}
-      <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-sofi-border bg-sofi-surface/50 px-2 py-1">
+      <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-sofi-border border-b bg-sofi-surface/50 px-2 py-1">
         {sessions.map((session) => (
           <button
             key={session.id}
@@ -74,7 +74,7 @@ export function TerminalView() {
         <button
           type="button"
           onClick={() => createSession()}
-          className="rounded-md px-2 py-1 text-xs text-sofi-text-dim hover:bg-sofi-elevated hover:text-sofi-text"
+          className="rounded-md px-2 py-1 text-sofi-text-dim text-xs hover:bg-sofi-elevated hover:text-sofi-text"
         >
           +
         </button>
