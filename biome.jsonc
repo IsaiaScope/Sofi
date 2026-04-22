@@ -3,12 +3,14 @@
   "files": {
     "includes": [
       "**",
-      "!**/src-tauri/",
-      "!**/dist/",
-      "!**/node_modules/",
+      "!**/src-tauri",
+      "!**/dist",
+      "!**/node_modules",
       "!**/.sofi-build",
       "!**/.claude",
       "!**/.superpowers",
+      "!**/.worktrees",
+      "!**/backend",
       "!**/tests",
       "!**/*.css",
       "!**/routeTree.gen.ts"
@@ -44,6 +46,21 @@
       "suspicious": {
         "noExplicitAny": "warn",
         "noArrayIndexKey": "off"
+      },
+      "nursery": {
+        // Sort className tokens into Tailwind's canonical order. Does NOT
+        // rename deprecated classes (those come from the Tailwind VS Code
+        // extension as IDE-only suggestions, or via `npx @tailwindcss/upgrade`).
+        // Function list mirrors Ultracite's defaults so classes inside
+        // cn()/clsx()/cva() are also sorted.
+        "useSortedClasses": {
+          "level": "error",
+          "fix": "safe",
+          "options": {
+            "attributes": ["className"],
+            "functions": ["cn", "clsx", "cva", "tw", "twMerge", "twJoin", "tv"]
+          }
+        }
       }
     }
   },

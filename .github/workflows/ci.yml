@@ -214,7 +214,10 @@ jobs:
       - if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
 
-      - run: pnpm exec playwright test
+      # Explicit --project so the tauri-native project doesn't run on Linux
+      # (it shells out to `open sofi://…` which is macOS-only; nightly job
+      # covers tauri-native on macos-14).
+      - run: pnpm exec playwright test --project=chromium-auth
 
       - name: Upload Playwright report on failure
         if: failure() || cancelled()
