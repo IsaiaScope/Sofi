@@ -149,17 +149,17 @@ same branch never wastes a minute.
 
 | Flow | Backend pytest | Web Playwright | Tauri-native | Notes |
 |---|---|---|---|---|
-| Registration | ✅ | ✅ | ✅ (inherited) | |
-| Login (happy/wrong/unverified) | ✅ | ✅ | ✅ (inherited) | |
-| Logout / redirect protection | ✅ | ✅ | ✅ (inherited) | |
-| Resend verification | ✅ | ✅ | ✅ (inherited) | |
-| Email verification (full round-trip) | ✅ | ✅ | ✅ (inherited) | URL via `e2e_last_email` |
-| Password reset (request + confirm) | ✅ | ✅ | ✅ (inherited) | |
+| Registration | ✅ | ✅ | ⚠️ pending launcher | |
+| Login (happy/wrong/unverified) | ✅ | ✅ | ⚠️ pending launcher | |
+| Logout / redirect protection | ✅ | ✅ | ⚠️ pending launcher | |
+| Resend verification | ✅ | ✅ | ⚠️ pending launcher | |
+| Email verification (full round-trip) | ✅ | ✅ | ⚠️ pending launcher | URL via `e2e_last_email` |
+| Password reset (request + confirm) | ✅ | ✅ | ⚠️ pending launcher | |
 | OAuth Google + GitHub | ✅ | ✅ | ⚠️ scaffolding | mock-oauth2-server sidecar |
-| Session expiry / Knox revocation | ✅ | ✅ | ✅ (inherited) | |
-| Redirect-after-login intent | n/a | ✅ | ✅ (inherited) | |
-| Field-level server errors | ✅ | ✅ | ✅ (inherited) | envelope drift guard |
-| Network failure → ErrorBanner | n/a | ✅ | ✅ (inherited) | `page.route()` |
+| Session expiry / Knox revocation | ✅ | ✅ | ⚠️ pending launcher | |
+| Redirect-after-login intent | n/a | ✅ | ⚠️ pending launcher | |
+| Field-level server errors | ✅ | ✅ | ⚠️ pending launcher | envelope drift guard |
+| Network failure → ErrorBanner | n/a | ✅ | ⚠️ pending launcher | `page.route()` |
 | Throttling | ✅ | n/a | n/a | `settings.test_throttled`, separate CI job |
 | Real `sofi://` deep link | n/a | n/a | ⚠️ scaffolding | needs `@tauri-apps/playwright` |
 | OS keychain token storage | n/a | n/a | ⚠️ fixme | needs app-restart helper |

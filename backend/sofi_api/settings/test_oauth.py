@@ -1,10 +1,22 @@
 """OAuth-on test settings.
 
-Inherits .test (locmem mail, MD5 hasher, throttles off) and overrides
+Inherits .test (MD5 hasher, throttles off) and overrides
 SOCIALACCOUNT_PROVIDERS to point at the local mock-oauth2-server.
+
+Uses the filebased email backend (same path as .e2e) so Playwright's
+e2e_last_email subprocess can read verification/reset emails that were
+sent by the Django webserver process — locmem wouldn't be visible
+cross-process. Backend pytest against this module reads mail via
+mail.outbox-style APIs only indirectly (test_oauth.py doesn't assert on
+mail at all), so the filebased backend is safe here.
 """
 
+import os
+
 from .test import *  # noqa: F401,F403
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = os.environ.get("E2E_MAIL_DIR", "/tmp/sofi-e2e-mail")
 
 MOCK_OAUTH_BASE = "http://localhost:8081"
 
